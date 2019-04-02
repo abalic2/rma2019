@@ -42,6 +42,8 @@ public class Pitanje implements Serializable {
     }
 
     ArrayList<String> dajRandomOdgovore(){
+        ArrayList<String> odgovori = new ArrayList<>();
+        return odgovori;
 
     }
 }

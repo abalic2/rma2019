@@ -33,7 +33,7 @@ public class Kviz implements Serializable {
         this.kategorija = kategorija;
     }
 
-    void dodajPitanje(Pitanje){
+    void dodajPitanje(Pitanje pitanje){
 
     }
 }
