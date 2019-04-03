@@ -18,7 +18,7 @@ import ba.unsa.etf.rma.klase.Kviz;
 public class ListaAdapter extends BaseAdapter{
 
     private Activity activity;
-    private ArrayList data;
+    private ArrayList<Kviz> data;
     private static LayoutInflater inflater = null;
     public Resources res;
     int i = 0;
