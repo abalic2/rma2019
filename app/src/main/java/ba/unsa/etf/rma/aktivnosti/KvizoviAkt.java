@@ -2,6 +2,7 @@ package ba.unsa.etf.rma.aktivnosti;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.ListView;
 import android.widget.Spinner;
 
@@ -39,12 +40,13 @@ public class KvizoviAkt extends AppCompatActivity {
         lista = (ListView) findViewById(R.id.lvKvizovi);
 
         spAdapter = new SpinnerAdapter(this,android.R.layout.simple_list_item_1,kategorije);
-
         spinner.setAdapter(spAdapter);
 
         lsAdapter = new ListaAdapter(this,kvizovi,getResources());
-
         lista.setAdapter(lsAdapter);
+
+        View footer = getLayoutInflater().inflate(R.layout.footer_liste, null);
+        lista.addFooterView(footer);
 
 
 

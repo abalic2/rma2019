@@ -12,11 +12,12 @@
         android:layout_marginLeft="10dp"
         android:layout_marginRight="5dp"
         android:layout_marginTop="5dp"
-        android:src="@drawable/circle" />
+        android:src="@drawable/plus" />
     <TextView
         android:id="@+id/Itemname"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="Dodaj Kviz"
         android:textSize="18sp"
         android:paddingTop="5dp"/>
 </LinearLayout>

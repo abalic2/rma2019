@@ -10,6 +10,7 @@
         android:layout_height="30dp"
         android:text="TextView"
         android:textSize="12sp"
+        android:textColor="@android:color/darker_gray"
         tools:layout_editor_absoluteX="54dp"
         tools:layout_editor_absoluteY="73dp" />
 </android.support.constraint.ConstraintLayout>
