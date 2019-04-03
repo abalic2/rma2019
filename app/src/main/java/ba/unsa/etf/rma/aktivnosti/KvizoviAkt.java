@@ -8,14 +8,18 @@ import android.widget.Spinner;
 import java.util.ArrayList;
 
 import ba.unsa.etf.rma.R;
+import ba.unsa.etf.rma.adapteri.ListaAdapter;
 import ba.unsa.etf.rma.adapteri.SpinnerAdapter;
 import ba.unsa.etf.rma.klase.Kategorija;
+import ba.unsa.etf.rma.klase.Kviz;
 
 public class KvizoviAkt extends AppCompatActivity {
     private Spinner spinner;
     private ListView lista;
     private ArrayList<Kategorija> kategorije = new ArrayList<>();
-    private SpinnerAdapter adapter;
+    private ArrayList<Kviz> kvizovi = new ArrayList<>();
+    private SpinnerAdapter spAdapter;
+    private ListaAdapter lsAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,12 +31,20 @@ public class KvizoviAkt extends AppCompatActivity {
         Kategorija k2 = new Kategorija("Balic","2");
         kategorije.add(pocetna); kategorije.add(k1); kategorije.add(k2);
 
+        Kviz kviz = new Kviz("Kviz 1",null,k1);
+        kvizovi.add(kviz);
+        kvizovi.add(new Kviz("Kviz 2", null, k2));
+
         spinner = (Spinner) findViewById(R.id.spPostojeceKategorije);
         lista = (ListView) findViewById(R.id.lvKvizovi);
 
-        adapter = new SpinnerAdapter(this,android.R.layout.simple_list_item_1,kategorije);
+        spAdapter = new SpinnerAdapter(this,android.R.layout.simple_list_item_1,kategorije);
 
-        spinner.setAdapter(adapter);
+        spinner.setAdapter(spAdapter);
+
+        lsAdapter = new ListaAdapter(this,kvizovi,getResources());
+
+        lista.setAdapter(lsAdapter);
 
 
 
