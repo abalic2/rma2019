@@ -9,6 +9,16 @@ public class Pitanje implements Serializable {
     private ArrayList<String> odgovori;
     private String tacan;
 
+    public Pitanje(String naziv, String tekstPitanja, ArrayList<String> odgovori, String tacan) {
+        this.naziv = naziv;
+        this.tekstPitanja = tekstPitanja;
+        this.odgovori = odgovori;
+        this.tacan = tacan;
+    }
+
+    public Pitanje() {
+    }
+
     public String getNaziv() {
         return naziv;
     }

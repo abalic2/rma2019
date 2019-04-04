@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".aktivnosti.DodajKvizAkt">
 
     <Spinner
         android:id="@+id/spKategorije"
-        android:layout_height="wrap_content"
+        android:layout_width="310dp"
+        android:layout_height="40dp"
         android:layout_marginStart="20dp"
         android:layout_marginTop="50dp"
         android:layout_marginEnd="20dp"
@@ -16,7 +19,8 @@
 
     <EditText
         android:id="@+id/etNaziv"
-        android:layout_height="wrap_content"
+        android:layout_width="310dp"
+        android:layout_height="40dp"
         android:layout_marginStart="20dp"
         android:layout_marginTop="104dp"
         android:layout_marginEnd="20dp"
@@ -29,23 +33,25 @@
 
     <ListView
         android:id="@+id/lvDodanaPitanja"
+        android:layout_width="310dp"
         android:layout_height="123dp"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="228dp"
+        android:layout_marginTop="224dp"
         android:layout_marginEnd="20dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.491"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ListView
         android:id="@+id/lvMogucaPitanja"
+        android:layout_width="310dp"
         android:layout_height="123dp"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="428dp"
+        android:layout_marginTop="436dp"
         android:layout_marginEnd="20dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.491"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -58,6 +64,7 @@
         android:text="Dodaj Kviz"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_width="wrap_content" />
 
 </android.support.constraint.ConstraintLayout>
