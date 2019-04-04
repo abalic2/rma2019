@@ -51,7 +51,7 @@ public class KvizoviAkt extends AppCompatActivity {
 
         Kviz kviz = new Kviz("Kviz 1", null, k1);
         kvizovi.add(kviz);
-        kvizovi.add(new Kviz("Kviz 2", null, k2));
+        kvizovi.add(new Kviz("Kviz 2", null, k1));
 
         spinner = (Spinner) findViewById(R.id.spPostojeceKategorije);
         lista = (ListView) findViewById(R.id.lvKvizovi);
@@ -59,7 +59,6 @@ public class KvizoviAkt extends AppCompatActivity {
         spAdapter = new SpinnerAdapter(this, android.R.layout.simple_list_item_1, kategorije);
         spinner.setAdapter(spAdapter);
 
-        //odabraniKvizovi = kvizovi;
         lsAdapter = new ListaAdapter(this, odabraniKvizovi, getResources());
         lista.setAdapter(lsAdapter);
 

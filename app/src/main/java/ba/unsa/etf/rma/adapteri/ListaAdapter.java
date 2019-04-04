@@ -35,7 +35,7 @@ public class ListaAdapter extends BaseAdapter{
     @Override
     public int getCount(){
         if (data.size() <= 0)
-            return 1;
+            return 0;
         return data.size();
     }
 
