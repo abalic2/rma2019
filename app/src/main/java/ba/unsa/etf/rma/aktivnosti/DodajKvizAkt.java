@@ -20,6 +20,8 @@ import ba.unsa.etf.rma.klase.Kategorija;
 import ba.unsa.etf.rma.klase.Kviz;
 import ba.unsa.etf.rma.klase.Pitanje;
 
+import static android.graphics.Color.rgb;
+
 public class DodajKvizAkt extends AppCompatActivity {
 
     private Spinner spinner;
@@ -34,6 +36,9 @@ public class DodajKvizAkt extends AppCompatActivity {
     private Button dugme;
     private boolean dodavanjeNovogKviza = false;
     private ArrayList<Kategorija> kategorije;
+    private ArrayList<Kviz> kvizovi;
+    private int red = rgb(240,128,128);
+    private int bijela = rgb(245,245,245);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,10 +52,13 @@ public class DodajKvizAkt extends AppCompatActivity {
         dugme = (Button) findViewById(R.id.btnDodajKviz);
 
         kategorije = (ArrayList<Kategorija>) getIntent().getSerializableExtra("kategorije");
+        kvizovi = (ArrayList<Kviz>) getIntent().getSerializableExtra("kvizovi");
         Kategorija dodaj = new Kategorija();
         dodaj.setNaziv("Dodaj kategoriju");
         kategorije.add(dodaj);
         final Kviz kviz = (Kviz) getIntent().getSerializableExtra("kviz");
+        imeKviza.setText("");
+        imeKviza.setBackgroundColor(bijela);
 
         adapterPitanja = new PitanjaAdapter(this, pitanja, getResources());
         listaPitanja.setAdapter(adapterPitanja);
@@ -80,7 +88,6 @@ public class DodajKvizAkt extends AppCompatActivity {
 
         if(kviz == null){
             dodavanjeNovogKviza = true;
-            Kviz noviKviz = new Kviz();
             Kategorija odabrana = (Kategorija) getIntent().getSerializableExtra("oznacenaKategorija");
             int indeks = 0;
             for(Kategorija k : kategorije) {
@@ -138,14 +145,16 @@ public class DodajKvizAkt extends AppCompatActivity {
         dugme.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Kviz novi = new Kviz(imeKviza.getText().toString(),pitanja, (Kategorija) spinner.getSelectedItem());
-                kategorije.remove(kategorije.size()-1);
-                Intent myIntent = new Intent();
-                myIntent.putExtra("kviz", novi);
-                myIntent.putExtra("jeLiNovi", dodavanjeNovogKviza);
-                myIntent.putExtra("kategorije", kategorije);
-                setResult(Activity.RESULT_OK, myIntent);
-                finish();
+                if(jeLiSveValidno()) {
+                    Kviz novi = new Kviz(imeKviza.getText().toString(), pitanja, (Kategorija) spinner.getSelectedItem());
+                    kategorije.remove(kategorije.size() - 1);
+                    Intent myIntent = new Intent();
+                    myIntent.putExtra("kviz", novi);
+                    myIntent.putExtra("jeLiNovi", dodavanjeNovogKviza);
+                    myIntent.putExtra("kategorije", kategorije);
+                    setResult(Activity.RESULT_OK, myIntent);
+                    finish();
+                }
 
                 /*Intent returnIntent = new Intent();
                 setResult(Activity.RESULT_CANCELED, returnIntent);
@@ -154,6 +163,23 @@ public class DodajKvizAkt extends AppCompatActivity {
         });
 
 
+    }
+
+    private boolean jeLiSveValidno() {
+        boolean imaGreska = false;
+        imeKviza.setBackgroundColor(bijela);
+        String naziv = imeKviza.getText().toString();
+        if(naziv.equals("")){
+            imaGreska = true;
+            imeKviza.setBackgroundColor(red);
+        }
+        for(Kviz k : kvizovi){
+            if (k.getNaziv().equals(naziv)){
+                imaGreska = true;
+                imeKviza.setBackgroundColor(red);
+            }
+        }
+        return !imaGreska;
     }
 
     @Override

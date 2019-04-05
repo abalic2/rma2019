@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.klase.Kategorija;
 
+import static android.graphics.Color.rgb;
+
 public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.Callback{
     private EditText nazivKategorije;
     private EditText ikona;
@@ -23,6 +25,8 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
     private Button dodajKategoriju;
     private ArrayList<Kategorija> kategorije;
     private Icon[] selectedIcons;
+    private int bijela = rgb(245,245,245);
+    private int red = rgb(240,128,128);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,8 +39,12 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
         nazivKategorije = (EditText) findViewById(R.id.etNaziv);
         ikona = (EditText) findViewById(R.id.etIkona);
         dodajIkonu = (Button) findViewById(R.id.btnDodajIkonu);
+        ikona.setText("");
         ikona.setEnabled(false);
         dodajKategoriju = (Button) findViewById(R.id.btnDodajKategoriju);
+
+        nazivKategorije.setText("");
+        postaviBoje();
 
         final IconDialog iconDialog = new IconDialog();
         dodajIkonu.setOnClickListener(new View.OnClickListener() {
@@ -49,18 +57,46 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
         dodajKategoriju.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                novaKategorija.setNaziv(nazivKategorije.getText().toString());
-                novaKategorija.setId(ikona.getText().toString());
-                kategorije.add(kategorije.size()-1, novaKategorija);
-                Intent myIntent = new Intent();
-                myIntent.putExtra("kategorije",kategorije);
-                setResult(Activity.RESULT_OK, myIntent);
-                finish();
+                if(jeLiSveValidno()) {
+                    novaKategorija.setNaziv(nazivKategorije.getText().toString());
+                    novaKategorija.setId(ikona.getText().toString());
+                    kategorije.add(kategorije.size() - 1, novaKategorija);
+                    Intent myIntent = new Intent();
+                    myIntent.putExtra("kategorije", kategorije);
+                    setResult(Activity.RESULT_OK, myIntent);
+                    finish();
+                }
             }
         });
 
 
 
+    }
+
+    private boolean jeLiSveValidno() {
+        postaviBoje();
+        boolean nemaGreska = true;
+        String ime = nazivKategorije.getText().toString();
+        if(ime.equals("")){
+            nemaGreska = false;
+            nazivKategorije.setBackgroundColor(red);
+        }
+        for(Kategorija k : kategorije){
+            if(k.getNaziv().equals(ime)){
+                nemaGreska = false;
+                nazivKategorije.setBackgroundColor(red);
+            }
+        }
+        if(ikona.getText().toString().equals("")){
+            ikona.setBackgroundColor(red);
+            nemaGreska = false;
+        }
+        return nemaGreska;
+    }
+
+    private void postaviBoje(){
+        nazivKategorije.setBackgroundColor(bijela);
+        ikona.setBackgroundColor(bijela);
     }
 
     @Override

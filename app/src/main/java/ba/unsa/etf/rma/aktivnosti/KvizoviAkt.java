@@ -46,20 +46,7 @@ public class KvizoviAkt extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         Kategorija pocetna = new Kategorija("Svi", "0");
-//        Kategorija k1 = new Kategorija("Azra", "1");
-//        Kategorija k2 = new Kategorija("Balic", "2");
-//        ArrayList<String> odgovori = new ArrayList<>();
-//        odgovori.add("Da"); odgovori.add("Ne");
-//        Pitanje p1 = new Pitanje("Pitanje 1", "Pitanje 1", odgovori,"Ne");
         kategorije.add(pocetna);
-//        kategorije.add(k1);
-//        kategorije.add(k2);
-//        ArrayList<Pitanje> pitanja = new ArrayList<>();
-//        pitanja.add(p1);
-//
-//        Kviz kviz = new Kviz("Kviz 1", pitanja, k2);
-//        kvizovi.add(kviz);
-//        kvizovi.add(new Kviz("Kviz 2", null, k1));
 
         spinner = (Spinner) findViewById(R.id.spPostojeceKategorije);
         lista = (ListView) findViewById(R.id.lvKvizovi);
@@ -103,6 +90,7 @@ public class KvizoviAkt extends AppCompatActivity {
                 Intent myIntent = new Intent(KvizoviAkt.this, DodajKvizAkt.class);
                 myIntent.putExtra("kviz",(Kviz) null);
                 myIntent.putExtra("kategorije", kategorije);
+                myIntent.putExtra("kvizovi",kvizovi);
                 myIntent.putExtra("oznacenaKategorija", (Kategorija) spinner.getSelectedItem());
                 KvizoviAkt.this.startActivityForResult(myIntent,1);
             }
@@ -123,17 +111,15 @@ public class KvizoviAkt extends AppCompatActivity {
                 spAdapter.notifyDataSetChanged();
                 if(jeLiNoviDodan) {
                     kvizovi.add(vraceniKviz);
-                    odaberiKvizove(kategorije.get(0));
-                    lsAdapter.notifyDataSetChanged();
                 }
                 else{
                     odabraniKvizovi.get(pozicijaKliknutog).setNaziv(vraceniKviz.getNaziv());
                     odabraniKvizovi.get(pozicijaKliknutog).setPitanja(vraceniKviz.getPitanja());
                     odabraniKvizovi.get(pozicijaKliknutog).setKategorija(vraceniKviz.getKategorija());
-                    odaberiKvizove(kategorije.get(0));
-                    lsAdapter.notifyDataSetChanged();
                 }
-
+                odaberiKvizove(kategorije.get(0));
+                lsAdapter.notifyDataSetChanged();
+                spinner.setSelection(0);
             }
             else if (resultCode == Activity.RESULT_CANCELED) {
                 //Write your code if there's no result
