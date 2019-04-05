@@ -45,11 +45,8 @@ public class DodajKvizAkt extends AppCompatActivity {
         listaMogucihPitanja = (ListView) findViewById(R.id.lvMogucaPitanja);
         dugme = (Button) findViewById(R.id.btnDodajKviz);
 
-        final ArrayList<Kategorija> kategorije = getIntent().getParcelableArrayListExtra("kategorije");
+        final ArrayList<Kategorija> kategorije = (ArrayList<Kategorija>) getIntent().getSerializableExtra("kategorije");
         Kviz kviz = (Kviz) getIntent().getSerializableExtra("kviz");
-
-        pitanja= kviz.getPitanja();
-
 
         adapterPitanja = new PitanjaAdapter(this, pitanja, getResources());
         listaPitanja.setAdapter(adapterPitanja);
@@ -59,16 +56,25 @@ public class DodajKvizAkt extends AppCompatActivity {
         spAdapter = new SpinnerAdapter(this, android.R.layout.simple_list_item_1, kategorije);
         spinner.setAdapter(spAdapter);
 
+
+
         if(kviz == null){
             dodavanjeNovogKviza = true;
             Kviz noviKviz = new Kviz();
+            Kategorija odabrana = (Kategorija) getIntent().getSerializableExtra("oznacenaKategorija");
+            int indeks = 0;
+            for(Kategorija k : kategorije) {
+                if(k.getNaziv().equalsIgnoreCase(odabrana.getNaziv())) break;
+                indeks++;
+            }
+            spinner.setSelection(indeks);
         }
         else {
             imeKviza.setText(kviz.getNaziv());
             pitanja.addAll(kviz.getPitanja());
             int indeks = 0;
             for(Kategorija k : kategorije) {
-                if(k.getId().equalsIgnoreCase(kviz.getKategorija().getId())) break;
+                if(k.getNaziv().equalsIgnoreCase(kviz.getKategorija().getNaziv())) break;
                 indeks++;
             }
             spinner.setSelection(indeks);
@@ -99,17 +105,12 @@ public class DodajKvizAkt extends AppCompatActivity {
         dugme.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String naziv = (String) imeKviza.getText();
-//                Kategorija k = (Kategorija) spinner.getSelectedItem();
-
-                Kviz novi = new Kviz("kk",pitanja,new Kategorija("A","0"));
+                Kviz novi = new Kviz(imeKviza.getText().toString(),pitanja, (Kategorija) spinner.getSelectedItem());
 
                 Intent myIntent = new Intent();
                 myIntent.putExtra("kviz", novi);
-//                myIntent.putExtra("jeLiNovi", dodavanjeNovogKviza);
-
-                kategorije.add(0,new Kategorija("Svi", "0"));
-                myIntent.putParcelableArrayListExtra("kategorije", kategorije);
+                myIntent.putExtra("jeLiNovi", dodavanjeNovogKviza);
+                myIntent.putExtra("kategorije", kategorije);
                 setResult(Activity.RESULT_OK, myIntent);
                 finish();
 

@@ -26,6 +26,7 @@ public class KvizoviAkt extends AppCompatActivity {
     private ArrayList<Kviz> odabraniKvizovi = new ArrayList<>();
     private SpinnerAdapter spAdapter;
     private ListaAdapter lsAdapter;
+    private int pozicijaKliknutog;
 
     private void odaberiKvizove(Kategorija kategorija){
         odabraniKvizovi.clear();
@@ -73,12 +74,10 @@ public class KvizoviAkt extends AppCompatActivity {
         lista.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                pozicijaKliknutog = position;
                 Intent myIntent = new Intent(KvizoviAkt.this, DodajKvizAkt.class);
                 myIntent.putExtra("kviz", odabraniKvizovi.get(position));
-                ArrayList<Kategorija> sveRazliciteKategorije = new ArrayList<>();
-                sveRazliciteKategorije.addAll(kategorije);
-                sveRazliciteKategorije.remove(0);
-                myIntent.putParcelableArrayListExtra("kategorije", sveRazliciteKategorije);
+                myIntent.putExtra("kategorije", kategorije);
                 KvizoviAkt.this.startActivityForResult(myIntent,1);
             }
         });
@@ -102,14 +101,10 @@ public class KvizoviAkt extends AppCompatActivity {
         footer.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-
                 Intent myIntent = new Intent(KvizoviAkt.this, DodajKvizAkt.class);
                 myIntent.putExtra("kviz",(Kviz) null);
-
-                ArrayList<Kategorija> sveRazliciteKategorije = new ArrayList<>();
-                sveRazliciteKategorije.addAll(kategorije);
-                sveRazliciteKategorije.remove(0);
-                myIntent.putParcelableArrayListExtra("kategorije", sveRazliciteKategorije);
+                myIntent.putExtra("kategorije", kategorije);
+                myIntent.putExtra("oznacenaKategorija", (Kategorija) spinner.getSelectedItem());
                 KvizoviAkt.this.startActivityForResult(myIntent,1);
             }
         });
@@ -121,7 +116,21 @@ public class KvizoviAkt extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1) {
             if(resultCode == Activity.RESULT_OK){
-                System.out.println("ok je");
+                Kviz vraceniKviz = (Kviz) data.getSerializableExtra("kviz");
+                boolean jeLiNoviDodan = data.getExtras().getBoolean("jeLiNovi");
+                if(jeLiNoviDodan) {
+                    kvizovi.add(vraceniKviz);
+                    odaberiKvizove(kategorije.get(0));
+                    lsAdapter.notifyDataSetChanged();
+                }
+                else{
+                    odabraniKvizovi.get(pozicijaKliknutog).setNaziv(vraceniKviz.getNaziv());
+                    odabraniKvizovi.get(pozicijaKliknutog).setPitanja(vraceniKviz.getPitanja());
+                    odabraniKvizovi.get(pozicijaKliknutog).setKategorija(vraceniKviz.getKategorija());
+                    odaberiKvizove(kategorije.get(0));
+                    lsAdapter.notifyDataSetChanged();
+                }
+
             }
             else if (resultCode == Activity.RESULT_CANCELED) {
                 //Write your code if there's no result
