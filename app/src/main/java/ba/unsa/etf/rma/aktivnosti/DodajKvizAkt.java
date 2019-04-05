@@ -7,9 +7,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -30,7 +30,7 @@ public class DodajKvizAkt extends AppCompatActivity {
     private PitanjaAdapter adapterMogucihPitanja;
     private ArrayList<Pitanje> mogucaPitanja = new ArrayList<>();
     private ArrayList<Pitanje> pitanja = new ArrayList<>();
-    private TextView imeKviza;
+    private EditText imeKviza;
     private Button dugme;
     private boolean dodavanjeNovogKviza = false;
 
@@ -39,14 +39,17 @@ public class DodajKvizAkt extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dodaj_kviz);
 
-        imeKviza = (TextView) findViewById(R.id.etNaziv);
+        imeKviza = (EditText) findViewById(R.id.etNaziv);
         spinner = (Spinner) findViewById(R.id.spKategorije);
         listaPitanja = (ListView) findViewById(R.id.lvDodanaPitanja);
         listaMogucihPitanja = (ListView) findViewById(R.id.lvMogucaPitanja);
         dugme = (Button) findViewById(R.id.btnDodajKviz);
 
         final ArrayList<Kategorija> kategorije = (ArrayList<Kategorija>) getIntent().getSerializableExtra("kategorije");
-        Kviz kviz = (Kviz) getIntent().getSerializableExtra("kviz");
+        Kategorija dodaj = new Kategorija();
+        dodaj.setNaziv("Dodaj kategoriju");
+        kategorije.add(dodaj);
+        final Kviz kviz = (Kviz) getIntent().getSerializableExtra("kviz");
 
         adapterPitanja = new PitanjaAdapter(this, pitanja, getResources());
         listaPitanja.setAdapter(adapterPitanja);
@@ -102,6 +105,19 @@ public class DodajKvizAkt extends AppCompatActivity {
             }
         });
 
+        View footer = getLayoutInflater().inflate(R.layout.footer_pitanja, null);
+        listaPitanja.addFooterView(footer);
+
+        footer.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Intent myIntent = new Intent(DodajKvizAkt.this, DodajPitanjeAkt.class);
+                myIntent.putExtra("listaPitanja", pitanja);
+                myIntent.putExtra("listaMogucihPitanja", mogucaPitanja);
+                DodajKvizAkt.this.startActivityForResult(myIntent,2);
+            }
+        });
+
         dugme.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -121,5 +137,21 @@ public class DodajKvizAkt extends AppCompatActivity {
         });
 
 
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 2) {
+            if(resultCode == Activity.RESULT_OK){
+                ArrayList<Pitanje> vracenaPitanja = (ArrayList<Pitanje>) data.getSerializableExtra("pitanja");
+                pitanja.clear();
+                pitanja.addAll(vracenaPitanja);
+                adapterPitanja.notifyDataSetChanged();
+            }
+            else if (resultCode == Activity.RESULT_CANCELED) {
+                //Write your code if there's no result
+            }
+        }
     }
 }
