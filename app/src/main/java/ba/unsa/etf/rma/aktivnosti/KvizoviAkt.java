@@ -1,5 +1,6 @@
 package ba.unsa.etf.rma.aktivnosti;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -78,7 +79,7 @@ public class KvizoviAkt extends AppCompatActivity {
                 sveRazliciteKategorije.addAll(kategorije);
                 sveRazliciteKategorije.remove(0);
                 myIntent.putParcelableArrayListExtra("kategorije", sveRazliciteKategorije);
-                KvizoviAkt.this.startActivity(myIntent);
+                KvizoviAkt.this.startActivityForResult(myIntent,1);
             }
         });
 
@@ -98,6 +99,33 @@ public class KvizoviAkt extends AppCompatActivity {
         View footer = getLayoutInflater().inflate(R.layout.footer_liste, null);
         lista.addFooterView(footer);
 
+        footer.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
 
+                Intent myIntent = new Intent(KvizoviAkt.this, DodajKvizAkt.class);
+                myIntent.putExtra("kviz",(Kviz) null);
+
+                ArrayList<Kategorija> sveRazliciteKategorije = new ArrayList<>();
+                sveRazliciteKategorije.addAll(kategorije);
+                sveRazliciteKategorije.remove(0);
+                myIntent.putParcelableArrayListExtra("kategorije", sveRazliciteKategorije);
+                KvizoviAkt.this.startActivityForResult(myIntent,1);
+            }
+        });
+
+
+    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1) {
+            if(resultCode == Activity.RESULT_OK){
+                System.out.println("ok je");
+            }
+            else if (resultCode == Activity.RESULT_CANCELED) {
+                //Write your code if there's no result
+            }
+        }
     }
 }
