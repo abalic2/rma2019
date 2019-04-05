@@ -8,17 +8,21 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.maltaisn.icondialog.Icon;
+import com.maltaisn.icondialog.IconDialog;
+
 import java.util.ArrayList;
 
 import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.klase.Kategorija;
 
-public class DodajKategorijuAkt extends AppCompatActivity {
+public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.Callback{
     private EditText nazivKategorije;
     private EditText ikona;
     private Button dodajIkonu;
     private Button dodajKategoriju;
     private ArrayList<Kategorija> kategorije;
+    private Icon[] selectedIcons;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,8 +35,17 @@ public class DodajKategorijuAkt extends AppCompatActivity {
         nazivKategorije = (EditText) findViewById(R.id.etNaziv);
         ikona = (EditText) findViewById(R.id.etIkona);
         dodajIkonu = (Button) findViewById(R.id.btnDodajIkonu);
+        ikona.setEnabled(false);
         dodajKategoriju = (Button) findViewById(R.id.btnDodajKategoriju);
 
+        final IconDialog iconDialog = new IconDialog();
+        dodajIkonu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                iconDialog.setSelectedIcons(selectedIcons);
+                iconDialog.show(getSupportFragmentManager(), "icon_dialog");
+            }
+        });
         dodajKategoriju.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -45,5 +58,14 @@ public class DodajKategorijuAkt extends AppCompatActivity {
                 finish();
             }
         });
+
+
+
+    }
+
+    @Override
+    public void onIconDialogIconsSelected(Icon[] icons) {
+        selectedIcons = icons;
+        ikona.setText(String.valueOf(selectedIcons[0].getId()));
     }
 }

@@ -15,8 +15,7 @@ public class SpinnerAdapter extends ArrayAdapter<Kategorija>{
     private Context context;
     private ArrayList<Kategorija> values;
 
-    public SpinnerAdapter(Context context, int textViewResourceId,
-                          ArrayList<Kategorija> values) {
+    public SpinnerAdapter(Context context, int textViewResourceId, ArrayList<Kategorija> values) {
         super(context, textViewResourceId, values);
         this.context = context;
         this.values = values;
@@ -46,11 +45,9 @@ public class SpinnerAdapter extends ArrayAdapter<Kategorija>{
     }
 
     @Override
-    public View getDropDownView(int position, View convertView,
-                                ViewGroup parent) {
+    public View getDropDownView(int position, View convertView, ViewGroup parent) {
         TextView label = (TextView) super.getDropDownView(position, convertView, parent);
         label.setText(values.get(position).getNaziv());
-
         return label;
     }
 
