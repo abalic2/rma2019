@@ -69,6 +69,7 @@ public class DodajPitanjeAkt extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 novoPitanje.setNaziv(nazivPitanja.getText().toString());
+                novoPitanje.setTekstPitanja(nazivPitanja.getText().toString());
                 novoPitanje.setOdgovori(odgovori);
                 pitanjaKviza.add(novoPitanje);
                 Intent myIntent = new Intent();

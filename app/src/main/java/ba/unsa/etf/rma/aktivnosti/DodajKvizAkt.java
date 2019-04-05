@@ -33,6 +33,7 @@ public class DodajKvizAkt extends AppCompatActivity {
     private EditText imeKviza;
     private Button dugme;
     private boolean dodavanjeNovogKviza = false;
+    private ArrayList<Kategorija> kategorije;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +46,7 @@ public class DodajKvizAkt extends AppCompatActivity {
         listaMogucihPitanja = (ListView) findViewById(R.id.lvMogucaPitanja);
         dugme = (Button) findViewById(R.id.btnDodajKviz);
 
-        final ArrayList<Kategorija> kategorije = (ArrayList<Kategorija>) getIntent().getSerializableExtra("kategorije");
+        kategorije = (ArrayList<Kategorija>) getIntent().getSerializableExtra("kategorije");
         Kategorija dodaj = new Kategorija();
         dodaj.setNaziv("Dodaj kategoriju");
         kategorije.add(dodaj);
@@ -58,6 +59,22 @@ public class DodajKvizAkt extends AppCompatActivity {
 
         spAdapter = new SpinnerAdapter(this, android.R.layout.simple_list_item_1, kategorije);
         spinner.setAdapter(spAdapter);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if(kategorije.get(position).getNaziv().equalsIgnoreCase("Dodaj kategoriju")){
+                    Intent myIntent = new Intent(DodajKvizAkt.this, DodajKategorijuAkt.class);
+                    myIntent.putExtra("kategorije", kategorije);
+                    DodajKvizAkt.this.startActivityForResult(myIntent,3);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
 
 
 
@@ -122,7 +139,7 @@ public class DodajKvizAkt extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Kviz novi = new Kviz(imeKviza.getText().toString(),pitanja, (Kategorija) spinner.getSelectedItem());
-
+                kategorije.remove(kategorije.size()-1);
                 Intent myIntent = new Intent();
                 myIntent.putExtra("kviz", novi);
                 myIntent.putExtra("jeLiNovi", dodavanjeNovogKviza);
@@ -148,6 +165,18 @@ public class DodajKvizAkt extends AppCompatActivity {
                 pitanja.clear();
                 pitanja.addAll(vracenaPitanja);
                 adapterPitanja.notifyDataSetChanged();
+            }
+            else if (resultCode == Activity.RESULT_CANCELED) {
+                //Write your code if there's no result
+            }
+        }
+        else if(requestCode == 3){
+            if(resultCode == Activity.RESULT_OK){
+                ArrayList<Kategorija> vraceneKategorije = (ArrayList<Kategorija>) data.getSerializableExtra("kategorije");
+                kategorije.clear();
+                kategorije.addAll(vraceneKategorije);
+                spAdapter.notifyDataSetChanged();
+                spinner.setSelection(kategorije.size()-2);
             }
             else if (resultCode == Activity.RESULT_CANCELED) {
                 //Write your code if there's no result

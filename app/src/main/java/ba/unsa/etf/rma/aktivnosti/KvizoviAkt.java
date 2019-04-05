@@ -118,6 +118,10 @@ public class KvizoviAkt extends AppCompatActivity {
             if(resultCode == Activity.RESULT_OK){
                 Kviz vraceniKviz = (Kviz) data.getSerializableExtra("kviz");
                 boolean jeLiNoviDodan = data.getExtras().getBoolean("jeLiNovi");
+                ArrayList<Kategorija> vraceneKategorije = (ArrayList<Kategorija>) data.getSerializableExtra("kategorije");
+                kategorije.clear();
+                kategorije.addAll(vraceneKategorije);
+                spAdapter.notifyDataSetChanged();
                 if(jeLiNoviDodan) {
                     kvizovi.add(vraceniKviz);
                     odaberiKvizove(kategorije.get(0));
