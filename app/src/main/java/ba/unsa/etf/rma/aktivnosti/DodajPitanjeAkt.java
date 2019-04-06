@@ -31,7 +31,7 @@ public class DodajPitanjeAkt extends AppCompatActivity {
     private ArrayList<Pitanje> mogucaPitanjaKviza = new ArrayList<>();
     private boolean imaTacanOdgovor = false;
     private int red = rgb(240,128,128);
-    private int bijela = rgb(245,245,245);
+    private int bijela = rgb(255,250,250);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

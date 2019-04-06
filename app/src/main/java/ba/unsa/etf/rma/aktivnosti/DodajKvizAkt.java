@@ -38,7 +38,8 @@ public class DodajKvizAkt extends AppCompatActivity {
     private ArrayList<Kategorija> kategorije;
     private ArrayList<Kviz> kvizovi;
     private int red = rgb(240,128,128);
-    private int bijela = rgb(245,245,245);
+    private int bijela = rgb(255,250,250);
+    private int pozicijaKliknutog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +54,7 @@ public class DodajKvizAkt extends AppCompatActivity {
 
         kategorije = (ArrayList<Kategorija>) getIntent().getSerializableExtra("kategorije");
         kvizovi = (ArrayList<Kviz>) getIntent().getSerializableExtra("kvizovi");
+        pozicijaKliknutog = getIntent().getExtras().getInt("redniBroj");
         Kategorija dodaj = new Kategorija();
         dodaj.setNaziv("Dodaj kategoriju");
         kategorije.add(dodaj);
@@ -173,7 +175,10 @@ public class DodajKvizAkt extends AppCompatActivity {
             imaGreska = true;
             imeKviza.setBackgroundColor(red);
         }
-        for(Kviz k : kvizovi){
+        ArrayList<Kviz> kk = new ArrayList<>();
+        kk.addAll(kvizovi);
+        if(!dodavanjeNovogKviza) kk.remove(pozicijaKliknutog);
+        for(Kviz k : kk){
             if (k.getNaziv().equals(naziv)){
                 imaGreska = true;
                 imeKviza.setBackgroundColor(red);
@@ -204,8 +209,8 @@ public class DodajKvizAkt extends AppCompatActivity {
                 spAdapter.notifyDataSetChanged();
                 spinner.setSelection(kategorije.size()-2);
             }
-            else if (resultCode == Activity.RESULT_CANCELED) {
-                //Write your code if there's no result
+            else  {
+                spinner.setSelection(0);
             }
         }
     }

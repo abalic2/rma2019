@@ -25,7 +25,7 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
     private Button dodajKategoriju;
     private ArrayList<Kategorija> kategorije;
     private Icon[] selectedIcons;
-    private int bijela = rgb(245,245,245);
+    private int bijela = rgb(255,250,250);
     private int red = rgb(240,128,128);
 
     @Override
