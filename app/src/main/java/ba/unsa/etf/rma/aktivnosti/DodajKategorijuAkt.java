@@ -72,7 +72,7 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
         postaviBoje();
         boolean nemaGreska = true;
         String ime = nazivKategorije.getText().toString();
-        if(ime.equals("")){
+        if(ime.trim().equals("")){
             nemaGreska = false;
             nazivKategorije.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
         }

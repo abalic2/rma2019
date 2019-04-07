@@ -153,9 +153,6 @@ public class DodajKvizAkt extends AppCompatActivity {
                     finish();
                 }
 
-                /*Intent returnIntent = new Intent();
-                setResult(Activity.RESULT_CANCELED, returnIntent);
-                finish(); ako necu da vracam*/
             }
         });
 
@@ -166,7 +163,7 @@ public class DodajKvizAkt extends AppCompatActivity {
         boolean imaGreska = false;
         imeKviza.setBackground(getResources().getDrawable(R.drawable.bijela_okvir));
         String naziv = imeKviza.getText().toString();
-        if(naziv.equals("")){
+        if(naziv.trim().equals("")){
             imaGreska = true;
             imeKviza.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
         }

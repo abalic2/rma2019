@@ -64,7 +64,7 @@ public class DodajPitanjeAkt extends AppCompatActivity {
         dodaj.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(odgovor.getText().toString().equals("") || odgovori.contains(odgovor.getText().toString())){
+                if(odgovor.getText().toString().trim().equals("") || odgovori.contains(odgovor.getText().toString())){
                     odgovor.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
                 }
                 else {
@@ -78,7 +78,7 @@ public class DodajPitanjeAkt extends AppCompatActivity {
         dodajTacan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(odgovor.getText().toString().equals("") || odgovori.contains(odgovor.getText().toString())){
+                if(odgovor.getText().toString().trim().equals("") || odgovori.contains(odgovor.getText().toString())){
                     odgovor.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
                 }
                 else {
@@ -130,7 +130,7 @@ public class DodajPitanjeAkt extends AppCompatActivity {
             nemaGreska = false;
             odgovor.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
         }
-        if(nazivPitanja.getText().toString().equals("")){
+        if(nazivPitanja.getText().toString().trim().equals("")){
             nazivPitanja.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
             nemaGreska = false;
         }
