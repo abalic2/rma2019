@@ -20,8 +20,6 @@ import ba.unsa.etf.rma.klase.Kategorija;
 import ba.unsa.etf.rma.klase.Kviz;
 import ba.unsa.etf.rma.klase.Pitanje;
 
-import static android.graphics.Color.rgb;
-
 public class DodajKvizAkt extends AppCompatActivity {
 
     private Spinner spinner;
@@ -37,8 +35,6 @@ public class DodajKvizAkt extends AppCompatActivity {
     private boolean dodavanjeNovogKviza = false;
     private ArrayList<Kategorija> kategorije;
     private ArrayList<Kviz> kvizovi;
-    private int red = rgb(240,128,128);
-    private int bijela = rgb(255,250,250);
     private int pozicijaKliknutog;
 
     @Override
@@ -60,7 +56,6 @@ public class DodajKvizAkt extends AppCompatActivity {
         kategorije.add(dodaj);
         final Kviz kviz = (Kviz) getIntent().getSerializableExtra("kviz");
         imeKviza.setText("");
-        imeKviza.setBackgroundColor(bijela);
 
         adapterPitanja = new PitanjaAdapter(this, pitanja, getResources());
         listaPitanja.setAdapter(adapterPitanja);
@@ -169,11 +164,11 @@ public class DodajKvizAkt extends AppCompatActivity {
 
     private boolean jeLiSveValidno() {
         boolean imaGreska = false;
-        imeKviza.setBackgroundColor(bijela);
+        imeKviza.setBackground(getResources().getDrawable(R.drawable.bijela_okvir));
         String naziv = imeKviza.getText().toString();
         if(naziv.equals("")){
             imaGreska = true;
-            imeKviza.setBackgroundColor(red);
+            imeKviza.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
         }
         ArrayList<Kviz> kk = new ArrayList<>();
         kk.addAll(kvizovi);
@@ -181,7 +176,7 @@ public class DodajKvizAkt extends AppCompatActivity {
         for(Kviz k : kk){
             if (k.getNaziv().equals(naziv)){
                 imaGreska = true;
-                imeKviza.setBackgroundColor(red);
+                imeKviza.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
             }
         }
         return !imaGreska;

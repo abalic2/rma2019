@@ -13,9 +13,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
+        android:background="@drawable/bijela_okvir"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:inputType="textPersonName"
+        android:padding="10dp"
+        android:hint="@string/nazivK"
         app:layout_constraintVertical_chainStyle="spread_inside" />
 
     <EditText
@@ -23,8 +26,11 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
+        android:padding="11sp"
+        android:background="@drawable/bijela_okvir"
         android:inputType="textPersonName"
         app:layout_constraintStart_toStartOf="parent"
+        android:hint="@string/ikona"
         app:layout_constraintTop_toBottomOf="@id/etNaziv"
         app:layout_constraintEnd_toStartOf="@id/btnDodajIkonu" />
 
@@ -34,7 +40,11 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
-        android:text="Dodaj Ikonu"
+        android:text="@string/dodajIk"
+        android:textAllCaps="false"
+        android:textColor="@color/bijela"
+        android:background="@color/tamnoP"
+        android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/etIkona"
         app:layout_constraintTop_toBottomOf="@id/etNaziv"/>
@@ -45,7 +55,11 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
         android:layout_marginBottom="500dp"
-        android:text="Spasi Kategoriju"
+        android:text="@string/spasiK"
+        android:textAllCaps="false"
+        android:textSize="25sp"
+        android:textColor="@color/bijela"
+        android:background="@color/tamnoP"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/etIkona"/>
 </android.support.constraint.ConstraintLayout>

@@ -17,8 +17,6 @@ import java.util.ArrayList;
 import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.klase.Pitanje;
 
-import static android.graphics.Color.rgb;
-
 public class DodajPitanjeAkt extends AppCompatActivity {
     private EditText nazivPitanja;
     private ListView listaOdgovora;
@@ -30,8 +28,6 @@ public class DodajPitanjeAkt extends AppCompatActivity {
     private ArrayList<Pitanje> pitanjaKviza = new ArrayList<>();
     private ArrayList<Pitanje> mogucaPitanjaKviza = new ArrayList<>();
     private boolean imaTacanOdgovor = false;
-    private int red = rgb(240,128,128);
-    private int bijela = rgb(255,250,250);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,8 +42,6 @@ public class DodajPitanjeAkt extends AppCompatActivity {
         dodaj = (Button) findViewById(R.id.btnDodajOdgovor);
         dodajTacan = (Button) findViewById(R.id.btnDodajTacan);
         spasiPitanje = (Button) findViewById(R.id.btnDodajPitanje);
-        nazivPitanja.setBackgroundColor(bijela);
-        odgovor.setBackgroundColor(bijela);
 
         pitanjaKviza = (ArrayList<Pitanje>) getIntent().getSerializableExtra("listaPitanja");
         mogucaPitanjaKviza = (ArrayList<Pitanje>) getIntent().getSerializableExtra("listaMogucihPitanja");
@@ -59,9 +53,9 @@ public class DodajPitanjeAkt extends AppCompatActivity {
             public View getView(int position, View convertView, ViewGroup parent) {
                 View v = super.getView(position, convertView, parent);
                 if(odgovori.get(position).equals(novoPitanje.getTacan()))
-                    v.setBackgroundColor(rgb(60,179,113));
+                    v.setBackgroundColor(getResources().getColor(R.color.zelena));
                 else
-                    v.setBackgroundColor(bijela);
+                    v.setBackgroundColor(getResources().getColor(R.color.bijela));
                 return v;
             }
         };
@@ -70,8 +64,8 @@ public class DodajPitanjeAkt extends AppCompatActivity {
         dodaj.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(odgovori.contains(odgovor.getText().toString())){
-                    odgovor.setBackgroundColor(red);
+                if(odgovor.getText().toString().equals("") || odgovori.contains(odgovor.getText().toString())){
+                    odgovor.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
                 }
                 else {
                     odgovori.add(odgovor.getText().toString());
@@ -84,8 +78,8 @@ public class DodajPitanjeAkt extends AppCompatActivity {
         dodajTacan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(odgovori.contains(odgovor.getText().toString())){
-                    odgovor.setBackgroundColor(red);
+                if(odgovor.getText().toString().equals("") || odgovori.contains(odgovor.getText().toString())){
+                    odgovor.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
                 }
                 else {
                     imaTacanOdgovor = true;
@@ -129,26 +123,26 @@ public class DodajPitanjeAkt extends AppCompatActivity {
     }
 
     private boolean jeLiSveValidno() {
-        nazivPitanja.setBackgroundColor(bijela);
-        odgovor.setBackgroundColor(bijela);
+        nazivPitanja.setBackground(getResources().getDrawable(R.drawable.bijela_okvir));
+        odgovor.setBackground(getResources().getDrawable(R.drawable.bijela_okvir));
         boolean nemaGreska = true;
         if(!imaTacanOdgovor){
             nemaGreska = false;
-            odgovor.setBackgroundColor(red);
+            odgovor.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
         }
         if(nazivPitanja.getText().toString().equals("")){
-            nazivPitanja.setBackgroundColor(red);
+            nazivPitanja.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
             nemaGreska = false;
         }
         for(Pitanje p : pitanjaKviza){
             if(p.getNaziv().equals(nazivPitanja.getText().toString())){
-                nazivPitanja.setBackgroundColor(red);
+                nazivPitanja.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
                 nemaGreska = false;
             }
         }
         for(Pitanje p : mogucaPitanjaKviza){
             if(p.getNaziv().equals(nazivPitanja.getText().toString())){
-                nazivPitanja.setBackgroundColor(red);
+                nazivPitanja.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
                 nemaGreska = false;
             }
         }

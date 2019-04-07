@@ -16,8 +16,6 @@ import java.util.ArrayList;
 import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.klase.Kategorija;
 
-import static android.graphics.Color.rgb;
-
 public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.Callback{
     private EditText nazivKategorije;
     private EditText ikona;
@@ -25,8 +23,6 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
     private Button dodajKategoriju;
     private ArrayList<Kategorija> kategorije;
     private Icon[] selectedIcons;
-    private int bijela = rgb(255,250,250);
-    private int red = rgb(240,128,128);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +40,6 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
         dodajKategoriju = (Button) findViewById(R.id.btnDodajKategoriju);
 
         nazivKategorije.setText("");
-        postaviBoje();
 
         final IconDialog iconDialog = new IconDialog();
         dodajIkonu.setOnClickListener(new View.OnClickListener() {
@@ -79,24 +74,24 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
         String ime = nazivKategorije.getText().toString();
         if(ime.equals("")){
             nemaGreska = false;
-            nazivKategorije.setBackgroundColor(red);
+            nazivKategorije.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
         }
         for(Kategorija k : kategorije){
             if(k.getNaziv().equals(ime)){
                 nemaGreska = false;
-                nazivKategorije.setBackgroundColor(red);
+                nazivKategorije.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
             }
         }
         if(ikona.getText().toString().equals("")){
-            ikona.setBackgroundColor(red);
+            ikona.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
             nemaGreska = false;
         }
         return nemaGreska;
     }
 
     private void postaviBoje(){
-        nazivKategorije.setBackgroundColor(bijela);
-        ikona.setBackgroundColor(bijela);
+        nazivKategorije.setBackground(getResources().getDrawable(R.drawable.bijela_okvir));
+        ikona.setBackground(getResources().getDrawable(R.drawable.bijela_okvir));
     }
 
     @Override

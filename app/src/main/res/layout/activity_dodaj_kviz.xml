@@ -26,6 +26,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:padding="5dp"
+        android:hint="@string/nazivKv"
+        android:background="@drawable/bijela_okvir"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/etDodana"
         app:layout_constraintTop_toBottomOf="@+id/spKategorije"
@@ -39,6 +41,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:padding="5dp"
+        android:textColor="@color/zelena"
+        android:textSize="15sp"
+        android:text="@string/pitanja"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/etNaziv"
@@ -51,11 +56,12 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="10dp"
+        android:minHeight="40dp"
         app:layout_constraintBottom_toTopOf="@+id/etMoguca"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etDodana"
-        android:minHeight="40dp"/>
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etDodana" />
 
     <TextView
         android:id="@+id/etMoguca"
@@ -63,6 +69,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:padding="5dp"
+        android:text="@string/moguca"
+        android:textSize="15sp"
+        android:textColor="@color/zuta"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/lvDodanaPitanja"
@@ -93,6 +102,10 @@
         android:layout_marginEnd="40dp"
         android:layout_marginTop="20dp"
         android:layout_marginBottom="10dp"
+        android:text="@string/dodajKviz"
+        android:background="@drawable/bijela_okvir"
+        android:textColor="@color/tamnoP"
+        android:textSize="25sp"
         android:textAllCaps="false"
         />
 

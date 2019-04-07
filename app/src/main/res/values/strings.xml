@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">rma19balicazra51</string>
+    <string name="pitanja">Pitanja u kvizu</string>
+    <string name="moguca">Moguca pitanja</string>
+    <string name="dodajKviz">Dodaj Kviz</string>
+    <string name="odgovori">Odgovori</string>
+    <string name="dodaj">Dodaj</string>
+    <string name="dodajT">Dodaj tacan</string>
+    <string name="spasiP">Spasi pitanje</string>
+    <string name="dodajIk">Dodaj Ikonu</string>
+    <string name="spasiK">Spasi Kategoriju</string>
+    <string name="nazivK">Naziv Kategorije</string>
+    <string name="ikona">Ikona</string>
+    <string name="nazivP">Naziv pitanja</string>
+    <string name="odg">Odgovor</string>
+    <string name="nazivKv">Naziv kviza</string>
 </resources>
