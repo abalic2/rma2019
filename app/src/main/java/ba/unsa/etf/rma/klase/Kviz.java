@@ -42,6 +42,6 @@ public class Kviz implements Serializable {
     }
 
     void dodajPitanje(Pitanje pitanje){
-
+        pitanja.add(pitanje);
     }
 }
