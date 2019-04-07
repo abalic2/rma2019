@@ -71,6 +71,7 @@ public class DodajPitanjeAkt extends AppCompatActivity {
                     odgovori.add(odgovor.getText().toString());
                     odgovor.setText("");
                     adapterOdgovora.notifyDataSetChanged();
+                    odgovor.setBackground(getResources().getDrawable(R.drawable.bijela_okvir));
                 }
             }
         });
@@ -88,6 +89,7 @@ public class DodajPitanjeAkt extends AppCompatActivity {
                     adapterOdgovora.notifyDataSetChanged();
                     novoPitanje.setTacan(odgovor.getText().toString());
                     odgovor.setText("");
+                    odgovor.setBackground(getResources().getDrawable(R.drawable.bijela_okvir));
                 }
             }
         });

@@ -98,5 +98,6 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
     public void onIconDialogIconsSelected(Icon[] icons) {
         selectedIcons = icons;
         ikona.setText(String.valueOf(selectedIcons[0].getId()));
+        ikona.setBackground(getResources().getDrawable(R.drawable.bijela_okvir));
     }
 }
