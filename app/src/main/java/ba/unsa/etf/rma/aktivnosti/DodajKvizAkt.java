@@ -81,12 +81,11 @@ public class DodajKvizAkt extends AppCompatActivity {
             }
         });
 
-
-
         if(kviz == null){
             dodavanjeNovogKviza = true;
             Kategorija odabrana = (Kategorija) getIntent().getSerializableExtra("oznacenaKategorija");
             int indeks = 0;
+            //da namjesti na kateogriju koja je bila u proslom prozoru
             for(Kategorija k : kategorije) {
                 if(k.getNaziv().equalsIgnoreCase(odabrana.getNaziv())) break;
                 indeks++;
@@ -96,6 +95,7 @@ public class DodajKvizAkt extends AppCompatActivity {
         else {
             imeKviza.setText(kviz.getNaziv());
             pitanja.addAll(kviz.getPitanja());
+            //da namjesti na njegovu kategoriju
             int indeks = 0;
             for(Kategorija k : kategorije) {
                 if(k.getNaziv().equalsIgnoreCase(kviz.getKategorija().getNaziv())) break;
@@ -132,6 +132,7 @@ public class DodajKvizAkt extends AppCompatActivity {
         footer.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
+                //dodavanje pitanja
                 Intent myIntent = new Intent(DodajKvizAkt.this, DodajPitanjeAkt.class);
                 myIntent.putExtra("listaPitanja", pitanja);
                 myIntent.putExtra("listaMogucihPitanja", mogucaPitanja);
@@ -169,7 +170,7 @@ public class DodajKvizAkt extends AppCompatActivity {
         }
         ArrayList<Kviz> kk = new ArrayList<>();
         kk.addAll(kvizovi);
-        if(!dodavanjeNovogKviza) kk.remove(pozicijaKliknutog);
+        if(!dodavanjeNovogKviza) kk.remove(pozicijaKliknutog); //da ne gleda sebe
         for(Kviz k : kk){
             if (k.getNaziv().equals(naziv)){
                 imaGreska = true;
@@ -183,6 +184,7 @@ public class DodajKvizAkt extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 2) {
+            //povratak iz DodajPitanjaAkt
             if(resultCode == Activity.RESULT_OK){
                 ArrayList<Pitanje> vracenaPitanja = (ArrayList<Pitanje>) data.getSerializableExtra("pitanja");
                 pitanja.clear();
@@ -194,6 +196,7 @@ public class DodajKvizAkt extends AppCompatActivity {
             }
         }
         else if(requestCode == 3){
+            //povratak iz DodajKategorijuAkt
             if(resultCode == Activity.RESULT_OK){
                 ArrayList<Kategorija> vraceneKategorije = (ArrayList<Kategorija>) data.getSerializableExtra("kategorije");
                 kategorije.clear();
@@ -209,6 +212,7 @@ public class DodajKvizAkt extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        //ako pritisne back da moze ipak dodane kategorije prenijet
         kategorije.remove(kategorije.size() - 1);
         Intent myIntent = new Intent();
         myIntent.putExtra("kategorije", kategorije);

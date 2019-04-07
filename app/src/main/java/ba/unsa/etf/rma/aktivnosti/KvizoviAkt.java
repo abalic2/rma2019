@@ -86,6 +86,7 @@ public class KvizoviAkt extends AppCompatActivity {
         View footer = getLayoutInflater().inflate(R.layout.footer_liste, null);
         lista.addFooterView(footer);
 
+        //za dodavanje kviza
         footer.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
@@ -104,6 +105,7 @@ public class KvizoviAkt extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1) {
+            //vracanje iz DodajKvizAkt
             if(resultCode == Activity.RESULT_OK){
                 Kviz vraceniKviz = (Kviz) data.getSerializableExtra("kviz");
                 boolean jeLiNoviDodan = data.getExtras().getBoolean("jeLiNovi");
@@ -124,6 +126,7 @@ public class KvizoviAkt extends AppCompatActivity {
                 spinner.setSelection(0);
             }
             else if (resultCode == Activity.RESULT_CANCELED) {
+                //ako je bila dodana kategorija da se spasi
                 ArrayList<Kategorija> vraceneKategorije = (ArrayList<Kategorija>) data.getSerializableExtra("kategorije");
                 kategorije.clear();
                 kategorije.addAll(vraceneKategorije);
