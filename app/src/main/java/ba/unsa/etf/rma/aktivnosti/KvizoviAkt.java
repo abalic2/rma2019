@@ -124,8 +124,16 @@ public class KvizoviAkt extends AppCompatActivity {
                 spinner.setSelection(0);
             }
             else if (resultCode == Activity.RESULT_CANCELED) {
-                //Write your code if there's no result
+                ArrayList<Kategorija> vraceneKategorije = (ArrayList<Kategorija>) data.getSerializableExtra("kategorije");
+                kategorije.clear();
+                kategorije.addAll(vraceneKategorije);
+                spAdapter.notifyDataSetChanged();
+                odaberiKvizove(kategorije.get(0));
+                lsAdapter.notifyDataSetChanged();
+                spinner.setSelection(0);
             }
         }
     }
+
+
 }

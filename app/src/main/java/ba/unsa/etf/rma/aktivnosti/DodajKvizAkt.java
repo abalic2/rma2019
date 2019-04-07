@@ -206,4 +206,13 @@ public class DodajKvizAkt extends AppCompatActivity {
             }
         }
     }
+
+    @Override
+    public void onBackPressed() {
+        kategorije.remove(kategorije.size() - 1);
+        Intent myIntent = new Intent();
+        myIntent.putExtra("kategorije", kategorije);
+        setResult(Activity.RESULT_CANCELED, myIntent);
+        super.onBackPressed();
+    }
 }
