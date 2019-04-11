@@ -2,6 +2,7 @@ package ba.unsa.etf.rma.aktivnosti;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -11,6 +12,11 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 import ba.unsa.etf.rma.R;
@@ -32,6 +38,7 @@ public class DodajKvizAkt extends AppCompatActivity {
     private ArrayList<Pitanje> pitanja = new ArrayList<>();
     private EditText imeKviza;
     private Button dugme;
+    private Button dugmeImportuj;
     private boolean dodavanjeNovogKviza = false;
     private ArrayList<Kategorija> kategorije;
     private ArrayList<Kviz> kvizovi;
@@ -47,6 +54,7 @@ public class DodajKvizAkt extends AppCompatActivity {
         listaPitanja = (ListView) findViewById(R.id.lvDodanaPitanja);
         listaMogucihPitanja = (ListView) findViewById(R.id.lvMogucaPitanja);
         dugme = (Button) findViewById(R.id.btnDodajKviz);
+        dugmeImportuj = (Button) findViewById(R.id.btnImportKviz);
 
         kategorije = (ArrayList<Kategorija>) getIntent().getSerializableExtra("kategorije");
         kvizovi = (ArrayList<Kviz>) getIntent().getSerializableExtra("kvizovi");
@@ -157,6 +165,19 @@ public class DodajKvizAkt extends AppCompatActivity {
             }
         });
 
+        dugmeImportuj.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent sendIntent = new Intent();
+                sendIntent.setAction(Intent.ACTION_OPEN_DOCUMENT);
+                sendIntent.setType("text/plain");
+                if (sendIntent.resolveActivity(getPackageManager()) != null) {
+                    startActivityForResult(sendIntent,44);
+                }
+
+            }
+
+        });
 
     }
 
@@ -206,6 +227,52 @@ public class DodajKvizAkt extends AppCompatActivity {
             }
             else  {
                 spinner.setSelection(0);
+            }
+        }
+        else if(requestCode == 44){
+            if(resultCode == Activity.RESULT_OK) {
+                Uri uri = null;
+                if (data != null) {
+                    uri = data.getData();
+                    InputStream inputStream = null;
+                    try {
+                        inputStream = getContentResolver().openInputStream(uri);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                    StringBuilder stringBuilder = new StringBuilder();
+                    String line = null;
+                    do{
+                        try {
+                            line = reader.readLine();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        if(line == null) break;
+                        stringBuilder.append(line);
+                    } while (true);
+                    try {
+                        inputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    String kviz = stringBuilder.toString();
+                    Kviz noviKviz = new Kviz();
+                    String[] linije = kviz.split("\n");
+                    int brojac = 0;
+                    for(String linija : linije) {
+                        String[] elementi = linija.split(",");
+                        if(brojac == 0){
+                            String ime = elementi[0];
+                            String imeKategorije = elementi[1];
+                            int brPitanja = Integer.parseInt(elementi[2]);
+                        }
+                        brojac++;
+                    }
+
+
+                }
             }
         }
     }

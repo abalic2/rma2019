@@ -92,14 +92,13 @@
 
     <Button
         android:id="@+id/btnDodajKviz"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btnImportKviz"
         app:layout_constraintTop_toBottomOf="@+id/lvMogucaPitanja"
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginStart="40dp"
-        android:layout_marginEnd="40dp"
         android:layout_marginTop="20dp"
         android:layout_marginBottom="10dp"
         android:text="@string/dodajKviz"
@@ -108,5 +107,22 @@
         android:textSize="25sp"
         android:textAllCaps="false"
         />
+
+    <Button
+        android:id="@+id/btnImportKviz"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@id/btnDodajKviz"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lvMogucaPitanja"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginEnd="40dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="10dp"
+        android:text="Importuj kviz"
+        android:background="@drawable/bijela_okvir"
+        android:textColor="@color/tamnoP"
+        android:textSize="25sp"
+        android:textAllCaps="false" />
 
 </android.support.constraint.ConstraintLayout>

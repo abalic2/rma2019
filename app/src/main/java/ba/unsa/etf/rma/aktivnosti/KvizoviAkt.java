@@ -57,9 +57,9 @@ public class KvizoviAkt extends AppCompatActivity {
         lsAdapter = new ListaAdapter(this, odabraniKvizovi, getResources());
         lista.setAdapter(lsAdapter);
 
-        lista.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+        lista.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 pozicijaKliknutog = position;
                 Intent myIntent = new Intent(KvizoviAkt.this, DodajKvizAkt.class);
                 myIntent.putExtra("kviz", odabraniKvizovi.get(position));
@@ -67,6 +67,7 @@ public class KvizoviAkt extends AppCompatActivity {
                 myIntent.putExtra("redniBroj", pozicijaKliknutog);
                 myIntent.putExtra("kvizovi",kvizovi);
                 KvizoviAkt.this.startActivityForResult(myIntent,1);
+                return true;
             }
         });
 
