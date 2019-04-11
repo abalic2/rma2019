@@ -71,6 +71,16 @@ public class KvizoviAkt extends AppCompatActivity {
             }
         });
 
+        lista.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                pozicijaKliknutog = position;
+                Intent myIntent = new Intent(KvizoviAkt.this, IgrajKvizAkt.class);
+                myIntent.putExtra("kviz", odabraniKvizovi.get(position));
+                KvizoviAkt.this.startActivityForResult(myIntent,5);
+            }
+        });
+
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginEnd="15dp"
+    android:layout_marginStart="15dp"
+    tools:context=".fragmenti.InformacijeFrag">
+
+    <TextView
+        android:id="@+id/infNazivKvizaLabela"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="Naziv kviza: "
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/infNazivKviza"
+        />
+
+    <TextView
+        android:id="@+id/infNazivKviza"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_marginStart="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/infNazivKvizaLabela"
+        />
+
+    <TextView
+        android:id="@+id/infBrojTacnihPitanjaLabela"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="Broj tacnih odgovora: "
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/infNazivKvizaLabela"
+        app:layout_constraintEnd_toStartOf="@id/infBrojTacnihPitanja"
+        />
+
+    <TextView
+        android:id="@+id/infBrojTacnihPitanja"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_marginStart="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/infNazivKviza"
+        app:layout_constraintStart_toEndOf="@id/infBrojTacnihPitanjaLabela"
+        />
+
+    <TextView
+        android:id="@+id/infBrojPreostalihPitanjaLabela"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="Broj preostalih pitanja: "
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/infBrojTacnihPitanjaLabela"
+        app:layout_constraintEnd_toStartOf="@id/infBrojPreostalihPitanja"
+        />
+
+    <TextView
+        android:id="@+id/infBrojPreostalihPitanja"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_marginStart="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/infBrojTacnihPitanja"
+        app:layout_constraintStart_toEndOf="@id/infBrojPreostalihPitanjaLabela"
+        />
+
+    <TextView
+        android:id="@+id/infProcenatTacniLabela"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="50dp"
+        android:text="Procenat tacnih: "
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/infBrojPreostalihPitanjaLabela"
+        app:layout_constraintEnd_toStartOf="@id/infProcenatTacni"
+        />
+
+    <TextView
+        android:id="@+id/infProcenatTacni"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginBottom="50dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/infBrojPreostalihPitanja"
+        app:layout_constraintStart_toEndOf="@id/infProcenatTacniLabela"
+        />
+
+    <Button
+        android:id="@+id/btnKraj"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_marginStart="50dp"
+        android:text="Kraj"
+        app:layout_constraintTop_toBottomOf="@+id/infProcenatTacni"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/infProcenatTacni"
+        />
+
+
+
+</android.support.constraint.ConstraintLayout>
