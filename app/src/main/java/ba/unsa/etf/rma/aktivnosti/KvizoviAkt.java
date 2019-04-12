@@ -76,7 +76,7 @@ public class KvizoviAkt extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent myIntent = new Intent(KvizoviAkt.this, IgrajKvizAkt.class);
                 myIntent.putExtra("kviz", odabraniKvizovi.get(position));
-                KvizoviAkt.this.startActivityForResult(myIntent,55);
+                KvizoviAkt.this.startActivity(myIntent);
             }
         });
 
