@@ -35,7 +35,7 @@ public class PitanjeFrag extends Fragment {
 
         if(getArguments().containsKey("pitanje")){
 
-            Pitanje pitanje = (Pitanje) getArguments().getSerializable("pitanje");
+            final Pitanje pitanje = (Pitanje) getArguments().getSerializable("pitanje");
 
             if (pitanje == null) {
                 tekstPitanja.setText("Kviz je završen!");
@@ -62,6 +62,14 @@ public class PitanjeFrag extends Fragment {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id)
                 {
+                    if(odgovori.get(position).equals(pitanje.getTacan())){
+                        view.setBackgroundColor(getResources().getColor(R.color.zelena));
+                    }
+                    else{
+                        view.setBackgroundColor(getResources().getColor(R.color.crvena));
+                        int indeksTacnog = odgovori.indexOf(pitanje.getTacan());
+                        listaOdgovora.getChildAt(indeksTacnog).setBackgroundColor(getResources().getColor(R.color.zelena));
+                    }
                     oic.onItemClicked(position);
                 }
             });
