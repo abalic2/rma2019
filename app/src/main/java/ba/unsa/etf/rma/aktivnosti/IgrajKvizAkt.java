@@ -18,7 +18,7 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
     private ArrayList<Pitanje> pitanja;
     private ArrayList<String> odgovori;
     private Pitanje pitanje;
-    private int brojTacnih;
+    private int brojTacnih = 0;
     private int brojPreostalih;
     private int ukupanBrojPitanja;
 
@@ -30,7 +30,6 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
         kviz = (Kviz) getIntent().getSerializableExtra("kviz");
         brojPreostalih = kviz.getPitanja().size();
         ukupanBrojPitanja = kviz.getPitanja().size();
-        brojTacnih = 0;
         pitanja = new ArrayList<>();
         pitanja.addAll(kviz.getPitanja());
         Collections.shuffle(pitanja);
@@ -56,13 +55,14 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
             if(brojPreostalih != 0){
                 pitanje = pitanja.get(0);
                 pitanja.remove(0);
-                odgovori.addAll(pitanje.getOdgovori());
+                odgovori.addAll(pitanje.dajRandomOdgovore());
             }
             else {
                 pitanje = null;
             }
             Bundle argumenti = new Bundle();
             argumenti.putSerializable("pitanje", pitanje);
+            if(pitanje != null) argumenti.putStringArrayList("odgovori", odgovori);
             fp.setArguments(argumenti);
             getSupportFragmentManager().beginTransaction().replace(R.id.pitanjePlace, fp).commit();
         }
@@ -83,9 +83,9 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
         argumenti.putInt("tacni", brojTacnih);
         argumenti.putInt("preostali", brojPreostalih);
         argumenti.putInt("ukupanBroj",ukupanBrojPitanja);
-        InformacijeFrag fi = new InformacijeFrag();
-        fi.setArguments(argumenti);
-        getSupportFragmentManager().beginTransaction().replace(R.id.informacijePlace, fi).commit();
+        InformacijeFrag finovi = new InformacijeFrag();
+        finovi.setArguments(argumenti);
+        getSupportFragmentManager().beginTransaction().replace(R.id.informacijePlace, finovi).commit();
 
         //čekanje 2s
         Handler handler = new Handler();
@@ -97,13 +97,14 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
                 if (brojPreostalih != 0) {
                     pitanje = pitanja.get(0);
                     pitanja.remove(0);
-                    odgovori.addAll(pitanje.getOdgovori());
+                    odgovori.addAll(pitanje.dajRandomOdgovore());
                 } else {
                     pitanje = null;
                 }
 
                 Bundle argumenti = new Bundle();
                 argumenti.putSerializable("pitanje", pitanje);
+                if(pitanje != null) argumenti.putStringArrayList("odgovori", odgovori);
                 fpnovo.setArguments(argumenti);
                 getSupportFragmentManager().beginTransaction().replace(R.id.pitanjePlace, fpnovo).commit();
             }

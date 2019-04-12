@@ -18,7 +18,7 @@ import ba.unsa.etf.rma.klase.Pitanje;
 public class PitanjeFrag extends Fragment {
     private ListView listaOdgovora;
     private TextView tekstPitanja;
-    private ArrayList<String> odgovori = new ArrayList<>();
+    private ArrayList<String> odgovori;
     private OnItemClick oic;
 
     @Override
@@ -36,12 +36,13 @@ public class PitanjeFrag extends Fragment {
         if(getArguments().containsKey("pitanje")){
 
             final Pitanje pitanje = (Pitanje) getArguments().getSerializable("pitanje");
+            odgovori = new ArrayList<>();
 
             if (pitanje == null) {
                 tekstPitanja.setText("Kviz je završen!");
             }
             else {
-                odgovori.addAll(pitanje.dajRandomOdgovore());
+                odgovori.addAll(getArguments().getStringArrayList("odgovori"));
                 tekstPitanja.setText(pitanje.getNaziv());
             }
 
