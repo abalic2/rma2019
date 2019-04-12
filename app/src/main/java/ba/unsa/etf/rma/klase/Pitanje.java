@@ -52,11 +52,10 @@ public class Pitanje implements Serializable {
         this.tacan = tacan;
     }
 
-    ArrayList<String> dajRandomOdgovore(){
+    public ArrayList<String> dajRandomOdgovore(){
         ArrayList<String> randomoOdgovori = new ArrayList<>();
         randomoOdgovori.addAll(odgovori);
         Collections.shuffle(randomoOdgovori);
         return randomoOdgovori;
-
     }
 }

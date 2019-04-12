@@ -16,8 +16,6 @@ public class InformacijeFrag extends Fragment {
     private TextView brojTacnihPitanja;
     private TextView brojPreostalihPitanja;
     private TextView procenatTacni;
-    private int brojTacnih = 0;
-    private int brojPreostalih;
 
 
 
@@ -28,15 +26,14 @@ public class InformacijeFrag extends Fragment {
 
         if(getArguments() != null && getArguments().containsKey("kviz")){
             Kviz kviz = (Kviz) getArguments().getSerializable("kviz");
-            brojPreostalih = kviz.getPitanja().size();
             nazivKviza = (TextView) iv.findViewById(R.id.infNazivKviza);
             brojTacnihPitanja = (TextView) iv.findViewById(R.id.infBrojTacnihPitanja);
             brojPreostalihPitanja = (TextView) iv.findViewById(R.id.infBrojPreostalihPitanja);
             procenatTacni = (TextView) iv.findViewById(R.id.infProcenatTacni);
 
             nazivKviza.setText(kviz.getNaziv());
-            brojTacnihPitanja.setText(String.valueOf(brojTacnih));
-            brojPreostalihPitanja.setText(String.valueOf(brojTacnih));
+            brojTacnihPitanja.setText(String.valueOf(getArguments().getInt("tacni")));
+            brojPreostalihPitanja.setText(String.valueOf(getArguments().getInt("preostali")));
         }
         return iv;
     }
