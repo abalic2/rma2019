@@ -53,7 +53,7 @@ public class DodajPitanjeAkt extends AppCompatActivity {
             public View getView(int position, View convertView, ViewGroup parent) {
                 View v = super.getView(position, convertView, parent);
                 if(odgovori.get(position).equals(novoPitanje.getTacan()))
-                    v.setBackgroundColor(getResources().getColor(R.color.zelena));
+                    v.setBackgroundColor(getResources().getColor(R.color.zelenkasta));
                 else
                     v.setBackgroundColor(getResources().getColor(R.color.bijela));
                 return v;

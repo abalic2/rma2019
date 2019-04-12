@@ -41,7 +41,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:padding="5dp"
-        android:textColor="@color/zelena"
+        android:textColor="@color/zelenkasta"
         android:textSize="15sp"
         android:text="@string/pitanja"
         app:layout_constraintStart_toStartOf="parent"
