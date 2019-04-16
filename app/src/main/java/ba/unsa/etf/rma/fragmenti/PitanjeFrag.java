@@ -33,6 +33,8 @@ public class PitanjeFrag extends Fragment {
         listaOdgovora = (ListView) getView().findViewById(R.id.odgovoriPitanja);
         tekstPitanja = (TextView) getView().findViewById(R.id.tekstPitanja);
 
+
+
         if(getArguments().containsKey("pitanje")){
 
             final Pitanje pitanje = (Pitanje) getArguments().getSerializable("pitanje");
@@ -68,7 +70,11 @@ public class PitanjeFrag extends Fragment {
                     }
                     else{
                         view.setBackgroundColor(getResources().getColor(R.color.crvena));
-                        int indeksTacnog = odgovori.indexOf(pitanje.getTacan());
+                        int indeksTacnog = 0;
+                        for(String s : odgovori){
+                            if(s.equals(pitanje.getTacan())) break;
+                            indeksTacnog++;
+                        }
                         listaOdgovora.getChildAt(indeksTacnog).setBackgroundColor(getResources().getColor(R.color.zelena));
                     }
                     oic.onItemClicked(position);

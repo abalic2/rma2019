@@ -1,13 +1,11 @@
 package ba.unsa.etf.rma.aktivnosti;
 
 import android.app.Activity;
-import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 
@@ -113,7 +111,7 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
             }
         });
 
-        FrameLayout detalji = (FrameLayout)findViewById(R.id.detailPlace);
+        /*FrameLayout detalji = (FrameLayout)findViewById(R.id.detailPlace);
         if(detalji != null){
             siriL=true;
             DetailFrag fd = (DetailFrag) getSupportFragmentManager().findFragmentById(R.id.detailPlace);
@@ -131,7 +129,7 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
             getSupportFragmentManager().beginTransaction().replace(R.id.listPlace, fl).commit();
         }else{
             getSupportFragmentManager().popBackStack(null,FragmentManager.POP_BACK_STACK_INCLUSIVE);
-        }
+        }*/
 
 
 

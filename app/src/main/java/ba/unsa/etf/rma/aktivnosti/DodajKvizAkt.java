@@ -346,7 +346,7 @@ public class DodajKvizAkt extends AppCompatActivity {
                             "index tačnog odgovora!");
                     return null;
                 }
-                pitanje.setTacan(elementi[indexTacnog]);
+                pitanje.setTacan(elementi[indexTacnog+3]);
                 for (int i = 3; i < brojOdgovora + 3; i++)
                     odgovori.add(elementi[i]);
                 pitanje.setOdgovori(odgovori);
