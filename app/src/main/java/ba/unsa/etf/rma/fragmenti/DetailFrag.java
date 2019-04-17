@@ -21,18 +21,21 @@ public class DetailFrag extends Fragment {
 
         GridView grid = (GridView) getActivity().findViewById(R.id.gridKvizovi);
 
-        Kategorija kategorija = (Kategorija) getArguments().getSerializable("kategorija");
-        ArrayList<Kviz> kvizovi = (ArrayList<Kviz>) getArguments().getSerializable("kvizovi");
+        if (getArguments() != null && getArguments().containsKey("kvizovi")) {
 
-        ArrayList<Kviz> odabraniKvizovi = new ArrayList<>();
-        for(Kviz k : kvizovi){
-            if(k.getKategorija().getNaziv().equals(kategorija.getNaziv())){
-                odabraniKvizovi.add(k);
+            Kategorija kategorija = (Kategorija) getArguments().getSerializable("kategorija");
+            ArrayList<Kviz> kvizovi = (ArrayList<Kviz>) getArguments().getSerializable("kvizovi");
+
+            ArrayList<Kviz> odabraniKvizovi = new ArrayList<>();
+            for (Kviz k : kvizovi) {
+                if (k.getKategorija().getNaziv().equals(kategorija.getNaziv())) {
+                    odabraniKvizovi.add(k);
+                }
             }
-        }
 
-        GridAdapter adapter = new GridAdapter(getActivity(), odabraniKvizovi, getResources());
-        grid.setAdapter(adapter);
+            GridAdapter adapter = new GridAdapter(getActivity(), odabraniKvizovi, getResources());
+            grid.setAdapter(adapter);
+        }
 
 
 

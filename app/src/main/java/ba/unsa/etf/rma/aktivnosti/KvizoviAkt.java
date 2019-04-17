@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 
@@ -47,90 +48,91 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         Kategorija pocetna = new Kategorija("Svi", "0");
         kategorije.add(pocetna);
 
-        spinner = (Spinner) findViewById(R.id.spPostojeceKategorije);
-        lista = (ListView) findViewById(R.id.lvKvizovi);
-
-        spAdapter = new SpinnerAdapter(this, android.R.layout.simple_list_item_1, kategorije);
-        spinner.setAdapter(spAdapter);
-
-        lsAdapter = new ListaAdapter(this, odabraniKvizovi, getResources());
-        lista.setAdapter(lsAdapter);
-
-        lista.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                pozicijaKliknutog = position;
-                Intent myIntent = new Intent(KvizoviAkt.this, DodajKvizAkt.class);
-                myIntent.putExtra("kviz", odabraniKvizovi.get(position));
-                myIntent.putExtra("kategorije", kategorije);
-                myIntent.putExtra("redniBroj", pozicijaKliknutog);
-                myIntent.putExtra("kvizovi", kvizovi);
-                KvizoviAkt.this.startActivityForResult(myIntent, 1);
-                return true;
-            }
-        });
-
-        lista.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent myIntent = new Intent(KvizoviAkt.this, IgrajKvizAkt.class);
-                myIntent.putExtra("kviz", odabraniKvizovi.get(position));
-                KvizoviAkt.this.startActivity(myIntent);
-            }
-        });
-
-
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                odaberiKvizove(kategorije.get(position));
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
-
-        View footer = getLayoutInflater().inflate(R.layout.footer_liste, null);
-        lista.addFooterView(footer);
-
-        //za dodavanje kviza
-        footer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent myIntent = new Intent(KvizoviAkt.this, DodajKvizAkt.class);
-                myIntent.putExtra("kviz", (Kviz) null);
-                myIntent.putExtra("kategorije", kategorije);
-                myIntent.putExtra("kvizovi", kvizovi);
-                myIntent.putExtra("oznacenaKategorija", (Kategorija) spinner.getSelectedItem());
-                KvizoviAkt.this.startActivityForResult(myIntent, 1);
-            }
-        });
-
-        /*FrameLayout detalji = (FrameLayout)findViewById(R.id.detailPlace);
-        if(detalji != null){
-            siriL=true;
-            DetailFrag fd = (DetailFrag) getSupportFragmentManager().findFragmentById(R.id.detailPlace);
-            if(fd==null) {
-                fd = new DetailFrag();
-                getSupportFragmentManager().beginTransaction().replace(R.id.detailPlace, fd).commit();
-            }
-        }
-        ListaFrag fl = (ListaFrag) getSupportFragmentManager().findFragmentById(R.id.listPlace);
-        if(fl==null){
-            fl = new ListaFrag();
-            Bundle argumenti=new Bundle();
-            argumenti.putSerializable("kategorije",kategorije);
+        FrameLayout detalji = (FrameLayout) findViewById(R.id.detailPlace);
+        if (detalji != null) {
+            siriL = true;
+            DetailFrag fd = new DetailFrag();
+            getSupportFragmentManager().beginTransaction().replace(R.id.detailPlace, fd).commit();
+            ListaFrag fl = new ListaFrag();
+            Bundle argumenti = new Bundle();
+            argumenti.putSerializable("kategorije", kategorije);
             fl.setArguments(argumenti);
             getSupportFragmentManager().beginTransaction().replace(R.id.listPlace, fl).commit();
-        }else{
-            getSupportFragmentManager().popBackStack(null,FragmentManager.POP_BACK_STACK_INCLUSIVE);
-        }*/
+        } else {
+            spinner = (Spinner) findViewById(R.id.spPostojeceKategorije);
+            lista = (ListView) findViewById(R.id.lvKvizovi);
 
+            spAdapter = new SpinnerAdapter(this, android.R.layout.simple_list_item_1, kategorije);
+            spinner.setAdapter(spAdapter);
+
+            lsAdapter = new ListaAdapter(this, odabraniKvizovi, getResources());
+            lista.setAdapter(lsAdapter);
+
+            lista.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                @Override
+                public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                    pozicijaKliknutog = position;
+                    Intent myIntent = new Intent(KvizoviAkt.this, DodajKvizAkt.class);
+                    myIntent.putExtra("kviz", odabraniKvizovi.get(position));
+                    myIntent.putExtra("kategorije", kategorije);
+                    myIntent.putExtra("redniBroj", pozicijaKliknutog);
+                    myIntent.putExtra("kvizovi", kvizovi);
+                    KvizoviAkt.this.startActivityForResult(myIntent, 1);
+                    return true;
+                }
+            });
+
+            lista.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Intent myIntent = new Intent(KvizoviAkt.this, IgrajKvizAkt.class);
+                    myIntent.putExtra("kviz", odabraniKvizovi.get(position));
+                    KvizoviAkt.this.startActivity(myIntent);
+                }
+            });
+
+
+            spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    odaberiKvizove(kategorije.get(position));
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                }
+            });
+
+            View footer = getLayoutInflater().inflate(R.layout.footer_liste, null);
+            lista.addFooterView(footer);
+
+            //za dodavanje kviza
+            footer.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent myIntent = new Intent(KvizoviAkt.this, DodajKvizAkt.class);
+                    myIntent.putExtra("kviz", (Kviz) null);
+                    myIntent.putExtra("kategorije", kategorije);
+                    myIntent.putExtra("kvizovi", kvizovi);
+                    myIntent.putExtra("oznacenaKategorija", (Kategorija) spinner.getSelectedItem());
+                    KvizoviAkt.this.startActivityForResult(myIntent, 1);
+                }
+            });
+
+        }
+
+        if (savedInstanceState != null) {
+            kvizovi.clear();
+            kategorije.clear();
+            kvizovi.addAll((ArrayList<Kviz>) savedInstanceState.getSerializable("kvizovi"));
+            kategorije.addAll((ArrayList<Kategorija>) savedInstanceState.getSerializable("kategorije"));
+
+        }
 
 
     }
@@ -175,7 +177,7 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
 //Priprema novog fragmenta FragmentDetalji
         Bundle arguments = new Bundle();
         arguments.putSerializable("kategorija", kategorije.get(pos));
-        arguments.putSerializable("kvizovi",kvizovi);
+        arguments.putSerializable("kvizovi", kvizovi);
         DetailFrag fd = new DetailFrag();
         fd.setArguments(arguments);
         if (siriL) {
@@ -184,6 +186,14 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
             //????
             //getFragmentManager().beginTransaction().replace(R.id.mjestoF1, fd).addToBackStack(null).commit();
         }
+    }
+
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putSerializable("kategorije", kategorije);
+        savedInstanceState.putSerializable("kvizovi", kvizovi);
     }
 
 
