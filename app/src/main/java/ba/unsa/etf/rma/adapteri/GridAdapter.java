@@ -66,7 +66,7 @@ public class GridAdapter extends BaseAdapter{
             holder = new ViewHolder();
             holder.naziv = (TextView) vi.findViewById(R.id.imeKviza);
             holder.slika = (ImageView) vi.findViewById(R.id.icon);
-            holder.naziv = (TextView) vi.findViewById(R.id.brojPitanja);
+            holder.brojPitanja = (TextView) vi.findViewById(R.id.brojPitanja);
 
             vi.setTag(holder);
         } else
