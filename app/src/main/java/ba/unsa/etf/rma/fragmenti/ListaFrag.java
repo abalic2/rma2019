@@ -39,6 +39,7 @@ public class ListaFrag extends Fragment {
             } catch (ClassCastException e) {
                 throw new ClassCastException(getActivity().toString() + "Treba implementirati OnItemClick");
             }
+
             lv.setOnItemClickListener(new AdapterView.OnItemClickListener(){
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

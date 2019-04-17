@@ -29,6 +29,7 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
     private SpinnerAdapter spAdapter;
     private ListaAdapter lsAdapter;
     private int pozicijaKliknutog;
+    private int pozicijaKategorija = 0;
     private boolean siriL = false;
 
     private void odaberiKvizove(Kategorija kategorija) {
@@ -47,6 +48,10 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if(savedInstanceState!=null){
+            pozicijaKategorija = savedInstanceState.getInt("pozicija");
+        }
 
 
         Kategorija pocetna = new Kategorija("Svi", "0");
@@ -73,6 +78,8 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
 
             spAdapter = new SpinnerAdapter(this, android.R.layout.simple_list_item_1, kategorije);
             spinner.setAdapter(spAdapter);
+            System.out.println(pozicijaKategorija);
+            spinner.setSelection(pozicijaKategorija);
 
             lsAdapter = new ListaAdapter(this, odabraniKvizovi, getResources());
             lista.setAdapter(lsAdapter);
@@ -138,7 +145,7 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
             kvizovi.addAll((ArrayList<Kviz>) savedInstanceState.getSerializable("kvizovi"));
             odabraniKvizovi.addAll((ArrayList<Kviz>) savedInstanceState.getSerializable("odabraniKvizovi"));
             kategorije.addAll((ArrayList<Kategorija>) savedInstanceState.getSerializable("kategorije"));
-
+            pozicijaKategorija = savedInstanceState.getInt("pozicija");
         }
 
 
@@ -181,19 +188,16 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
 
     @Override
     public void onItemClicked(int pos) {
-//Priprema novog fragmenta FragmentDetalji
+    //Priprema novog fragmenta FragmentDetalji
+        pozicijaKategorija = pos;
+        System.out.println(pos);
         odaberiKvizove(kategorije.get(pos));
         Bundle arguments = new Bundle();
-        //arguments.putSerializable("kategorija", kategorije.get(pos));
         arguments.putSerializable("kvizovi", odabraniKvizovi);
         DetailFrag fd = new DetailFrag();
         fd.setArguments(arguments);
-        //if (siriL) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.detailPlace, fd).commit();
-        //} else {
-            //????
-            //getFragmentManager().beginTransaction().replace(R.id.mjestoF1, fd).addToBackStack(null).commit();
-        //}
+        getSupportFragmentManager().beginTransaction().replace(R.id.detailPlace, fd).commit();
+
     }
 
 
@@ -203,6 +207,7 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
         savedInstanceState.putSerializable("kategorije", kategorije);
         savedInstanceState.putSerializable("kvizovi", kvizovi);
         savedInstanceState.putSerializable("odabraniKvizovi", odabraniKvizovi);
+        savedInstanceState.putInt("pozicija",pozicijaKategorija);
     }
 
 
