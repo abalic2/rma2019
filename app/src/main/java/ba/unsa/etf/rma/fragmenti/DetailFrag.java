@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.GridView;
 
 import java.util.ArrayList;
@@ -16,17 +17,54 @@ import ba.unsa.etf.rma.klase.Kviz;
 public class DetailFrag extends Fragment {
     ArrayList<Kviz> odabraniKvizovi = new ArrayList<>();
 
+    private OnItemClick oic;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_detail, container, false);
-        GridView grid = (GridView) v.findViewById(R.id.gridKvizovi);
+        return inflater.inflate(R.layout.fragment_detail, container, false);
+    }
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        GridView grid = (GridView) getView().findViewById(R.id.gridKvizovi);
 
         if (getArguments() != null && getArguments().containsKey("kvizovi")) {
             odabraniKvizovi.clear();
             odabraniKvizovi.addAll ((ArrayList<Kviz>) getArguments().getSerializable("kvizovi"));
+            odabraniKvizovi.add(new Kviz("Dodaj kviz",null,null));
 
             GridAdapter adapter = new GridAdapter(getActivity(), odabraniKvizovi, getResources());
             grid.setAdapter(adapter);
+
+            try {
+                oic = (OnItemClick)getActivity();
+            } catch (ClassCastException e) {
+                throw new ClassCastException(getActivity().toString() + "Treba implementirati OnItemClick");
+            }
+
+            grid.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                @Override
+                public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                    if(position == odabraniKvizovi.size()-1){
+                        oic.dodajKvizGrid();
+                    }
+                    else {
+                        oic.onItemLongClickedGrid(position);
+                    }
+                    return true;
+                }
+            });
+
+            grid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    if(position != odabraniKvizovi.size()-1){
+                        oic.onItemClickedGrid(position);
+                    }
+                }
+            });
+
+
         }
 
         if (savedInstanceState != null) {
@@ -35,7 +73,6 @@ public class DetailFrag extends Fragment {
 
         }
 
-        return v;
     }
 
     @Override
@@ -44,4 +81,14 @@ public class DetailFrag extends Fragment {
         savedInstanceState.putSerializable("kvizovi", odabraniKvizovi);
     }
 
+    public interface OnItemClick {
+        public void onItemClickedGrid(int pos);
+        public void onItemLongClickedGrid(int pos);
+        public void dodajKvizGrid();
+    }
+
 }
+
+
+
+

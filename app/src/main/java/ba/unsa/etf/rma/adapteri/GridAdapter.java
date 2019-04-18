@@ -79,21 +79,25 @@ public class GridAdapter extends BaseAdapter{
             kviz = (Kviz) data.get(position);
 
             holder.naziv.setText(kviz.getNaziv());
-            holder.brojPitanja.setText(String.valueOf(kviz.getPitanja().size()));
+            if( position != getCount()-1) {
+                holder.brojPitanja.setText(String.valueOf(kviz.getPitanja().size()));
 
-            final IconHelper iconHelper = IconHelper.getInstance(inflater.getContext());
-            iconHelper.addLoadCallback(new IconHelper.LoadCallback() {
-                @Override
-                public void onDataLoaded() {
-                    // This happens on UI thread, and is guaranteed to be called.
-                    if(kviz.getKategorija().getNaziv().equalsIgnoreCase("Svi")) {
-                        holder.slika.setImageDrawable(iconHelper.getIcon(232).getDrawable(inflater.getContext()));
+                final IconHelper iconHelper = IconHelper.getInstance(inflater.getContext());
+                iconHelper.addLoadCallback(new IconHelper.LoadCallback() {
+                    @Override
+                    public void onDataLoaded() {
+                        // This happens on UI thread, and is guaranteed to be called.
+                        if (kviz.getKategorija().getNaziv().equalsIgnoreCase("Svi")) {
+                            holder.slika.setImageDrawable(iconHelper.getIcon(232).getDrawable(inflater.getContext()));
+                        } else {
+                            holder.slika.setImageDrawable(iconHelper.getIcon(Integer.parseInt(kviz.getKategorija().getId())).getDrawable(inflater.getContext()));
+                        }
                     }
-                    else{
-                        holder.slika.setImageDrawable(iconHelper.getIcon(Integer.parseInt(kviz.getKategorija().getId())).getDrawable(inflater.getContext()));
-                    }
-                }
-            });
+                });
+            }
+            else {
+                holder.slika.setImageResource(R.drawable.plus);
+            }
         }
         return vi;
     }
