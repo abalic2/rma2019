@@ -106,10 +106,11 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
             lista.addFooterView(footer);
 
             //za dodavanje kviza
-            footer.setOnClickListener(new View.OnClickListener() {
+            footer.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
-                public void onClick(View v) {
+                public boolean onLongClick(View v) {
                     dodajKviz(1);
+                    return true;
                 }
             });
 
