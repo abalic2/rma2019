@@ -186,14 +186,16 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
                     posaljiDedailFragment();
                     posaljiListaFragment();
                 }
+                pozicijaKategorija = 0;
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 //ako je bila dodana kategorija da se spasi
                 ArrayList<Kategorija> vraceneKategorije = (ArrayList<Kategorija>) data.getSerializableExtra("kategorije");
                 kategorije.clear();
                 kategorije.addAll(vraceneKategorije);
-                spAdapter.notifyDataSetChanged();
                 odaberiKvizove(kategorije.get(0));
+                pozicijaKategorija = 0;
                 if(requestCode == 1) {
+                    spAdapter.notifyDataSetChanged();
                     lsAdapter.notifyDataSetChanged();
                     spinner.setSelection(0);
                 }
