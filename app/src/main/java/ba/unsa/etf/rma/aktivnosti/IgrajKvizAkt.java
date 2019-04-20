@@ -28,7 +28,7 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
         setContentView(R.layout.activity_igraj_kviz);
 
         kviz = (Kviz) getIntent().getSerializableExtra("kviz");
-        brojPreostalih = kviz.getPitanja().size();
+        brojPreostalih = kviz.getPitanja().size() - 1;
         ukupanBrojPitanja = kviz.getPitanja().size();
         pitanja = new ArrayList<>();
         pitanja.addAll(kviz.getPitanja());
@@ -52,7 +52,7 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
         if (fp == null) {
             odgovori = new ArrayList<>();
             fp = new PitanjeFrag();
-            if(brojPreostalih != 0){
+            if(brojPreostalih != -1){
                 pitanje = pitanja.get(0);
                 pitanja.remove(0);
                 odgovori.addAll(pitanje.dajRandomOdgovore());
@@ -94,7 +94,7 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
             public void run() {
                 PitanjeFrag fpnovo = new PitanjeFrag();
                 odgovori = new ArrayList<>();
-                if (brojPreostalih != 0) {
+                if (brojPreostalih != -1) {
                     pitanje = pitanja.get(0);
                     pitanja.remove(0);
                     odgovori.addAll(pitanje.dajRandomOdgovore());

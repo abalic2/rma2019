@@ -41,9 +41,12 @@ public class InformacijeFrag extends Fragment {
             int tacni = getArguments().getInt("tacni");
             int preostali = getArguments().getInt("preostali");
             int ukupno = getArguments().getInt("ukupanBroj");
-            int proslo = ukupno - preostali;
+            int proslo = ukupno - preostali - 1;
             brojTacnihPitanja.setText(String.valueOf(tacni));
-            brojPreostalihPitanja.setText(String.valueOf(preostali));
+            if(preostali != -1)
+                brojPreostalihPitanja.setText(String.valueOf(preostali));
+            else
+                brojPreostalihPitanja.setText("0");
             double procenat = 0;
             if (proslo != 0) {
                 procenat = (double) tacni / proslo * 100;
