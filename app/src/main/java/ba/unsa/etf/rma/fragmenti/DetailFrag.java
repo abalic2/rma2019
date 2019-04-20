@@ -12,10 +12,12 @@ import java.util.ArrayList;
 
 import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.adapteri.GridAdapter;
+import ba.unsa.etf.rma.klase.Kategorija;
 import ba.unsa.etf.rma.klase.Kviz;
 
 public class DetailFrag extends Fragment {
     ArrayList<Kviz> odabraniKvizovi = new ArrayList<>();
+
 
     private OnItemClick oic;
 
@@ -31,9 +33,10 @@ public class DetailFrag extends Fragment {
         if (getArguments() != null && getArguments().containsKey("kvizovi")) {
             odabraniKvizovi.clear();
             odabraniKvizovi.addAll ((ArrayList<Kviz>) getArguments().getSerializable("kvizovi"));
-            odabraniKvizovi.add(new Kviz("Dodaj kviz",null,null));
+            //jer nijedna dodana kategorija ne moze imati naziv ""
+            odabraniKvizovi.add(new Kviz("Dodaj kviz",null,new Kategorija("", "0")));
 
-            GridAdapter adapter = new GridAdapter(getActivity(), odabraniKvizovi, getResources());
+            GridAdapter adapter = new GridAdapter(getView().getContext(), odabraniKvizovi, getResources());
             grid.setAdapter(adapter);
 
             try {

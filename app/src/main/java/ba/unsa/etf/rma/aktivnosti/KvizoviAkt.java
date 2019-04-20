@@ -183,7 +183,7 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
                 }
                 else{
                     //posalji sve opet u fragmente
-                    //posaljiDedailFragment();
+                    posaljiDedailFragment();
                     posaljiListaFragment();
                 }
             } else if (resultCode == Activity.RESULT_CANCELED) {

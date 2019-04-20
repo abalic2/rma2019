@@ -1,6 +1,5 @@
 package ba.unsa.etf.rma.adapteri;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.view.LayoutInflater;
@@ -17,25 +16,25 @@ import java.util.ArrayList;
 import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.klase.Kviz;
 
-public class GridAdapter extends BaseAdapter{
+public class GridAdapter extends BaseAdapter {
 
-    private Activity activity;
+    private Context context;
     private ArrayList<Kviz> data;
     private static LayoutInflater inflater = null;
     public Resources res;
     int i = 0;
     Kviz kviz = null;
 
-    public GridAdapter(Activity a, ArrayList d, Resources resLocal) {
-        activity = a;
+    public GridAdapter(Context a, ArrayList d, Resources resLocal) {
+        context = a;
         data = d;
         res = resLocal;
-        inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
 
     @Override
-    public int getCount(){
+    public int getCount() {
         if (data.size() <= 0)
             return 0;
         return data.size();
@@ -79,25 +78,27 @@ public class GridAdapter extends BaseAdapter{
             kviz = (Kviz) data.get(position);
 
             holder.naziv.setText(kviz.getNaziv());
-            if( position != getCount()-1) {
+            if( position != getCount()-1)
                 holder.brojPitanja.setText(String.valueOf(kviz.getPitanja().size()));
 
-                final IconHelper iconHelper = IconHelper.getInstance(inflater.getContext());
-                iconHelper.addLoadCallback(new IconHelper.LoadCallback() {
-                    @Override
-                    public void onDataLoaded() {
-                        // This happens on UI thread, and is guaranteed to be called.
-                        if (kviz.getKategorija().getNaziv().equalsIgnoreCase("Svi")) {
-                            holder.slika.setImageDrawable(iconHelper.getIcon(232).getDrawable(inflater.getContext()));
-                        } else {
-                            holder.slika.setImageDrawable(iconHelper.getIcon(Integer.parseInt(kviz.getKategorija().getId())).getDrawable(inflater.getContext()));
-                        }
+            final IconHelper iconHelper = IconHelper.getInstance(context);
+            iconHelper.addLoadCallback(new IconHelper.LoadCallback() {
+                @Override
+                public void onDataLoaded() {
+                    // This happens on UI thread, and is guaranteed to be called.
+                    if (kviz.getKategorija().getNaziv().equals("")){
+                        holder.slika.setImageResource(R.drawable.plus);
                     }
-                });
-            }
-            else {
-                holder.slika.setImageResource(R.drawable.plus);
-            }
+                    else if (kviz.getKategorija().getNaziv().equalsIgnoreCase("Svi")) {
+                        holder.slika.setImageDrawable(iconHelper.getIcon(232).getDrawable(inflater.getContext()));
+                    }
+                    else{
+                        holder.slika.setImageDrawable(iconHelper.getIcon(Integer.parseInt(kviz.getKategorija().getId())).getDrawable(inflater.getContext()));
+                    }
+                }
+
+            });
+
         }
         return vi;
     }
