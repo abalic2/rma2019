@@ -160,7 +160,7 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1 || requestCode == 2) {
+        if (requestCode == 1 || requestCode == 2) { //kod 2 je za siroki ekran
             //vracanje iz DodajKvizAkt
             if (resultCode == Activity.RESULT_OK) {
                 Kviz vraceniKviz = (Kviz) data.getSerializableExtra("kviz");

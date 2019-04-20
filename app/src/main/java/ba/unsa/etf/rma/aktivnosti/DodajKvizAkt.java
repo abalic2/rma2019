@@ -2,6 +2,7 @@ package ba.unsa.etf.rma.aktivnosti;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -261,10 +262,15 @@ public class DodajKvizAkt extends AppCompatActivity {
     }
 
     private void prikaziAlertdialog(String poruka) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(poruka);
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+        alertDialog.setTitle(poruka);
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        alertDialog.show();
     }
 
     private String vratiStringizCVSa(Intent data) {
