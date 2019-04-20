@@ -171,7 +171,9 @@ public class DodajKvizAkt extends AppCompatActivity {
             public void onClick(View v) {
                 Intent sendIntent = new Intent();
                 sendIntent.setAction(Intent.ACTION_OPEN_DOCUMENT);
-                sendIntent.setType("text/plain");
+                String [] mimeTypes = {"text/csv", "text/plain"};
+                sendIntent.setType("*/*");
+                sendIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
                 if (sendIntent.resolveActivity(getPackageManager()) != null) {
                     startActivityForResult(sendIntent, 44);
                 }

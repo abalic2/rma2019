@@ -77,6 +77,7 @@ public class PitanjeFrag extends Fragment {
                         }
                         listaOdgovora.getChildAt(indeksTacnog).setBackgroundColor(getResources().getColor(R.color.zelena));
                     }
+                    listaOdgovora.setEnabled(false);
                     oic.onItemClicked(position);
                 }
             });
