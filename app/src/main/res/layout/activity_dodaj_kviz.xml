@@ -100,10 +100,11 @@
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
+        android:minHeight="0dp"
         android:text="@string/dodajKviz"
         android:background="@drawable/bijela_okvir"
         android:textColor="@color/tamnoP"
-        android:textSize="25sp"
+        android:textSize="20sp"
         android:textAllCaps="false"
         />
 
@@ -120,9 +121,10 @@
         android:layout_marginBottom="10dp"
         android:layout_marginStart="10dp"
         android:text="@string/importKviz"
+        android:minHeight="0dp"
         android:background="@drawable/bijela_okvir"
         android:textColor="@color/tamnoP"
-        android:textSize="25sp"
+        android:textSize="20sp"
         android:textAllCaps="false" />
 
 </android.support.constraint.ConstraintLayout>
