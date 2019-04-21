@@ -33,8 +33,6 @@ public class PitanjeFrag extends Fragment {
         listaOdgovora = (ListView) getView().findViewById(R.id.odgovoriPitanja);
         tekstPitanja = (TextView) getView().findViewById(R.id.tekstPitanja);
 
-
-
         if(getArguments().containsKey("pitanje")){
 
             final Pitanje pitanje = (Pitanje) getArguments().getSerializable("pitanje");
