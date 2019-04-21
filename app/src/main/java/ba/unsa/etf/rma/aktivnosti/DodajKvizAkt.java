@@ -306,6 +306,7 @@ public class DodajKvizAkt extends AppCompatActivity {
         Kategorija kategorija = new Kategorija();
         ArrayList<Pitanje> pitanja = new ArrayList<>();
         String[] linije = datoteka.split("\n");
+        boolean imaKategorija = false;
         int brReda = 0;
         for (String linija : linije) {
             String[] elementi = linija.split(",");
@@ -330,8 +331,6 @@ public class DodajKvizAkt extends AppCompatActivity {
                     prikaziAlertdialog("Datoteka kviza kojeg importujete nema ispravan format!");
                     return null;
                 }
-
-                boolean imaKategorija = false;
                 for (Kategorija k : kategorije) {
                     if (k.getNaziv().equals(elementi[1])) {
                         kategorija.setId(k.getId());
@@ -393,7 +392,7 @@ public class DodajKvizAkt extends AppCompatActivity {
         }
         noviKviz.setNaziv(imeKviza);
         noviKviz.setKategorija(kategorija);
-        if (!kategorije.contains(kategorija)) {
+        if (!imaKategorija) {
             int n = kategorije.size();
             kategorije.add(n - 1, kategorija);
             spAdapter.notifyDataSetChanged();
