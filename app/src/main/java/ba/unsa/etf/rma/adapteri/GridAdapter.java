@@ -80,13 +80,16 @@ public class GridAdapter extends BaseAdapter {
             holder.naziv.setText(kviz.getNaziv());
             if( position != getCount()-1)
                 holder.brojPitanja.setText(String.valueOf(kviz.getPitanja().size()));
+            else {
+                holder.brojPitanja.setText("");
+            }
 
             final IconHelper iconHelper = IconHelper.getInstance(context);
             iconHelper.addLoadCallback(new IconHelper.LoadCallback() {
                 @Override
                 public void onDataLoaded() {
                     // This happens on UI thread, and is guaranteed to be called.
-                    if (kviz.getKategorija().getNaziv().equals("")){
+                    if (holder.brojPitanja.getText().equals("")){
                         holder.slika.setImageResource(R.drawable.plus);
                     }
                     else if (kviz.getKategorija().getNaziv().equalsIgnoreCase("Svi")) {
