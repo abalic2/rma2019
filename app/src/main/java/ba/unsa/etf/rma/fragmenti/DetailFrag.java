@@ -1,10 +1,13 @@
 package ba.unsa.etf.rma.fragmenti;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
@@ -29,6 +32,15 @@ public class DetailFrag extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         GridView grid = (GridView) getView().findViewById(R.id.gridKvizovi);
+        int gridViewEntrySize = 160;
+        int gridViewSpacing = 10;
+
+        WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+
+        int numColumns = (display.getWidth() - gridViewSpacing) / (gridViewEntrySize + gridViewSpacing);
+
+        grid.setNumColumns(numColumns);
 
         if (getArguments() != null && getArguments().containsKey("kvizovi")) {
             odabraniKvizovi.clear();

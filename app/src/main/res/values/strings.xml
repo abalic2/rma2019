@@ -14,6 +14,13 @@
     <string name="nazivP">Naziv pitanja</string>
     <string name="odg">Odgovor</string>
     <string name="nazivKv">Naziv kviza</string>
+    <string name="labelaNAzivK">Naziv kviza:</string>
+    <string name="labelaBrTacnih">Broj tacnih odgovora:</string>
+    <string name="labelaBrPreos">Broj preostalih pitanja:</string>
+    <string name="labelaProcenat">Procenat tacnih:</string>
+    <string name="dugmeKraj">Kraj</string>
+    <string name="listaKat">Lista kategorija:</string>
+    <string name="importKviz">Importuj kviz</string>
 
 
 </resources>
