@@ -106,7 +106,12 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
                 argumenti.putSerializable("pitanje", pitanje);
                 if(pitanje != null) argumenti.putStringArrayList("odgovori", odgovori);
                 fpnovo.setArguments(argumenti);
-                getSupportFragmentManager().beginTransaction().replace(R.id.pitanjePlace, fpnovo).commit();
+                try {
+                    getSupportFragmentManager().beginTransaction().replace(R.id.pitanjePlace, fpnovo).commit();
+                }
+                catch (Exception e){
+                    finish();
+                }
             }
         }, 2000);
     }
