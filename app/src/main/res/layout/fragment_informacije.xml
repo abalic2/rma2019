@@ -39,10 +39,10 @@
         android:layout_marginTop="5dp"
         android:text="@string/labelaBrTacnih"
         android:textColor="@color/crna"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/infNazivKvizaLabela"
         app:layout_constraintEnd_toStartOf="@id/infBrojTacnihPitanja"
-        />
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/infNazivKviza" />
 
     <TextView
         android:id="@+id/infBrojTacnihPitanja"
@@ -64,7 +64,7 @@
         android:text="@string/labelaBrPreos"
         android:textColor="@color/crna"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/infBrojTacnihPitanjaLabela"
+        app:layout_constraintTop_toBottomOf="@id/infBrojTacnihPitanja"
         app:layout_constraintEnd_toStartOf="@id/infBrojPreostalihPitanja"
         />
 
@@ -89,7 +89,7 @@
         android:text="@string/labelaProcenat"
         android:textColor="@color/crna"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/infBrojPreostalihPitanjaLabela"
+        app:layout_constraintTop_toBottomOf="@id/infBrojPreostalihPitanja"
         app:layout_constraintEnd_toStartOf="@id/infProcenatTacni"
         />
 
