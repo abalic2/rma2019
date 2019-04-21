@@ -51,6 +51,7 @@ public class PitanjeFrag extends Fragment {
             final ArrayAdapter<String> adapterOdgovora;
             adapterOdgovora = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, odgovori);
             listaOdgovora.setAdapter(adapterOdgovora);
+            justifyListViewHeightBasedOnChildren(listaOdgovora);
 
             try
             {
@@ -72,10 +73,12 @@ public class PitanjeFrag extends Fragment {
                         view.setBackgroundColor(getResources().getColor(R.color.crvena));
                         int indeksTacnog = 0;
                         for(String s : odgovori){
-                            if(s.equals(pitanje.getTacan())) break;
+                            if(s.equals(pitanje.getTacan())) {
+                                listaOdgovora.getChildAt(indeksTacnog).setBackgroundColor(getResources().getColor(R.color.zelena));
+                                break;
+                            }
                             indeksTacnog++;
                         }
-                        listaOdgovora.getChildAt(indeksTacnog).setBackgroundColor(getResources().getColor(R.color.zelena));
                     }
                     listaOdgovora.setEnabled(false);
                     oic.onItemClicked(position);
@@ -86,5 +89,27 @@ public class PitanjeFrag extends Fragment {
 
     public interface OnItemClick {
         public void onItemClicked(int pos);
+    }
+
+    //da namjesti velicinu liste
+    public static void justifyListViewHeightBasedOnChildren (ListView listView) {
+
+        ArrayAdapter<String> adapter = (ArrayAdapter<String>) listView.getAdapter();
+
+        if (adapter == null) {
+            return;
+        }
+        ViewGroup vg = listView;
+        int totalHeight = 0;
+        for (int i = 0; i < adapter.getCount(); i++) {
+            View listItem = adapter.getView(i, null, vg);
+            listItem.measure(0, 0);
+            totalHeight += listItem.getMeasuredHeight();
+        }
+
+        ViewGroup.LayoutParams par = listView.getLayoutParams();
+        par.height = totalHeight + (listView.getDividerHeight() * (adapter.getCount() - 1));
+        listView.setLayoutParams(par);
+        listView.requestLayout();
     }
 }
