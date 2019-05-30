@@ -87,6 +87,7 @@ public class ListaAdapter extends BaseAdapter{
                         holder.slika.setImageDrawable(iconHelper.getIcon(232).getDrawable(inflater.getContext()));
                     }
                     else{
+                        System.out.println(kviz.getNaziv() + "  " + kviz.getKategorija().getId());
                         holder.slika.setImageDrawable(iconHelper.getIcon(Integer.parseInt(kviz.getKategorija().getId())).getDrawable(inflater.getContext()));
                     }
                 }

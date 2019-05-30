@@ -3,6 +3,7 @@ package ba.unsa.etf.rma.aktivnosti;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,9 +16,11 @@ import android.widget.ListView;
 import java.util.ArrayList;
 
 import ba.unsa.etf.rma.R;
+import ba.unsa.etf.rma.intentServisi.DodajPitanje;
 import ba.unsa.etf.rma.klase.Pitanje;
+import ba.unsa.etf.rma.receiveri.DodajPitanjeRec;
 
-public class DodajPitanjeAkt extends AppCompatActivity {
+public class DodajPitanjeAkt extends AppCompatActivity implements DodajPitanjeRec.Receiver {
     private EditText nazivPitanja;
     private ListView listaOdgovora;
     private EditText odgovor;
@@ -28,11 +31,15 @@ public class DodajPitanjeAkt extends AppCompatActivity {
     private ArrayList<Pitanje> pitanjaKviza = new ArrayList<>();
     private ArrayList<Pitanje> mogucaPitanjaKviza = new ArrayList<>();
     private boolean imaTacanOdgovor = false;
+    private DodajPitanjeRec mReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dodaj_pitanje);
+
+        mReceiver = new DodajPitanjeRec(new Handler());
+        mReceiver.setReceiver(this);
 
         final Pitanje novoPitanje = new Pitanje();
 
@@ -101,6 +108,15 @@ public class DodajPitanjeAkt extends AppCompatActivity {
                     novoPitanje.setNaziv(nazivPitanja.getText().toString());
                     novoPitanje.setTekstPitanja(nazivPitanja.getText().toString());
                     novoPitanje.setOdgovori(odgovori);
+
+
+
+                    Intent intentServis = new Intent(Intent.ACTION_SYNC, null, DodajPitanjeAkt.this, DodajPitanje.class);
+                    intentServis.putExtra("pitanje",novoPitanje);
+                    intentServis.putExtra("receiver", mReceiver);
+                    startService(intentServis);
+
+
                     pitanjaKviza.add(novoPitanje);
                     Intent myIntent = new Intent();
                     myIntent.putExtra("pitanja", pitanjaKviza);
@@ -149,5 +165,10 @@ public class DodajPitanjeAkt extends AppCompatActivity {
             }
         }
         return nemaGreska;
+    }
+
+    @Override
+    public void onReceiveResult(int resultCode, Bundle resultData) {
+
     }
 }
