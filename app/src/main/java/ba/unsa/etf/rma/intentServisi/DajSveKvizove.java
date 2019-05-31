@@ -177,16 +177,16 @@ public class DajSveKvizove extends IntentService {
             String rezultat = convertStreamToString(in);
             JSONObject jo = new JSONObject(rezultat);
 
-                JSONObject fields = jo.getJSONObject("fields");
+            JSONObject fields = jo.getJSONObject("fields");
 
-                String naziv = fields.getJSONObject("naziv").getString("stringValue");
+            String naziv = fields.getJSONObject("naziv").getString("stringValue");
 
-                String idIkonice = fields.getJSONObject("idIkonice").getString("integerValue");
+            String idIkonice = fields.getJSONObject("idIkonice").getString("integerValue");
 
-                int responseCode = urlConnection.getResponseCode();
-                InputStream ist = urlConnection.getInputStream();
+            int responseCode = urlConnection.getResponseCode();
+            InputStream ist = urlConnection.getInputStream();
 
-                return new Kategorija(naziv,idIkonice);
+            return new Kategorija(naziv,idIkonice);
 
         } catch (IOException e) {
             e.printStackTrace();

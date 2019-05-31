@@ -28,6 +28,9 @@
             android:name=".intentServisi.DodajKviz"
             android:enabled="true"/>
         <service
+            android:name=".intentServisi.EditKviz"
+            android:enabled="true"/>
+        <service
             android:name=".intentServisi.DajSveKvizove"
             android:enabled="true"/>
         <service

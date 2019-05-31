@@ -108,6 +108,7 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
             spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    System.out.println("caooo idem opet");
                     promijeniKvizove(kategorije.get(position));
                 }
 
@@ -193,6 +194,7 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
         if (requestCode == 1 || requestCode == 2) { //kod 2 je za siroki ekran
             //vracanje iz DodajKvizAkt
             if (resultCode == Activity.RESULT_OK) {
+                System.out.println("caooo idem opet");
                 pozicijaKategorija = 0;
                 popuniKategorijeIzBaze();
 
@@ -250,6 +252,7 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
 
     void promijeniKvizove(Kategorija k){
         if(k.getNaziv().equals("Svi")){
+            System.out.println("caooo idem opet");
             zovniDajSveKvizove(true);
         }
         else{
@@ -316,11 +319,13 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
         switch (resultCode) {
             case 3:
                 ArrayList<Kategorija> k3 = (ArrayList<Kategorija>) resultData.get("kategorije");
+                System.out.println("caooo idem opet - popunio sam kateogrije");
                 kategorije.clear();
                 kategorije.add(new Kategorija("Svi", "0"));
                 kategorije.addAll(k3);
                 spAdapter.notifyDataSetChanged();
                 spinner.setSelection(pozicijaKategorija);
+                promijeniKvizove(kategorije.get(0));
 
         }
     }

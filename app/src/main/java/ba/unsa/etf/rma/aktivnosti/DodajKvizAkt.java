@@ -29,6 +29,7 @@ import ba.unsa.etf.rma.intentServisi.DajKviz;
 import ba.unsa.etf.rma.intentServisi.DajSvaPitanja;
 import ba.unsa.etf.rma.intentServisi.DajSveKategorije;
 import ba.unsa.etf.rma.intentServisi.DodajKviz;
+import ba.unsa.etf.rma.intentServisi.EditKviz;
 import ba.unsa.etf.rma.klase.Kategorija;
 import ba.unsa.etf.rma.klase.Kviz;
 import ba.unsa.etf.rma.klase.Pitanje;
@@ -36,9 +37,10 @@ import ba.unsa.etf.rma.receiveri.DajKvizRec;
 import ba.unsa.etf.rma.receiveri.DajSvaPitanjaRec;
 import ba.unsa.etf.rma.receiveri.DajSveKategorijeRec;
 import ba.unsa.etf.rma.receiveri.DodajKvizRec;
+import ba.unsa.etf.rma.receiveri.EditKvizRec;
 
 public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeRec.Receiver, DajKvizRec.Receiver,
-        DajSvaPitanjaRec.Receiver, DodajKvizRec.Receiver {
+        DajSvaPitanjaRec.Receiver, DodajKvizRec.Receiver, EditKvizRec.Receiver {
 
     private Spinner spinner;
     private SpinnerAdapter spAdapter;
@@ -61,7 +63,7 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
     private DajSveKategorijeRec kReceiver;
     private DajSvaPitanjaRec nReceiver;
     private DodajKvizRec mReceiver;
-    //private EditKvizRec oReceiver;
+    private EditKvizRec oReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,8 +78,8 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
         nReceiver.setReceiver(this);
         mReceiver = new DodajKvizRec(new Handler());
         mReceiver.setReceiver(this);
-        /*oReceiver = new EditKvizRec(new Handler());
-        oReceiver.setReceiver(this);*/
+        oReceiver = new EditKvizRec(new Handler());
+        oReceiver.setReceiver(this);
 
         imeKviza = (EditText) findViewById(R.id.etNaziv);
         spinner = (Spinner) findViewById(R.id.spKategorije);
@@ -153,7 +155,7 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
             @Override
             public void onClick(View v) {
                 if (jeLiSveValidno()) {
-                    Kviz novi = new Kviz(imeKviza.getText().toString(), pitanja, (Kategorija) spinner.getSelectedItem(), null);
+                    Kviz novi = new Kviz(imeKviza.getText().toString(), pitanja, (Kategorija) spinner.getSelectedItem(), idKviza);
                     if(dodavanjeNovogKviza){
                         dodajNoviKviz(novi);
                     }
@@ -194,10 +196,11 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
     }
 
     private void editujKviz(Kviz kviz) {
-        /*Intent intent = new Intent(Intent.ACTION_SYNC, null, this, EditKviz.class);
+        Intent intent = new Intent(Intent.ACTION_SYNC, null, this, EditKviz.class);
         intent.putExtra("receiver", oReceiver);
         intent.putExtra("kviz", kviz);
-        startService(intent);*/
+        System.out.println(kviz.getId());
+        startService(intent);
     }
 
     private void ucitajKvizIzBaze(String idKviza) {
@@ -537,5 +540,20 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
                 break;
         }
 
+    }
+
+    @Override
+    public void onReceiveResultEditKviz(int resultCode, Bundle resultData) {
+        switch (resultCode) {
+            case 1:
+                Intent myIntent = new Intent();
+                setResult(Activity.RESULT_OK, myIntent);
+                finish();
+                break;
+            case 2:
+                imeKviza.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
+                prikaziAlertdialog("Kviz sa tim nazivom vec postoji!");
+                break;
+        }
     }
 }
