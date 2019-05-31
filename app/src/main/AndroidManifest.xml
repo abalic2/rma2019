@@ -14,19 +14,25 @@
         android:theme="@style/AppTheme.NoActionBar">
         <service
             android:name=".intentServisi.DodajPitanje"
-            android:enabled="true"></service>
+            android:enabled="true"/>
+        <service
+            android:name=".intentServisi.DajKviz"
+            android:enabled="true"/>
         <service
             android:name=".intentServisi.DajSvaPitanja"
-            android:enabled="true"></service>
+            android:enabled="true"/>
         <service
             android:name=".intentServisi.DajSveKategorije"
-            android:enabled="true"></service>
+            android:enabled="true"/>
+        <service
+            android:name=".intentServisi.DodajKviz"
+            android:enabled="true"/>
         <service
             android:name=".intentServisi.DajSveKvizove"
-            android:enabled="true"></service>
+            android:enabled="true"/>
         <service
             android:name=".intentServisi.DajSveKvizoveKategorije"
-            android:enabled="true"></service>
+            android:enabled="true"/>
 
         <activity
             android:name=".aktivnosti.IgrajKvizAkt"

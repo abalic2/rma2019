@@ -27,15 +27,15 @@ import ba.unsa.etf.rma.klase.Kategorija;
 import ba.unsa.etf.rma.klase.Kviz;
 import ba.unsa.etf.rma.klase.Pitanje;
 
-public class DajSveKvizove extends IntentService {
+public class DajKviz extends IntentService {
     public int STATUS_RUNNING = 0;
     public int STATUS_FINISHED = 1;
-    ArrayList<Kviz> rezultati;
+    private Kviz kviz;
 
-    public DajSveKvizove() {
+    public DajKviz() {
         super(null);
     }
-    public DajSveKvizove(String name) {
+    public DajKviz(String name) {
         super(name);
     }
 
@@ -47,9 +47,8 @@ public class DajSveKvizove extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         final ResultReceiver receiver = intent.getParcelableExtra("receiver");
-        boolean dodaj = (boolean) intent.getExtras().getBoolean("dodaj");
+        String idKviza = intent.getStringExtra("idKviza");
         Bundle bundle = new Bundle();
-        rezultati = new ArrayList<>();
 
         receiver.send(STATUS_RUNNING, Bundle.EMPTY);
 
@@ -66,10 +65,9 @@ public class DajSveKvizove extends IntentService {
 
         URL url = null;
         try {
-            String u = "https://firestore.googleapis.com/v1/projects/rmaspirala/databases/(default)/documents/Kvizovi?&access_token=" + URLEncoder.encode(token, "UTF-8");
+            String u = "https://firestore.googleapis.com/v1/projects/rmaspirala/databases/(default)/documents/Kvizovi/"+idKviza+"?&access_token=" + URLEncoder.encode(token, "UTF-8");
             url = new URL(u);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            //urlConnection.setDoOutput(true);
             urlConnection.setRequestMethod("GET");
             urlConnection.setRequestProperty("Content-Type", "application/json");
             urlConnection.setRequestProperty("Accept", "application/json");
@@ -77,38 +75,25 @@ public class DajSveKvizove extends IntentService {
             InputStream in = new BufferedInputStream(urlConnection.getInputStream());
             String rezultat = convertStreamToString(in);
             JSONObject jo = new JSONObject(rezultat);
-            //System.out.println(rezultat);
+            JSONObject fields = jo.getJSONObject("fields");
+            String naziv = fields.getJSONObject("naziv").getString("stringValue");
+            String idKategorije = fields.getJSONObject("idKategorije").getString("stringValue");
+            System.out.println(naziv);
 
-            JSONArray kvizovi = jo.getJSONArray("documents");
-            for (int i = 0; i < kvizovi.length(); i++) {
-                JSONObject p = kvizovi.getJSONObject(i);
+            Kategorija k = dajKategoriju(idKategorije, token);
 
-                String[] name = p.getString("name").split("/");
-                String idKviza = name[name.length - 1];
-
-                JSONObject fields = p.getJSONObject("fields");
-                String naziv = fields.getJSONObject("naziv").getString("stringValue");
-                String idKategorije = fields.getJSONObject("idKategorije").getString("stringValue");
-
-                Kategorija k = dajKategoriju(idKategorije, token);
-
-                ArrayList<Pitanje> pitanjaKviza = new ArrayList<>();
-                JSONArray pitanja = fields.getJSONObject("pitanja").getJSONObject("arrayValue").getJSONArray("values");
-                for (int j = 0; j < pitanja.length(); j++) {
-                    String id = pitanja.getJSONObject(j).getString("stringValue");
-                    Pitanje pk = dajPitanje(id,token);
-                    pitanjaKviza.add(pk);
-                }
-
-                rezultati.add(new Kviz(naziv,pitanjaKviza,k,idKviza));
-
+            ArrayList<Pitanje> pitanjaKviza = new ArrayList<>();
+            JSONArray pitanja = fields.getJSONObject("pitanja").getJSONObject("arrayValue").getJSONArray("values");
+            for (int j = 0; j < pitanja.length(); j++) {
+                String id = pitanja.getJSONObject(j).getString("stringValue");
+                Pitanje pk = dajPitanje(id,token);
+                pitanjaKviza.add(pk);
             }
+
+            kviz = new Kviz(naziv,pitanjaKviza,k,idKviza);
 
             int responseCode = urlConnection.getResponseCode();
             InputStream ist = urlConnection.getInputStream();
-
-
-
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -116,11 +101,9 @@ public class DajSveKvizove extends IntentService {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-        bundle.putSerializable("kvizovi", rezultati);
-        bundle.putBoolean("dodaj",dodaj);
+        System.out.println("idem kuciii");
+        bundle.putSerializable("kviz", kviz);
         receiver.send(STATUS_FINISHED, bundle);
-
     }
 
     private Pitanje dajPitanje(String id, String token) {
@@ -177,16 +160,16 @@ public class DajSveKvizove extends IntentService {
             String rezultat = convertStreamToString(in);
             JSONObject jo = new JSONObject(rezultat);
 
-                JSONObject fields = jo.getJSONObject("fields");
+            JSONObject fields = jo.getJSONObject("fields");
 
-                String naziv = fields.getJSONObject("naziv").getString("stringValue");
+            String naziv = fields.getJSONObject("naziv").getString("stringValue");
 
-                String idIkonice = fields.getJSONObject("idIkonice").getString("integerValue");
+            String idIkonice = fields.getJSONObject("idIkonice").getString("integerValue");
 
-                int responseCode = urlConnection.getResponseCode();
-                InputStream ist = urlConnection.getInputStream();
+            int responseCode = urlConnection.getResponseCode();
+            InputStream ist = urlConnection.getInputStream();
 
-                return new Kategorija(naziv,idIkonice);
+            return new Kategorija(naziv,idIkonice);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -216,7 +199,5 @@ public class DajSveKvizove extends IntentService {
         }
         return sb.toString();
     }
-
-
 }
 

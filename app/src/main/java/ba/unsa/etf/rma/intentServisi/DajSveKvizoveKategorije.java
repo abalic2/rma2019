@@ -118,6 +118,11 @@ public class DajSveKvizoveKategorije  extends IntentService {
             JSONArray kvizovi = jo.getJSONArray("documents");
             for (int i = 0; i < kvizovi.length(); i++) {
                 JSONObject p = kvizovi.getJSONObject(i);
+
+                String[] name = p.getJSONObject("document").getString("name").split("/");
+                String idKviza = name[name.length - 1];
+                System.out.println(idKviza);
+
                 JSONObject fields = p.getJSONObject("document").getJSONObject("fields");
 
                 String naziv = fields.getJSONObject("naziv").getString("stringValue");
@@ -130,7 +135,7 @@ public class DajSveKvizoveKategorije  extends IntentService {
                     pitanjaKviza.add(pk);
                 }
 
-                rezultati.add(new Kviz(naziv,pitanjaKviza,kategorija));
+                rezultati.add(new Kviz(naziv,pitanjaKviza,kategorija,idKviza));
 
             }
 

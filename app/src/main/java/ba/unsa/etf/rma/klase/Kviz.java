@@ -7,14 +7,24 @@ public class Kviz implements Serializable {
     private String naziv;
     private ArrayList<Pitanje> pitanja;
     private Kategorija kategorija;
+    private String id;
 
-    public Kviz(String naziv, ArrayList<Pitanje> pitanja, Kategorija kategorija) {
+    public Kviz(String naziv, ArrayList<Pitanje> pitanja, Kategorija kategorija, String id) {
         this.naziv = naziv;
         this.pitanja = pitanja;
         this.kategorija = kategorija;
+        this.id = id;
     }
 
     public Kviz() {
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getNaziv() {

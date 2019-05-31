@@ -48,7 +48,7 @@ public class DajSvaPitanja extends IntentService {
         final ResultReceiver receiver = intent.getParcelableExtra("receiver");
         Bundle bundle = new Bundle();
 
-
+        rezultati = new ArrayList<>();
         receiver.send(STATUS_RUNNING, Bundle.EMPTY);
 
         InputStream is = getResources().openRawResource(R.raw.secret);
@@ -67,7 +67,6 @@ public class DajSvaPitanja extends IntentService {
             String u = "https://firestore.googleapis.com/v1/projects/rmaspirala/databases/(default)/documents/Pitanja?access_token=" + URLEncoder.encode(token, "UTF-8");
             url = new URL(u);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setDoOutput(true);
             urlConnection.setRequestMethod("GET");
             urlConnection.setRequestProperty("Content-Type", "application/json");
             urlConnection.setRequestProperty("Accept", "application/json");
@@ -87,7 +86,7 @@ public class DajSvaPitanja extends IntentService {
                     String odgovor = odgovori.getJSONObject(j).getString("stringValue");
                     odgovoriPitanja.add(odgovor);
                 }
-                int indeksTacnog = Integer.parseInt(fields.getJSONObject("indexTacnog").getString("integetValue"));
+                int indeksTacnog = Integer.parseInt(fields.getJSONObject("indexTacnog").getString("integerValue"));
 
                 rezultati.add(new Pitanje(naziv,naziv,odgovoriPitanja,odgovoriPitanja.get(indeksTacnog)));
             }

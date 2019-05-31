@@ -106,10 +106,8 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
 
 
             spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    System.out.println("mijenjam kvizove");
                     promijeniKvizove(kategorije.get(position));
                 }
 
@@ -131,15 +129,8 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
                 }
             });
 
-
-
-            Intent intent2 = new Intent(Intent.ACTION_SYNC, null, KvizoviAkt.this, DajSveKategorije.class);
-            intent2.putExtra("receiver", kReceiver);
-            startService(intent2);
-
-
-
-
+            //povlacenje kategorija
+            popuniKategorijeIzBaze();
 
         }
 
@@ -156,14 +147,17 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
 
     }
 
+    private void popuniKategorijeIzBaze() {
+        Intent intent = new Intent(Intent.ACTION_SYNC, null, KvizoviAkt.this, DajSveKategorije.class);
+        intent.putExtra("receiver", kReceiver);
+        startService(intent);
+    }
+
 
     private void prepraviKviz(int position, int kod) {
         pozicijaKliknutog = position;
         Intent myIntent = new Intent(KvizoviAkt.this, DodajKvizAkt.class);
-        myIntent.putExtra("kviz", odabraniKvizovi.get(position));
-        myIntent.putExtra("kategorije", kategorije);
-        myIntent.putExtra("redniBroj", pozicijaKliknutog);
-        myIntent.putExtra("kvizovi", kvizovi);
+        myIntent.putExtra("idKviza", odabraniKvizovi.get(position).getId());
         KvizoviAkt.this.startActivityForResult(myIntent, kod);
     }
 
@@ -175,9 +169,7 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
 
     private void dodajKviz(int kod) {
         Intent myIntent = new Intent(KvizoviAkt.this, DodajKvizAkt.class);
-        myIntent.putExtra("kviz", (Kviz) null);
-        myIntent.putExtra("kategorije", kategorije);
-        myIntent.putExtra("kvizovi", kvizovi);
+        myIntent.putExtra("idKviza", (String) null);
         if(kod == 1){
             myIntent.putExtra("oznacenaKategorija", (Kategorija) spinner.getSelectedItem());
         }
@@ -191,7 +183,8 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         FrameLayout d = (FrameLayout) findViewById(R.id.detailPlace);
-        if(d == null){ //mozda je doslo do promjene
+        //mozda je doslo do promjene
+        if(d == null){
             requestCode = 1;
         }
         else{
@@ -200,20 +193,10 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
         if (requestCode == 1 || requestCode == 2) { //kod 2 je za siroki ekran
             //vracanje iz DodajKvizAkt
             if (resultCode == Activity.RESULT_OK) {
-                Kviz vraceniKviz = (Kviz) data.getSerializableExtra("kviz");
-                boolean jeLiNoviDodan = data.getExtras().getBoolean("jeLiNovi");
-                ArrayList<Kategorija> vraceneKategorije = (ArrayList<Kategorija>) data.getSerializableExtra("kategorije");
-                kategorije.clear();
-                kategorije.addAll(vraceneKategorije);
-                if (jeLiNoviDodan) {
-                    kvizovi.add(vraceniKviz);
-                } else {
-                    odabraniKvizovi.get(pozicijaKliknutog).setNaziv(vraceniKviz.getNaziv());
-                    odabraniKvizovi.get(pozicijaKliknutog).setPitanja(vraceniKviz.getPitanja());
-                    odabraniKvizovi.get(pozicijaKliknutog).setKategorija(vraceniKviz.getKategorija());
-                }
-                odaberiKvizove(kategorije.get(0));
-                if(requestCode == 1) {
+                pozicijaKategorija = 0;
+                popuniKategorijeIzBaze();
+
+                /*if(requestCode == 1) {
                     lsAdapter.notifyDataSetChanged();
                     spAdapter.notifyDataSetChanged();
                     spinner.setSelection(0);
@@ -222,15 +205,11 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
                     //posalji sve opet u fragmente
                     posaljiDedailFragment();
                     posaljiListaFragment();
-                }
-                pozicijaKategorija = 0;
-                //dodajUbazu(vraceniKviz);
+                }*/
+
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 //ako je bila dodana kategorija da se spasi
-                ArrayList<Kategorija> vraceneKategorije = (ArrayList<Kategorija>) data.getSerializableExtra("kategorije");
-                kategorije.clear();
-                kategorije.addAll(vraceneKategorije);
-                odaberiKvizove(kategorije.get(0));
+                popuniKategorijeIzBaze();
                 pozicijaKategorija = 0;
                 if(requestCode == 1) {
                     spAdapter.notifyDataSetChanged();
@@ -336,15 +315,12 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
     public void onReceiveResultKategorije(int resultCode, Bundle resultData) {
         switch (resultCode) {
             case 3:
-
                 ArrayList<Kategorija> k3 = (ArrayList<Kategorija>) resultData.get("kategorije");
                 kategorije.clear();
                 kategorije.add(new Kategorija("Svi", "0"));
                 kategorije.addAll(k3);
                 spAdapter.notifyDataSetChanged();
-                System.out.println("zavrsio sa kategorijama");
                 spinner.setSelection(pozicijaKategorija);
-
 
         }
     }
@@ -357,18 +333,13 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
                 kvizovi.clear();
                 kvizovi.addAll(k);
 
-                for(Kviz kk : k) System.out.println(kk.getKategorija().getNaziv() + kk.getKategorija().getId());
-
                 if(resultData.getBoolean("dodaj")){
+                    System.out.println("idu svi");
                     odabraniKvizovi.clear();
                     odabraniKvizovi.addAll(k);
-                    System.out.println("promijeni listu");
-                    for(Kviz kk : odabraniKvizovi) System.out.println(kk.getKategorija().getNaziv() + kk.getKategorija().getId());
                     lsAdapter.notifyDataSetChanged();
 
                 }
-
-
 
                 break;
 
