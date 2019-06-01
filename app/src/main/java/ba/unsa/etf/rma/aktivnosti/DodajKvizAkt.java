@@ -251,13 +251,17 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
         switch (resultCode) {
             case 1:
                 Kviz kviz = (Kviz) resultData.getSerializable("kviz");
+                ArrayList<Pitanje> m = (ArrayList<Pitanje>) resultData.getSerializable("mogucaPitanja");
 
                 imeKviza.setText(kviz.getNaziv());
                 pitanja.clear();
                 pitanja.addAll(kviz.getPitanja());
                 adapterPitanja.notifyDataSetChanged();
 
-                ucitajMogucaPitanja();
+                mogucaPitanja.clear();
+                mogucaPitanja.addAll(m);
+                adapterMogucihPitanja.notifyDataSetChanged();
+
                 if(mijenjanjeKategorije) {
                     int brojac = 0;
                     for (Kategorija k : kategorije) {
@@ -522,14 +526,6 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
                 ArrayList<Pitanje> p = (ArrayList<Pitanje>) resultData.get("pitanja");
                 mogucaPitanja.addAll(p);
 
-                for(Pitanje p1 : pitanja ){
-                    for(Pitanje p2 : mogucaPitanja){
-                        if(p2.getNaziv().equals(p1.getNaziv())){
-                            mogucaPitanja.remove(p2);
-                            break;
-                        }
-                    }
-                }
                 adapterMogucihPitanja.notifyDataSetChanged();
 
 
