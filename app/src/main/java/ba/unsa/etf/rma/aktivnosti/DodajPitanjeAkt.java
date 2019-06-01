@@ -1,6 +1,8 @@
 package ba.unsa.etf.rma.aktivnosti;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -32,6 +34,7 @@ public class DodajPitanjeAkt extends AppCompatActivity implements DodajPitanjeRe
     private ArrayList<Pitanje> mogucaPitanjaKviza = new ArrayList<>();
     private boolean imaTacanOdgovor = false;
     private DodajPitanjeRec mReceiver;
+    private Pitanje novoPitanje;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +44,7 @@ public class DodajPitanjeAkt extends AppCompatActivity implements DodajPitanjeRe
         mReceiver = new DodajPitanjeRec(new Handler());
         mReceiver.setReceiver(this);
 
-        final Pitanje novoPitanje = new Pitanje();
+        novoPitanje = new Pitanje();
 
         nazivPitanja = (EditText) findViewById(R.id.etNaziv);
         listaOdgovora = (ListView) findViewById(R.id.lvOdgovori);
@@ -109,19 +112,10 @@ public class DodajPitanjeAkt extends AppCompatActivity implements DodajPitanjeRe
                     novoPitanje.setTekstPitanja(nazivPitanja.getText().toString());
                     novoPitanje.setOdgovori(odgovori);
 
-
-
                     Intent intentServis = new Intent(Intent.ACTION_SYNC, null, DodajPitanjeAkt.this, DodajPitanje.class);
                     intentServis.putExtra("pitanje",novoPitanje);
                     intentServis.putExtra("receiver", mReceiver);
                     startService(intentServis);
-
-
-                    pitanjaKviza.add(novoPitanje);
-                    Intent myIntent = new Intent();
-                    myIntent.putExtra("pitanja", pitanjaKviza);
-                    setResult(Activity.RESULT_OK, myIntent);
-                    finish();
                 }
             }
         });
@@ -152,23 +146,35 @@ public class DodajPitanjeAkt extends AppCompatActivity implements DodajPitanjeRe
             nazivPitanja.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
             nemaGreska = false;
         }
-        for(Pitanje p : pitanjaKviza){
-            if(p.getNaziv().equals(nazivPitanja.getText().toString())){
-                nazivPitanja.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
-                nemaGreska = false;
-            }
-        }
-        for(Pitanje p : mogucaPitanjaKviza){
-            if(p.getNaziv().equals(nazivPitanja.getText().toString())){
-                nazivPitanja.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
-                nemaGreska = false;
-            }
-        }
+
         return nemaGreska;
     }
 
     @Override
-    public void onReceiveResult(int resultCode, Bundle resultData) {
+    public void onReceiveResultPitanje(int resultCode, Bundle resultData) {
+        switch (resultCode){
+            case 1:
+                Intent myIntent = new Intent();
+                myIntent.putExtra("novoPitanje", novoPitanje);
+                setResult(Activity.RESULT_OK, myIntent);
+                finish();
+                break;
+            case 2:
+                nazivPitanja.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
+                prikaziAlertdialog("Pitanje sa tim tekstom vec postoji!");
+                break;
+        }
+    }
 
+    private void prikaziAlertdialog(String poruka) {
+        AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+        alertDialog.setMessage(poruka);
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        alertDialog.show();
     }
 }

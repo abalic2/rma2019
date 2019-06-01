@@ -16,12 +16,12 @@ public class DodajPitanjeRec extends ResultReceiver {
     }
     /* Deklaracija interfejsa koji će se trebati implementirati */
     public interface Receiver {
-        public void onReceiveResult(int resultCode, Bundle resultData);
+        public void onReceiveResultPitanje(int resultCode, Bundle resultData);
     }
     @Override
     protected void onReceiveResult(int resultCode, Bundle resultData) {
         if (mReceiver != null) {
-            mReceiver.onReceiveResult(resultCode, resultData);
+            mReceiver.onReceiveResultPitanje(resultCode, resultData);
         }
     }
 }

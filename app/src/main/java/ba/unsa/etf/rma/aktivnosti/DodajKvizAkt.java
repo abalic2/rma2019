@@ -303,9 +303,8 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
         if (requestCode == 2) {
             //povratak iz DodajPitanjaAkt
             if (resultCode == Activity.RESULT_OK) {
-                ArrayList<Pitanje> vracenaPitanja = (ArrayList<Pitanje>) data.getSerializableExtra("pitanja");
-                pitanja.clear();
-                pitanja.addAll(vracenaPitanja);
+                Pitanje novoPitanje = (Pitanje) data.getSerializableExtra("novoPitanje");
+                pitanja.add(novoPitanje);
                 adapterPitanja.notifyDataSetChanged();
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 //Write your code if there's no result

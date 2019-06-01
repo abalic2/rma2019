@@ -119,7 +119,7 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
                 break;
             case 2:
                 nazivKategorije.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
-                prikaziAlertdialog("Kategorija sa tim nazivom vec postoji!");
+                prikaziAlertdialog("Unesena kategorija već postoji!”");
                 break;
         }
     }
