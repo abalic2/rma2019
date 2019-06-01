@@ -35,6 +35,7 @@ public class DajSveKvizove extends IntentService {
     public DajSveKvizove() {
         super(null);
     }
+
     public DajSveKvizove(String name) {
         super(name);
     }
@@ -79,10 +80,11 @@ public class DajSveKvizove extends IntentService {
             JSONObject jo = new JSONObject(rezultat);
             //System.out.println(rezultat);
 
-            JSONArray kvizovi = jo.getJSONArray("documents");
-            for (int i = 0; i < kvizovi.length(); i++) {
-                JSONObject p = kvizovi.getJSONObject(i);
-                try {
+            try {
+                JSONArray kvizovi = jo.getJSONArray("documents");
+                for (int i = 0; i < kvizovi.length(); i++) {
+                    JSONObject p = kvizovi.getJSONObject(i);
+
                     String[] name = p.getString("name").split("/");
                     String idKviza = name[name.length - 1];
 
@@ -107,33 +109,39 @@ public class DajSveKvizove extends IntentService {
                     }
 
                     rezultati.add(new Kviz(naziv, pitanjaKviza, k, idKviza));
-                }catch (Exception e){}
-
+                }
+            } catch (Exception e) {
             }
 
-            int responseCode = urlConnection.getResponseCode();
-            InputStream ist = urlConnection.getInputStream();
 
 
+        int responseCode = urlConnection.getResponseCode();
+        InputStream ist = urlConnection.getInputStream();
 
 
-        } catch (IOException e) {
-            e.printStackTrace();
+    } catch(
+    IOException e)
 
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+    {
+        e.printStackTrace();
 
-        bundle.putSerializable("kvizovi", rezultati);
-        bundle.putBoolean("dodaj",dodaj);
-        receiver.send(STATUS_FINISHED, bundle);
+    } catch(
+    JSONException e)
 
+    {
+        e.printStackTrace();
     }
+
+        bundle.putSerializable("kvizovi",rezultati);
+        bundle.putBoolean("dodaj",dodaj);
+        receiver.send(STATUS_FINISHED,bundle);
+
+}
 
     private Pitanje dajPitanje(String id, String token) {
         URL url = null;
         try {
-            String u = "https://firestore.googleapis.com/v1/projects/rmaspirala/databases/(default)/documents/Pitanja/"+id+ "?access_token=" + URLEncoder.encode(token, "UTF-8");
+            String u = "https://firestore.googleapis.com/v1/projects/rmaspirala/databases/(default)/documents/Pitanja/" + id + "?access_token=" + URLEncoder.encode(token, "UTF-8");
             url = new URL(u);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
@@ -157,7 +165,7 @@ public class DajSveKvizove extends IntentService {
             int responseCode = urlConnection.getResponseCode();
             InputStream ist = urlConnection.getInputStream();
 
-            return new Pitanje(naziv,naziv,odgovoriPitanja,odgovoriPitanja.get(indeksTacnog));
+            return new Pitanje(naziv, naziv, odgovoriPitanja, odgovoriPitanja.get(indeksTacnog));
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -170,12 +178,12 @@ public class DajSveKvizove extends IntentService {
     }
 
     private Kategorija dajKategoriju(String idKategorije, String token) {
-        if(idKategorije.equals("KATEGORIJASvi")){
+        if (idKategorije.equals("KATEGORIJASvi")) {
             return new Kategorija("Svi", "0");
         }
         URL url = null;
         try {
-            String u = "https://firestore.googleapis.com/v1/projects/rmaspirala/databases/(default)/documents/Kategorije/"+idKategorije+"?access_token=" + URLEncoder.encode(token, "UTF-8");
+            String u = "https://firestore.googleapis.com/v1/projects/rmaspirala/databases/(default)/documents/Kategorije/" + idKategorije + "?access_token=" + URLEncoder.encode(token, "UTF-8");
             url = new URL(u);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
 
@@ -196,7 +204,7 @@ public class DajSveKvizove extends IntentService {
             int responseCode = urlConnection.getResponseCode();
             InputStream ist = urlConnection.getInputStream();
 
-            return new Kategorija(naziv,idIkonice);
+            return new Kategorija(naziv, idIkonice);
 
         } catch (IOException e) {
             e.printStackTrace();

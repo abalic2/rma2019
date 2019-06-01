@@ -74,22 +74,25 @@ public class DajSvaPitanja extends IntentService {
             InputStream in = new BufferedInputStream(urlConnection.getInputStream());
             String rezultat = convertStreamToString(in);
             JSONObject jo = new JSONObject(rezultat);
-            JSONArray pitanja = jo.getJSONArray("documents");
-            for (int i = 0; i < pitanja.length(); i++) {
-                JSONObject p = pitanja.getJSONObject(i);
-                JSONObject fields = p.getJSONObject("fields");
+            try {
+                JSONArray pitanja = jo.getJSONArray("documents");
+                for (int i = 0; i < pitanja.length(); i++) {
+                    JSONObject p = pitanja.getJSONObject(i);
+                    JSONObject fields = p.getJSONObject("fields");
 
-                String naziv = fields.getJSONObject("naziv").getString("stringValue");
-                ArrayList<String> odgovoriPitanja = new ArrayList<>();
-                JSONArray odgovori = fields.getJSONObject("odgovori").getJSONObject("arrayValue").getJSONArray("values");
-                for (int j = 0; j < odgovori.length(); j++) {
-                    String odgovor = odgovori.getJSONObject(j).getString("stringValue");
-                    odgovoriPitanja.add(odgovor);
+                    String naziv = fields.getJSONObject("naziv").getString("stringValue");
+                    ArrayList<String> odgovoriPitanja = new ArrayList<>();
+                    JSONArray odgovori = fields.getJSONObject("odgovori").getJSONObject("arrayValue").getJSONArray("values");
+                    for (int j = 0; j < odgovori.length(); j++) {
+                        String odgovor = odgovori.getJSONObject(j).getString("stringValue");
+                        odgovoriPitanja.add(odgovor);
+                    }
+                    int indeksTacnog = Integer.parseInt(fields.getJSONObject("indexTacnog").getString("integerValue"));
+
+                    rezultati.add(new Pitanje(naziv, naziv, odgovoriPitanja, odgovoriPitanja.get(indeksTacnog)));
                 }
-                int indeksTacnog = Integer.parseInt(fields.getJSONObject("indexTacnog").getString("integerValue"));
-
-                rezultati.add(new Pitanje(naziv,naziv,odgovoriPitanja,odgovoriPitanja.get(indeksTacnog)));
             }
+            catch (Exception e){}
 
 
             int responseCode = urlConnection.getResponseCode();

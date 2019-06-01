@@ -76,16 +76,20 @@ public class DajSveKategorije extends IntentService {
             InputStream in = new BufferedInputStream(urlConnection.getInputStream());
             String rezultat = convertStreamToString(in);
             JSONObject jo = new JSONObject(rezultat);
-            JSONArray kategorije = jo.getJSONArray("documents");
-            for (int i = 0; i < kategorije.length(); i++) {
-                JSONObject p = kategorije.getJSONObject(i);
-                JSONObject fields = p.getJSONObject("fields");
+            try {
+                JSONArray kategorije = jo.getJSONArray("documents");
+                for (int i = 0; i < kategorije.length(); i++) {
+                    JSONObject p = kategorije.getJSONObject(i);
+                    JSONObject fields = p.getJSONObject("fields");
 
-                String naziv = fields.getJSONObject("naziv").getString("stringValue");
+                    String naziv = fields.getJSONObject("naziv").getString("stringValue");
 
-                String idIkonice = fields.getJSONObject("idIkonice").getString("integerValue");
+                    String idIkonice = fields.getJSONObject("idIkonice").getString("integerValue");
 
-                rezultati.add(new Kategorija(naziv,idIkonice));
+                    rezultati.add(new Kategorija(naziv, idIkonice));
+                }
+            }catch (Exception e){
+
             }
 
 
