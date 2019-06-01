@@ -1,8 +1,12 @@
 package ba.unsa.etf.rma.aktivnosti;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.EditText;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,6 +25,7 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
     private int brojTacnih = 0;
     private int brojPreostalih;
     private int ukupanBrojPitanja;
+    private String imeIgraca;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +64,8 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
             }
             else {
                 pitanje = null;
+                unesiIme();
+
             }
             Bundle argumenti = new Bundle();
             argumenti.putSerializable("pitanje", pitanje);
@@ -66,6 +73,39 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
             fp.setArguments(argumenti);
             getSupportFragmentManager().beginTransaction().replace(R.id.pitanjePlace, fp).commit();
         }
+
+    }
+
+    private void unesiIme() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Unesite ime:");
+        final EditText edittext = new EditText(this);
+        builder.setView(edittext);
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                String ime = edittext.getText().toString();
+                Boolean wantToCloseDialog = !ime.trim().equals("");
+                if(wantToCloseDialog)
+                    dialog.dismiss();
+                else{
+                    edittext.setBackgroundColor(getResources().getColor(R.color.crvenkasta));
+                }
+            }
+        });
+
+
 
     }
 
