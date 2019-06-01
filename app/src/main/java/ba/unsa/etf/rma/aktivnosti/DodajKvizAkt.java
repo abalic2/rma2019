@@ -48,16 +48,20 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
     private ListView listaMogucihPitanja;
     private PitanjaAdapter adapterPitanja;
     private PitanjaAdapter adapterMogucihPitanja;
-    private ArrayList<Pitanje> mogucaPitanja = new ArrayList<>();
-    private ArrayList<Pitanje> pitanja = new ArrayList<>();
     private EditText imeKviza;
     private Button dugme;
     private Button dugmeImportuj;
-    private boolean dodavanjeNovogKviza = false;
+
+
     private ArrayList<Kategorija> kategorije = new ArrayList<>();
-    private ArrayList<Kviz> kvizovi;
+    private ArrayList<Pitanje> mogucaPitanja = new ArrayList<>();
+    private ArrayList<Pitanje> pitanja = new ArrayList<>();
+
     private int pozicijaKliknutog;
     private String idKviza;
+    private boolean mijenjanjeKategorije = false;
+    private boolean dodavanjeNovogKviza = false;
+    private Kategorija novaKategorija;
 
     private DajKvizRec rReceiver;
     private DajSveKategorijeRec kReceiver;
@@ -145,8 +149,6 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
             public void onClick(View v) {
                 //dodavanje pitanja
                 Intent myIntent = new Intent(DodajKvizAkt.this, DodajPitanjeAkt.class);
-                myIntent.putExtra("listaPitanja", pitanja);
-                myIntent.putExtra("listaMogucihPitanja", mogucaPitanja);
                 DodajKvizAkt.this.startActivityForResult(myIntent, 2);
             }
         });
@@ -199,7 +201,6 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
         Intent intent = new Intent(Intent.ACTION_SYNC, null, this, EditKviz.class);
         intent.putExtra("receiver", oReceiver);
         intent.putExtra("kviz", kviz);
-        System.out.println(kviz.getId());
         startService(intent);
     }
 
@@ -225,6 +226,7 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
                 if (idKviza == null) {
                     dodavanjeNovogKviza = true;
                 } else {
+                    dodavanjeNovogKviza = false;
                     ucitajKvizIzBaze(idKviza);
                 }
 
@@ -239,6 +241,7 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
 
                     ucitajMogucaPitanja();
                 }
+
 
         }
     }
@@ -255,14 +258,23 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
                 adapterPitanja.notifyDataSetChanged();
 
                 ucitajMogucaPitanja();
-
-                //da namjesti na njegovu kategoriju
-                int indeks = 0;
-                for (Kategorija k : kategorije) {
-                    if (k.getNaziv().equals(kviz.getKategorija().getNaziv())) break;
-                    indeks++;
+                if(mijenjanjeKategorije) {
+                    int brojac = 0;
+                    for (Kategorija k : kategorije) {
+                        if (k.getNaziv().equals(novaKategorija.getNaziv())) break;
+                        brojac++;
+                    }
+                    spinner.setSelection(brojac);
                 }
-                spinner.setSelection(indeks);
+                else {
+                    //da namjesti na njegovu kategoriju
+                    int indeks = 0;
+                    for (Kategorija k : kategorije) {
+                        if (k.getNaziv().equals(kviz.getKategorija().getNaziv())) break;
+                        indeks++;
+                    }
+                    spinner.setSelection(indeks);
+                }
 
 
         }
@@ -301,11 +313,10 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
         } else if (requestCode == 3) {
             //povratak iz DodajKategorijuAkt
             if (resultCode == Activity.RESULT_OK) {
-                ArrayList<Kategorija> vraceneKategorije = (ArrayList<Kategorija>) data.getSerializableExtra("kategorije");
-                kategorije.clear();
-                kategorije.addAll(vraceneKategorije);
-                spAdapter.notifyDataSetChanged();
-                spinner.setSelection(kategorije.size() - 2);
+                mijenjanjeKategorije = true;
+                novaKategorija = (Kategorija) data.getSerializableExtra("novaKategorija");
+                popuniKategorijeIzBaze();
+
             } else {
                 spinner.setSelection(0);
             }
@@ -388,7 +399,7 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
     }
 
     private Kviz vratiKvizIzDatoteke(String datoteka) {
-        Kviz noviKviz = new Kviz();
+        /*Kviz noviKviz = new Kviz();
         String imeKviza = new String();
         Kategorija kategorija = new Kategorija();
         ArrayList<Pitanje> pitanja = new ArrayList<>();
@@ -491,7 +502,8 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
             spAdapter.notifyDataSetChanged();
         }
         noviKviz.setPitanja(pitanja);
-        return noviKviz;
+        return noviKviz;*/
+        return null;
     }
 
     private static boolean jeLiiInt(String str) {
@@ -507,7 +519,6 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
     public void onReceiveResultPitanja(int resultCode, Bundle resultData) {
         switch (resultCode) {
             case 1:
-                System.out.println("moguca pitanja");
                 mogucaPitanja.clear();
                 ArrayList<Pitanje> p = (ArrayList<Pitanje>) resultData.get("pitanja");
                 mogucaPitanja.addAll(p);

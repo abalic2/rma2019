@@ -1,8 +1,11 @@
 package ba.unsa.etf.rma.aktivnosti;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -14,24 +17,30 @@ import com.maltaisn.icondialog.IconDialog;
 import java.util.ArrayList;
 
 import ba.unsa.etf.rma.R;
+import ba.unsa.etf.rma.intentServisi.DodajKategoriju;
 import ba.unsa.etf.rma.klase.Kategorija;
+import ba.unsa.etf.rma.receiveri.DodajKategorijuRec;
 
-public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.Callback{
+public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.Callback,DodajKategorijuRec.Receiver{
     private EditText nazivKategorije;
     private EditText ikona;
     private Button dodajIkonu;
     private Button dodajKategoriju;
     private ArrayList<Kategorija> kategorije;
     private Icon[] selectedIcons;
+    private DodajKategorijuRec mReceiver;
+    private Kategorija novaKategorija;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dodaj_kategoriju);
 
-        final Kategorija novaKategorija = new Kategorija();
+        mReceiver = new DodajKategorijuRec(new Handler());
+        mReceiver.setReceiver(this);
 
-        kategorije = (ArrayList<Kategorija>) getIntent().getSerializableExtra("kategorije");
+        novaKategorija = new Kategorija();
+
         nazivKategorije = (EditText) findViewById(R.id.etNaziv);
         ikona = (EditText) findViewById(R.id.etIkona);
         dodajIkonu = (Button) findViewById(R.id.btnDodajIkonu);
@@ -55,17 +64,20 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
                 if(jeLiSveValidno()) {
                     novaKategorija.setNaziv(nazivKategorije.getText().toString());
                     novaKategorija.setId(ikona.getText().toString());
-                    kategorije.add(kategorije.size() - 1, novaKategorija);
-                    Intent myIntent = new Intent();
-                    myIntent.putExtra("kategorije", kategorije);
-                    setResult(Activity.RESULT_OK, myIntent);
-                    finish();
+                    dodajKategorijuUBazu(novaKategorija);
                 }
             }
         });
 
 
 
+    }
+
+    private void dodajKategorijuUBazu(Kategorija novaKategorija) {
+        Intent intent = new Intent(Intent.ACTION_SYNC, null, this, DodajKategoriju.class);
+        intent.putExtra("receiver", mReceiver);
+        intent.putExtra("kategorija", novaKategorija);
+        startService(intent);
     }
 
     private boolean jeLiSveValidno() {
@@ -76,12 +88,7 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
             nemaGreska = false;
             nazivKategorije.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
         }
-        for(Kategorija k : kategorije){
-            if(k.getNaziv().equals(ime)){
-                nemaGreska = false;
-                nazivKategorije.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
-            }
-        }
+
         if(ikona.getText().toString().equals("")){
             ikona.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
             nemaGreska = false;
@@ -99,5 +106,33 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
         selectedIcons = icons;
         ikona.setText(String.valueOf(selectedIcons[0].getId()));
         ikona.setBackground(getResources().getDrawable(R.drawable.bijela_okvir));
+    }
+
+    @Override
+    public void onReceiveResultNovaKategorija(int resultCode, Bundle resultData) {
+        switch (resultCode){
+            case 1:
+                Intent myIntent = new Intent();
+                myIntent.putExtra("novaKategorija", novaKategorija);
+                setResult(Activity.RESULT_OK, myIntent);
+                finish();
+                break;
+            case 2:
+                nazivKategorije.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
+                prikaziAlertdialog("Kategorija sa tim nazivom vec postoji!");
+                break;
+        }
+    }
+
+    private void prikaziAlertdialog(String poruka) {
+        AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+        alertDialog.setMessage(poruka);
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        alertDialog.show();
     }
 }
