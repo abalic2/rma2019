@@ -118,24 +118,32 @@ public class DajSveKvizoveKategorije  extends IntentService {
             JSONArray kvizovi = jo.getJSONArray("documents");
             for (int i = 0; i < kvizovi.length(); i++) {
                 JSONObject p = kvizovi.getJSONObject(i);
+                try {
 
-                String[] name = p.getJSONObject("document").getString("name").split("/");
-                String idKviza = name[name.length - 1];
-                System.out.println(idKviza);
+                    String[] name = p.getJSONObject("document").getString("name").split("/");
+                    String idKviza = name[name.length - 1];
+                    System.out.println(idKviza);
 
-                JSONObject fields = p.getJSONObject("document").getJSONObject("fields");
+                    JSONObject fields = p.getJSONObject("document").getJSONObject("fields");
 
-                String naziv = fields.getJSONObject("naziv").getString("stringValue");
+                    String naziv = fields.getJSONObject("naziv").getString("stringValue");
 
-                ArrayList<Pitanje> pitanjaKviza = new ArrayList<>();
-                JSONArray pitanja = fields.getJSONObject("pitanja").getJSONObject("arrayValue").getJSONArray("values");
-                for (int j = 0; j < pitanja.length(); j++) {
-                    String id = pitanja.getJSONObject(j).getString("stringValue");
-                    Pitanje pk = dajPitanje(id,token);
-                    pitanjaKviza.add(pk);
+                    ArrayList<Pitanje> pitanjaKviza = new ArrayList<>();
+                    JSONObject pitanjaValues = fields.getJSONObject("pitanja").getJSONObject("arrayValue");
+                    try {
+                        JSONArray pitanja = pitanjaValues.getJSONArray("values");
+                        for (int j = 0; j < pitanja.length(); j++) {
+                            String id = pitanja.getJSONObject(j).getString("stringValue");
+                            Pitanje pk = dajPitanje(id, token);
+                            pitanjaKviza.add(pk);
+                        }
+                    } catch (Exception e) {
+
+                    }
+
+                    rezultati.add(new Kviz(naziv, pitanjaKviza, kategorija, idKviza));
                 }
-
-                rezultati.add(new Kviz(naziv,pitanjaKviza,kategorija,idKviza));
+                catch (Exception e){}
 
             }
 

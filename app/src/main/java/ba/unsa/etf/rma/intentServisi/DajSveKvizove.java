@@ -82,25 +82,32 @@ public class DajSveKvizove extends IntentService {
             JSONArray kvizovi = jo.getJSONArray("documents");
             for (int i = 0; i < kvizovi.length(); i++) {
                 JSONObject p = kvizovi.getJSONObject(i);
+                try {
+                    String[] name = p.getString("name").split("/");
+                    String idKviza = name[name.length - 1];
 
-                String[] name = p.getString("name").split("/");
-                String idKviza = name[name.length - 1];
+                    JSONObject fields = p.getJSONObject("fields");
+                    String naziv = fields.getJSONObject("naziv").getString("stringValue");
+                    String idKategorije = fields.getJSONObject("idKategorije").getString("stringValue");
 
-                JSONObject fields = p.getJSONObject("fields");
-                String naziv = fields.getJSONObject("naziv").getString("stringValue");
-                String idKategorije = fields.getJSONObject("idKategorije").getString("stringValue");
+                    Kategorija k = dajKategoriju(idKategorije, token);
 
-                Kategorija k = dajKategoriju(idKategorije, token);
+                    ArrayList<Pitanje> pitanjaKviza = new ArrayList<>();
 
-                ArrayList<Pitanje> pitanjaKviza = new ArrayList<>();
-                JSONArray pitanja = fields.getJSONObject("pitanja").getJSONObject("arrayValue").getJSONArray("values");
-                for (int j = 0; j < pitanja.length(); j++) {
-                    String id = pitanja.getJSONObject(j).getString("stringValue");
-                    Pitanje pk = dajPitanje(id,token);
-                    pitanjaKviza.add(pk);
-                }
+                    JSONObject pitanjaValues = fields.getJSONObject("pitanja").getJSONObject("arrayValue");
+                    try {
+                        JSONArray pitanja = pitanjaValues.getJSONArray("values");
+                        for (int j = 0; j < pitanja.length(); j++) {
+                            String id = pitanja.getJSONObject(j).getString("stringValue");
+                            Pitanje pk = dajPitanje(id, token);
+                            pitanjaKviza.add(pk);
+                        }
+                    } catch (Exception e) {
 
-                rezultati.add(new Kviz(naziv,pitanjaKviza,k,idKviza));
+                    }
+
+                    rezultati.add(new Kviz(naziv, pitanjaKviza, k, idKviza));
+                }catch (Exception e){}
 
             }
 
@@ -163,6 +170,9 @@ public class DajSveKvizove extends IntentService {
     }
 
     private Kategorija dajKategoriju(String idKategorije, String token) {
+        if(idKategorije.equals("KATEGORIJASvi")){
+            return new Kategorija("Svi", "0");
+        }
         URL url = null;
         try {
             String u = "https://firestore.googleapis.com/v1/projects/rmaspirala/databases/(default)/documents/Kategorije/"+idKategorije+"?access_token=" + URLEncoder.encode(token, "UTF-8");

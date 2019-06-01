@@ -89,10 +89,16 @@ public class DajKviz extends IntentService {
             ArrayList<Pitanje> pitanjaKviza = new ArrayList<>();
             ArrayList<String> idPitanja = new ArrayList<>();
             dajSvaPitanje(token);
-            JSONArray pitanja = fields.getJSONObject("pitanja").getJSONObject("arrayValue").getJSONArray("values");
-            for (int j = 0; j < pitanja.length(); j++) {
-                String id = pitanja.getJSONObject(j).getString("stringValue");
-                idPitanja.add(id);
+            JSONObject pitanjaValues = fields.getJSONObject("pitanja").getJSONObject("arrayValue");
+            try{
+                JSONArray pitanja = pitanjaValues.getJSONArray("values");
+                for (int j = 0; j < pitanja.length(); j++) {
+                    String id = pitanja.getJSONObject(j).getString("stringValue");
+                    idPitanja.add(id);
+                }
+            }
+            catch (Exception e){
+
             }
 
             for(Pitanje p : svaPitanja){
@@ -167,6 +173,9 @@ public class DajKviz extends IntentService {
     }
 
     private Kategorija dajKategoriju(String idKategorije, String token) {
+        if(idKategorije.equals("KATEGORIJASvi")){
+            return new Kategorija("Svi", "0");
+        }
         URL url = null;
         try {
             String u = "https://firestore.googleapis.com/v1/projects/rmaspirala/databases/(default)/documents/Kategorije/" + idKategorije + "?access_token=" + URLEncoder.encode(token, "UTF-8");

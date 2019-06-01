@@ -84,22 +84,24 @@ public class DodajKviz extends IntentService {
                         "   \"stringValue\": \"KATEGORIJA" + kviz.getKategorija().getNaziv().replaceAll("\\s", "") + "\"\n" +
                         "  },\n" +
                         "  \"pitanja\": {\n" +
-                        "   \"arrayValue\": {\n" +
-                        "    \"values\": [\n";
+                        "   \"arrayValue\": {\n";
 
-                int brojac = 0;
-                for (Pitanje p : kviz.getPitanja()) {
-                    if (brojac != 0) noviKviz += ", ";
-                    noviKviz += "{ \"stringValue\"" + ": \"PITANJE" + p.getNaziv().replaceAll("\\s", "") + "\" }";
-                    brojac++;
+                if (kviz.getPitanja().size() != 0) {
+                    noviKviz += "    \"values\": [\n";
+
+                    int brojac = 0;
+                    for (Pitanje p : kviz.getPitanja()) {
+                        if (brojac != 0) noviKviz += ", ";
+                        noviKviz += "{ \"stringValue\"" + ": \"PITANJE" + p.getNaziv().replaceAll("\\s", "") + "\" }";
+                        brojac++;
+                    }
+
+                    noviKviz += "    ]\n";
                 }
-
-                noviKviz +=
-                        "    ]\n" +
-                                "   }\n" +
-                                "  }\n" +
-                                " },\n" +
-                                "}";
+                noviKviz += "   }\n" +
+                        "  }\n" +
+                        " },\n" +
+                        "}";
 
 
                 OutputStream os = urlConnection.getOutputStream();

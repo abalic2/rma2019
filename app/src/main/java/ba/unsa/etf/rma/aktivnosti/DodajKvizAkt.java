@@ -262,15 +262,7 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
                 mogucaPitanja.addAll(m);
                 adapterMogucihPitanja.notifyDataSetChanged();
 
-                if(mijenjanjeKategorije) {
-                    int brojac = 0;
-                    for (Kategorija k : kategorije) {
-                        if (k.getNaziv().equals(novaKategorija.getNaziv())) break;
-                        brojac++;
-                    }
-                    spinner.setSelection(brojac);
-                }
-                else {
+
                     //da namjesti na njegovu kategoriju
                     int indeks = 0;
                     for (Kategorija k : kategorije) {
@@ -278,7 +270,7 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
                         indeks++;
                     }
                     spinner.setSelection(indeks);
-                }
+
 
 
         }
@@ -316,9 +308,10 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
         } else if (requestCode == 3) {
             //povratak iz DodajKategorijuAkt
             if (resultCode == Activity.RESULT_OK) {
-                mijenjanjeKategorije = true;
                 novaKategorija = (Kategorija) data.getSerializableExtra("novaKategorija");
-                popuniKategorijeIzBaze();
+                kategorije.add(kategorije.size()-1,novaKategorija);
+                spAdapter.notifyDataSetChanged();
+                spinner.setSelection(kategorije.size()-2);
 
             } else {
                 spinner.setSelection(0);
