@@ -14,11 +14,14 @@ import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
 
@@ -70,7 +73,7 @@ public class EditKviz extends IntentService {
 
             URL url = null;
             try {
-                String u = "https://firestore.googleapis.com/v1/projects/rmaspirala/databases/(default)/documents/Kvizovi/"+kviz.getId()+"?currentDocument.exists=true";
+                String u = "https://firestore.googleapis.com/v1/projects/rmaspirala/databases/(default)/documents/Kvizovi/" + kviz.getId() + "?currentDocument.exists=true";
                 url = new URL(u);
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestProperty("Authorization", "Bearer " + token);
@@ -120,8 +123,97 @@ public class EditKviz extends IntentService {
                 e.printStackTrace();
 
             }
+
+
+            prepraviRangListu(token);
+
             receiver.send(STATUS_FINISHED, bundle);
         }
+    }
+
+    JSONObject lista(String token) {
+        URL url = null;
+        try {
+            String u = "https://firestore.googleapis.com/v1/projects/rmaspirala/databases/(default)/documents/Rangliste/RANG" + kviz.getId() + "?";
+
+            url = new URL(u);
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestProperty("Authorization", "Bearer " + token);
+            //urlConnection.setDoOutput(true);
+            urlConnection.setRequestMethod("GET");
+            urlConnection.setRequestProperty("Content-Type", "application/json");
+            urlConnection.setRequestProperty("Accept", "application/json");
+            InputStream in;
+            try {
+                in = new BufferedInputStream(urlConnection.getInputStream());
+            } catch (FileNotFoundException e) {
+                return null;
+            }
+            String rezultat = convertStreamToString(in);
+            JSONObject jo = new JSONObject(rezultat);
+
+            try {
+                JSONObject sve = jo.getJSONObject("fields");
+                String naziv = sve.getJSONObject("nazivKviza").getString("stringValue");
+                JSONObject lista = sve.getJSONObject("lista");
+                return  lista;
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private void prepraviRangListu(String token) {
+
+        JSONObject lista = lista(token);
+        if(lista == null) return;
+
+        URL url = null;
+        try {
+            String u = "https://firestore.googleapis.com/v1/projects/rmaspirala/databases/(default)/documents/Rangliste/RANG" + kviz.getId() + "?";
+            url = new URL(u);
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestProperty("Authorization", "Bearer " + token);
+            urlConnection.setDoOutput(true);
+            urlConnection.setRequestMethod("PATCH");
+            urlConnection.setRequestProperty("Content-Type", "application/json");
+            urlConnection.setRequestProperty("Accept", "application/json");
+
+            String rangLista = "{\n" +
+                    " \"fields\": {\n" +
+                    "  \"nazivKviza\": {\n" +
+                    "   \"stringValue\": \"" + kviz.getNaziv() + "\"\n" +
+                    "  },  \"lista\": "+ lista.toString() + " } }";
+            System.out.println(rangLista);
+
+            OutputStream os = urlConnection.getOutputStream();
+            byte[] input = rangLista.getBytes("utf-8");
+            os.write(input, 0, input.length);
+
+            try {
+                int responseCode = urlConnection.getResponseCode();
+                InputStream ist = urlConnection.getInputStream();
+            } catch (FileNotFoundException e) {
+                return;
+            }
+
+
+        } catch (ProtocolException e) {
+            e.printStackTrace();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private boolean jeLiDuplikat(String token) {
@@ -178,13 +270,13 @@ public class EditKviz extends IntentService {
 
                 String[] name = p.getJSONObject("document").getString("name").split("/");
                 String idKviza = name[name.length - 1];
-                if(idKviza.equals(kviz.getId())) continue;
+                if (idKviza.equals(kviz.getId())) continue;
 
                 JSONObject fields = p.getJSONObject("document").getJSONObject("fields");
 
                 String naziv = fields.getJSONObject("naziv").getString("stringValue");
 
-                if(naziv.equals(kviz.getNaziv())) return true;
+                if (naziv.equals(kviz.getNaziv())) return true;
             }
 
         } catch (IOException e) {
