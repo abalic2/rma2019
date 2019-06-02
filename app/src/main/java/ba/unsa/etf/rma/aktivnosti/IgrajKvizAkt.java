@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Pair;
 import android.view.View;
 import android.widget.EditText;
 
@@ -15,6 +16,7 @@ import java.util.Collections;
 import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.fragmenti.InformacijeFrag;
 import ba.unsa.etf.rma.fragmenti.PitanjeFrag;
+import ba.unsa.etf.rma.fragmenti.RangListaFrag;
 import ba.unsa.etf.rma.intentServisi.DodajURangListu;
 import ba.unsa.etf.rma.klase.Kviz;
 import ba.unsa.etf.rma.klase.Pitanje;
@@ -183,6 +185,16 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
 
     @Override
     public void onReceiveResultRanglista(int resultCode, Bundle resultData) {
+        switch(resultCode){
+            case 1:
+                ArrayList<Pair<String,Double>> lista = (ArrayList<Pair<String, Double>>) resultData.getSerializable("lista");
+                Bundle argumenti = new Bundle();
+                argumenti.putSerializable("lista", lista);
+                RangListaFrag rlf = new RangListaFrag();
+                rlf.setArguments(argumenti);
+                getSupportFragmentManager().beginTransaction().replace(R.id.pitanjePlace, rlf).commit();
+
+        }
 
     }
 }
