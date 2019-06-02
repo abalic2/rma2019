@@ -25,6 +25,9 @@
             android:name=".intentServisi.DajSveKategorije"
             android:enabled="true"/>
         <service
+            android:name=".intentServisi.ImportKviza"
+            android:enabled="true"/>
+        <service
             android:name=".intentServisi.DodajKviz"
             android:enabled="true"/>
         <service

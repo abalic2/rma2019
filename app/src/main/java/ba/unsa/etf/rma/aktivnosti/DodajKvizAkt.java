@@ -30,6 +30,7 @@ import ba.unsa.etf.rma.intentServisi.DajSvaPitanja;
 import ba.unsa.etf.rma.intentServisi.DajSveKategorije;
 import ba.unsa.etf.rma.intentServisi.DodajKviz;
 import ba.unsa.etf.rma.intentServisi.EditKviz;
+import ba.unsa.etf.rma.intentServisi.ImportKviza;
 import ba.unsa.etf.rma.klase.Kategorija;
 import ba.unsa.etf.rma.klase.Kviz;
 import ba.unsa.etf.rma.klase.Pitanje;
@@ -38,9 +39,10 @@ import ba.unsa.etf.rma.receiveri.DajSvaPitanjaRec;
 import ba.unsa.etf.rma.receiveri.DajSveKategorijeRec;
 import ba.unsa.etf.rma.receiveri.DodajKvizRec;
 import ba.unsa.etf.rma.receiveri.EditKvizRec;
+import ba.unsa.etf.rma.receiveri.ImportKvizRec;
 
 public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeRec.Receiver, DajKvizRec.Receiver,
-        DajSvaPitanjaRec.Receiver, DodajKvizRec.Receiver, EditKvizRec.Receiver {
+        DajSvaPitanjaRec.Receiver, DodajKvizRec.Receiver, EditKvizRec.Receiver, ImportKvizRec.Receiver {
 
     private Spinner spinner;
     private SpinnerAdapter spAdapter;
@@ -57,6 +59,7 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
     private ArrayList<Pitanje> mogucaPitanja = new ArrayList<>();
     private ArrayList<Pitanje> pitanja = new ArrayList<>();
 
+    private boolean importovanje = false;
     private int pozicijaKliknutog;
     private String idKviza;
     private boolean mijenjanjeKategorije = false;
@@ -68,6 +71,7 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
     private DajSvaPitanjaRec nReceiver;
     private DodajKvizRec mReceiver;
     private EditKvizRec oReceiver;
+    private ImportKvizRec iReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +88,8 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
         mReceiver.setReceiver(this);
         oReceiver = new EditKvizRec(new Handler());
         oReceiver.setReceiver(this);
+        iReceiver = new ImportKvizRec(new Handler());
+        iReceiver.setReceiver(this);
 
         imeKviza = (EditText) findViewById(R.id.etNaziv);
         spinner = (Spinner) findViewById(R.id.spKategorije);
@@ -158,10 +164,9 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
             public void onClick(View v) {
                 if (jeLiSveValidno()) {
                     Kviz novi = new Kviz(imeKviza.getText().toString(), pitanja, (Kategorija) spinner.getSelectedItem(), idKviza);
-                    if(dodavanjeNovogKviza){
+                    if (dodavanjeNovogKviza) {
                         dodajNoviKviz(novi);
-                    }
-                    else{
+                    } else {
                         editujKviz(novi);
                     }
 
@@ -175,7 +180,7 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
             public void onClick(View v) {
                 Intent sendIntent = new Intent();
                 sendIntent.setAction(Intent.ACTION_OPEN_DOCUMENT);
-                String[] mimeTypes = {"text/csv", "text/plain","text/comma-separated-values"};
+                String[] mimeTypes = {"text/csv", "text/plain", "text/comma-separated-values"};
                 sendIntent.setType("*/*");
                 sendIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
                 if (sendIntent.resolveActivity(getPackageManager()) != null) {
@@ -219,7 +224,7 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
                 kategorije.clear();
                 kategorije.add(new Kategorija("Svi", "0"));
                 kategorije.addAll(kategorijeIzBaze);
-                Kategorija dodaj = new Kategorija("Dodaj kategoriju",null);
+                Kategorija dodaj = new Kategorija("Dodaj kategoriju", null);
                 kategorije.add(dodaj);
                 spAdapter.notifyDataSetChanged();
 
@@ -230,7 +235,7 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
                     ucitajKvizIzBaze(idKviza);
                 }
 
-                if(dodavanjeNovogKviza) {
+                if (dodavanjeNovogKviza) {
                     Kategorija kategorija = (Kategorija) getIntent().getSerializableExtra("oznacenaKategorija");
                     int brojac = 0;
                     for (Kategorija k : kategorije) {
@@ -263,14 +268,13 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
                 adapterMogucihPitanja.notifyDataSetChanged();
 
 
-                    //da namjesti na njegovu kategoriju
-                    int indeks = 0;
-                    for (Kategorija k : kategorije) {
-                        if (k.getNaziv().equals(kviz.getKategorija().getNaziv())) break;
-                        indeks++;
-                    }
-                    spinner.setSelection(indeks);
-
+                //da namjesti na njegovu kategoriju
+                int indeks = 0;
+                for (Kategorija k : kategorije) {
+                    if (k.getNaziv().equals(kviz.getKategorija().getNaziv())) break;
+                    indeks++;
+                }
+                spinner.setSelection(indeks);
 
 
         }
@@ -309,36 +313,32 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
             //povratak iz DodajKategorijuAkt
             if (resultCode == Activity.RESULT_OK) {
                 novaKategorija = (Kategorija) data.getSerializableExtra("novaKategorija");
-                kategorije.add(kategorije.size()-1,novaKategorija);
+                kategorije.add(kategorije.size() - 1, novaKategorija);
                 spAdapter.notifyDataSetChanged();
-                spinner.setSelection(kategorije.size()-2);
+                spinner.setSelection(kategorije.size() - 2);
 
             } else {
                 spinner.setSelection(0);
             }
         } else if (requestCode == 44) {
+            //importovanje kviza
             if (resultCode == Activity.RESULT_OK) {
                 if (data != null) {
                     String datoteka = vratiStringizCVSa(data);
                     Kviz noviKviz = vratiKvizIzDatoteke(datoteka);
                     if (noviKviz != null) {
-                        int indeks = 0;
-                        for (Kategorija k : kategorije) {
-                            if (k.getNaziv().equals(noviKviz.getKategorija().getNaziv())) {
-                                spinner.setSelection(indeks);
-                            }
-                            indeks++;
-                        }
-                        imeKviza.setText(noviKviz.getNaziv());
-                        pitanja.clear();
-                        mogucaPitanja.clear();
-                        pitanja.addAll(noviKviz.getPitanja());
-                        adapterPitanja.notifyDataSetChanged();
-                        adapterMogucihPitanja.notifyDataSetChanged();
+                        importujKviz(noviKviz);
                     }
                 }
             }
         }
+    }
+
+    private void importujKviz(Kviz noviKviz) {
+        Intent intent = new Intent(Intent.ACTION_SYNC, null, this, ImportKviza.class);
+        intent.putExtra("receiver", iReceiver);
+        intent.putExtra("kviz", noviKviz);
+        startService(intent);
     }
 
     @Override
@@ -395,7 +395,7 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
     }
 
     private Kviz vratiKvizIzDatoteke(String datoteka) {
-        /*Kviz noviKviz = new Kviz();
+        Kviz noviKviz = new Kviz();
         String imeKviza = new String();
         Kategorija kategorija = new Kategorija();
         ArrayList<Pitanje> pitanja = new ArrayList<>();
@@ -408,13 +408,6 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
                 if (elementi.length != 3) {
                     prikaziAlertdialog("Datoteka kviza kojeg importujete nema ispravan format!");
                     return null;
-                }
-                //ima ll vec imena
-                for (Kviz k : kvizovi) {
-                    if (k.getNaziv().equals(elementi[0])) {
-                        prikaziAlertdialog("Kviz kojeg importujete već postoji!");
-                        return null;
-                    }
                 }
                 imeKviza = elementi[0];
                 if (!jeLiiInt(elementi[2])) {
@@ -439,7 +432,7 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
                 }
             } else {
                 //mora imati bar ime pitanja, broj odgovora, i jedan tacan odg
-                if(elementi.length < 4){
+                if (elementi.length < 4) {
                     prikaziAlertdialog("Datoteka kviza kojeg importujete nema ispravan format!");
                     return null;
                 }
@@ -498,8 +491,7 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
             spAdapter.notifyDataSetChanged();
         }
         noviKviz.setPitanja(pitanja);
-        return noviKviz;*/
-        return null;
+        return noviKviz;
     }
 
     private static boolean jeLiiInt(String str) {
@@ -552,6 +544,37 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
             case 2:
                 imeKviza.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
                 prikaziAlertdialog("Kviz sa tim nazivom vec postoji!");
+                break;
+        }
+    }
+
+    @Override
+    public void onReceiveResultImportKviz(int resultCode, Bundle resultData) {
+        System.out.println("heej");
+        switch (resultCode) {
+            case 1:
+                Kviz kviz = (Kviz) resultData.getSerializable("kviz");
+                ArrayList<Pitanje> svaPitanja = (ArrayList<Pitanje>) resultData.getSerializable("pitanja");
+                imeKviza.setText(kviz.getNaziv());
+                pitanja.clear();
+                pitanja.addAll(kviz.getPitanja());
+                adapterPitanja.notifyDataSetChanged();
+
+                mogucaPitanja.clear();
+                mogucaPitanja.addAll(svaPitanja);
+                adapterMogucihPitanja.notifyDataSetChanged();
+
+
+                int indeks = 0;
+                for (Kategorija k : kategorije) {
+                    if (k.getNaziv().equals(kviz.getKategorija().getNaziv())) break;
+                    indeks++;
+                }
+                spinner.setSelection(indeks);
+                break;
+            case 2:
+                String poruka = resultData.getString("poruka");
+                prikaziAlertdialog(poruka);
                 break;
         }
     }
