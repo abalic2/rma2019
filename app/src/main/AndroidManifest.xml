@@ -31,6 +31,9 @@
             android:name=".intentServisi.DodajKategoriju"
             android:enabled="true"/>
         <service
+            android:name=".intentServisi.DodajURangListu"
+            android:enabled="true"/>
+        <service
             android:name=".intentServisi.EditKviz"
             android:enabled="true"/>
         <service

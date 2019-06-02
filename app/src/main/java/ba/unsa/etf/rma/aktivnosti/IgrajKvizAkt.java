@@ -1,6 +1,7 @@
 package ba.unsa.etf.rma.aktivnosti;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
@@ -14,10 +15,12 @@ import java.util.Collections;
 import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.fragmenti.InformacijeFrag;
 import ba.unsa.etf.rma.fragmenti.PitanjeFrag;
+import ba.unsa.etf.rma.intentServisi.DodajURangListu;
 import ba.unsa.etf.rma.klase.Kviz;
 import ba.unsa.etf.rma.klase.Pitanje;
+import ba.unsa.etf.rma.receiveri.DodajURangListuRec;
 
-public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnItemClick {
+public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnItemClick, DodajURangListuRec.Receiver {
     private Kviz kviz;
     private ArrayList<Pitanje> pitanja;
     private ArrayList<String> odgovori;
@@ -26,11 +29,15 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
     private int brojPreostalih;
     private int ukupanBrojPitanja;
     private String imeIgraca;
+    private DodajURangListuRec mReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_igraj_kviz);
+
+        mReceiver = new DodajURangListuRec(new Handler());
+        mReceiver.setReceiver(this);
 
         kviz = (Kviz) getIntent().getSerializableExtra("kviz");
         brojPreostalih = kviz.getPitanja().size() - 1;
@@ -97,8 +104,15 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
             {
                 String ime = edittext.getText().toString();
                 Boolean wantToCloseDialog = !ime.trim().equals("");
-                if(wantToCloseDialog)
+                if(wantToCloseDialog) {
+                    int proslo = ukupanBrojPitanja - brojPreostalih - 1;
+                    double procenat = 0;
+                    if (proslo != 0) {
+                        procenat = (double) brojTacnih / proslo * 100;
+                    }
+                    dodajRezultatUBazu(ime, procenat );
                     dialog.dismiss();
+                }
                 else{
                     edittext.setBackgroundColor(getResources().getColor(R.color.crvenkasta));
                 }
@@ -107,6 +121,16 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
 
 
 
+    }
+
+    private void dodajRezultatUBazu(String ime, double procenat) {
+        Intent intent = new Intent(Intent.ACTION_SYNC, null, this, DodajURangListu.class);
+        intent.putExtra("receiver", mReceiver);
+        intent.putExtra("imeIgraca", ime);
+        intent.putExtra("procenat", procenat);
+        intent.putExtra("idKviza", kviz.getId());
+        intent.putExtra("nazivKviza",kviz.getNaziv());
+        startService(intent);
     }
 
     @Override
@@ -140,6 +164,7 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
                     odgovori.addAll(pitanje.dajRandomOdgovore());
                 } else {
                     pitanje = null;
+                    unesiIme();
                 }
 
                 Bundle argumenti = new Bundle();
@@ -156,4 +181,8 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
         }, 2000);
     }
 
+    @Override
+    public void onReceiveResultRanglista(int resultCode, Bundle resultData) {
+
+    }
 }
