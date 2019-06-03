@@ -34,4 +34,11 @@ public class Kategorija implements Serializable {
     public String toString() {
         return naziv;
     }
+
+    public String getIdDokumenta(){
+        String id = getNaziv().replaceAll("\\s","");
+        id = id.replaceAll("\\?","");
+        id = "KATEGORIJA" + id;
+        return id;
+    }
 }

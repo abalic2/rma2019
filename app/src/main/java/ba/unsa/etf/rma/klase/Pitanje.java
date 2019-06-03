@@ -58,4 +58,11 @@ public class Pitanje implements Serializable {
         Collections.shuffle(randomoOdgovori);
         return randomoOdgovori;
     }
+
+    public String getIdDokumenta(){
+        String id = getNaziv().replaceAll("\\s","");
+        id = id.replaceAll("\\?","");
+        id = "PITANJE" + id;
+        return id;
+    }
 }

@@ -51,7 +51,7 @@ public class InformacijeFrag extends Fragment {
             if (proslo != 0) {
                 procenat = (double) tacni / proslo * 100;
             }
-            procenatTacni.setText(String.format("%.1f", procenat) + "%");
+            procenatTacni.setText(String.format("%.2f", procenat) + "%");
 
         }
 

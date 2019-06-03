@@ -45,7 +45,8 @@ public class RangListaFrag extends Fragment {
             ArrayList<String> ispisi = new ArrayList<>();
             int pozicija = 1;
             for(Pair<String,Double> par : igraci){
-                ispisi.add(pozicija + ". " + par.first + " - procenat " + par.second + "%");
+                String proc = String.format("%.2f", par.second);
+                ispisi.add(pozicija + ". " + par.first + " - procenat " + proc + "%");
                 pozicija++;
             }
 
