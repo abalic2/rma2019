@@ -511,7 +511,7 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
     @Override
     public void onReceiveResultKategorije(int resultCode, Bundle resultData) {
         switch (resultCode) {
-            case 3:
+            case 1:
                 ArrayList<Kategorija> kategorijeIzBaze = (ArrayList<Kategorija>) resultData.get("kategorije");
                 kategorije.clear();
                 kategorije.add(new Kategorija("Svi", "0"));
