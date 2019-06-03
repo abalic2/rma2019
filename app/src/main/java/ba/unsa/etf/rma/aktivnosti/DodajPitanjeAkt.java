@@ -29,12 +29,13 @@ public class DodajPitanjeAkt extends AppCompatActivity implements DodajPitanjeRe
     private Button dodaj;
     private Button dodajTacan;
     private Button spasiPitanje;
+
     private ArrayList<String> odgovori = new ArrayList<>();
-    private ArrayList<Pitanje> pitanjaKviza = new ArrayList<>();
-    private ArrayList<Pitanje> mogucaPitanjaKviza = new ArrayList<>();
+
     private boolean imaTacanOdgovor = false;
-    private DodajPitanjeRec mReceiver;
     private Pitanje novoPitanje;
+
+    private DodajPitanjeRec mReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,16 +54,14 @@ public class DodajPitanjeAkt extends AppCompatActivity implements DodajPitanjeRe
         dodajTacan = (Button) findViewById(R.id.btnDodajTacan);
         spasiPitanje = (Button) findViewById(R.id.btnDodajPitanje);
 
-        pitanjaKviza = (ArrayList<Pitanje>) getIntent().getSerializableExtra("listaPitanja");
-        mogucaPitanjaKviza = (ArrayList<Pitanje>) getIntent().getSerializableExtra("listaMogucihPitanja");
 
         nazivPitanja.setText("");
         final ArrayAdapter<String> adapterOdgovora;
-        adapterOdgovora = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, odgovori){
+        adapterOdgovora = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, odgovori) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 View v = super.getView(position, convertView, parent);
-                if(odgovori.get(position).equals(novoPitanje.getTacan()))
+                if (odgovori.get(position).equals(novoPitanje.getTacan()))
                     v.setBackgroundColor(getResources().getColor(R.color.zelenkasta));
                 else
                     v.setBackgroundColor(getResources().getColor(R.color.bijela));
@@ -74,10 +73,9 @@ public class DodajPitanjeAkt extends AppCompatActivity implements DodajPitanjeRe
         dodaj.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(odgovor.getText().toString().trim().equals("") || odgovori.contains(odgovor.getText().toString())){
+                if (odgovor.getText().toString().trim().equals("") || odgovori.contains(odgovor.getText().toString())) {
                     odgovor.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
-                }
-                else {
+                } else {
                     odgovori.add(odgovor.getText().toString());
                     odgovor.setText("");
                     adapterOdgovora.notifyDataSetChanged();
@@ -89,10 +87,9 @@ public class DodajPitanjeAkt extends AppCompatActivity implements DodajPitanjeRe
         dodajTacan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(odgovor.getText().toString().trim().equals("") || odgovori.contains(odgovor.getText().toString())){
+                if (odgovor.getText().toString().trim().equals("") || odgovori.contains(odgovor.getText().toString())) {
                     odgovor.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
-                }
-                else {
+                } else {
                     imaTacanOdgovor = true;
                     dodajTacan.setEnabled(false);
                     odgovori.add(odgovor.getText().toString());
@@ -107,13 +104,13 @@ public class DodajPitanjeAkt extends AppCompatActivity implements DodajPitanjeRe
         spasiPitanje.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(jeLiSveValidno()) {
+                if (jeLiSveValidno()) {
                     novoPitanje.setNaziv(nazivPitanja.getText().toString());
                     novoPitanje.setTekstPitanja(nazivPitanja.getText().toString());
                     novoPitanje.setOdgovori(odgovori);
 
                     Intent intentServis = new Intent(Intent.ACTION_SYNC, null, DodajPitanjeAkt.this, DodajPitanje.class);
-                    intentServis.putExtra("pitanje",novoPitanje);
+                    intentServis.putExtra("pitanje", novoPitanje);
                     intentServis.putExtra("receiver", mReceiver);
                     startService(intentServis);
                 }
@@ -123,7 +120,7 @@ public class DodajPitanjeAkt extends AppCompatActivity implements DodajPitanjeRe
         listaOdgovora.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if(odgovori.get(position).equals(novoPitanje.getTacan())){
+                if (odgovori.get(position).equals(novoPitanje.getTacan())) {
                     imaTacanOdgovor = false;
                     novoPitanje.setTacan("");
                     dodajTacan.setEnabled(true);
@@ -138,11 +135,11 @@ public class DodajPitanjeAkt extends AppCompatActivity implements DodajPitanjeRe
         nazivPitanja.setBackground(getResources().getDrawable(R.drawable.bijela_okvir));
         odgovor.setBackground(getResources().getDrawable(R.drawable.bijela_okvir));
         boolean nemaGreska = true;
-        if(!imaTacanOdgovor){
+        if (!imaTacanOdgovor) {
             nemaGreska = false;
             odgovor.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
         }
-        if(nazivPitanja.getText().toString().trim().equals("")){
+        if (nazivPitanja.getText().toString().trim().equals("")) {
             nazivPitanja.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
             nemaGreska = false;
         }
@@ -152,7 +149,7 @@ public class DodajPitanjeAkt extends AppCompatActivity implements DodajPitanjeRe
 
     @Override
     public void onReceiveResultPitanje(int resultCode, Bundle resultData) {
-        switch (resultCode){
+        switch (resultCode) {
             case 1:
                 Intent myIntent = new Intent();
                 myIntent.putExtra("novoPitanje", novoPitanje);

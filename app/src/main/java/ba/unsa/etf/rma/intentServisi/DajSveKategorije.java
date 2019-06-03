@@ -27,13 +27,13 @@ import ba.unsa.etf.rma.klase.Kategorija;
 
 public class DajSveKategorije extends IntentService {
     public int STATUS_RUNNING = 0;
-    public int STATUS_FINISHED = 3;
-    public int STATUS_ERROR = 2;
+    public int STATUS_FINISHED = 1;
     ArrayList<Kategorija> rezultati;
 
     public DajSveKategorije() {
         super(null);
     }
+
     public DajSveKategorije(String name) {
         super(name);
     }
@@ -68,7 +68,6 @@ public class DajSveKategorije extends IntentService {
             String u = "https://firestore.googleapis.com/v1/projects/rmaspirala/databases/(default)/documents/Kategorije?access_token=" + URLEncoder.encode(token, "UTF-8");
             url = new URL(u);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            //urlConnection.setDoOutput(true);
             urlConnection.setRequestMethod("GET");
             urlConnection.setRequestProperty("Content-Type", "application/json");
             urlConnection.setRequestProperty("Accept", "application/json");
@@ -88,7 +87,7 @@ public class DajSveKategorije extends IntentService {
 
                     rezultati.add(new Kategorija(naziv, idIkonice));
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
 
             }
 

@@ -48,7 +48,7 @@ public class DajSveKvizove extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         final ResultReceiver receiver = intent.getParcelableExtra("receiver");
-        boolean dodaj = (boolean) intent.getExtras().getBoolean("dodaj");
+        boolean dodaj = intent.getExtras().getBoolean("dodaj");
         Bundle bundle = new Bundle();
         rezultati = new ArrayList<>();
 
@@ -70,7 +70,6 @@ public class DajSveKvizove extends IntentService {
             String u = "https://firestore.googleapis.com/v1/projects/rmaspirala/databases/(default)/documents/Kvizovi?&access_token=" + URLEncoder.encode(token, "UTF-8");
             url = new URL(u);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            //urlConnection.setDoOutput(true);
             urlConnection.setRequestMethod("GET");
             urlConnection.setRequestProperty("Content-Type", "application/json");
             urlConnection.setRequestProperty("Accept", "application/json");
@@ -78,7 +77,6 @@ public class DajSveKvizove extends IntentService {
             InputStream in = new BufferedInputStream(urlConnection.getInputStream());
             String rezultat = convertStreamToString(in);
             JSONObject jo = new JSONObject(rezultat);
-            //System.out.println(rezultat);
 
             try {
                 JSONArray kvizovi = jo.getJSONArray("documents");
@@ -114,29 +112,24 @@ public class DajSveKvizove extends IntentService {
             }
 
 
+            int responseCode = urlConnection.getResponseCode();
+            InputStream ist = urlConnection.getInputStream();
 
-        int responseCode = urlConnection.getResponseCode();
-        InputStream ist = urlConnection.getInputStream();
 
+        } catch (
+                IOException e) {
+            e.printStackTrace();
 
-    } catch(
-    IOException e)
+        } catch (
+                JSONException e) {
+            e.printStackTrace();
+        }
 
-    {
-        e.printStackTrace();
+        bundle.putSerializable("kvizovi", rezultati);
+        bundle.putBoolean("dodaj", dodaj);
+        receiver.send(STATUS_FINISHED, bundle);
 
-    } catch(
-    JSONException e)
-
-    {
-        e.printStackTrace();
     }
-
-        bundle.putSerializable("kvizovi",rezultati);
-        bundle.putBoolean("dodaj",dodaj);
-        receiver.send(STATUS_FINISHED,bundle);
-
-}
 
     private Pitanje dajPitanje(String id, String token) {
         URL url = null;

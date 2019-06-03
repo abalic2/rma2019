@@ -81,7 +81,7 @@ public class DodajKviz extends IntentService {
                         "   \"stringValue\": \"" + kviz.getNaziv() + "\"\n" +
                         "  },\n" +
                         "  \"idKategorije\": {\n" +
-                        "   \"stringValue\": \"KATEGORIJA" + kviz.getKategorija().getNaziv().replaceAll("\\s", "") + "\"\n" +
+                        "   \"stringValue\": \"" + kviz.getKategorija().getIdDokumenta() + "\"\n" +
                         "  },\n" +
                         "  \"pitanja\": {\n" +
                         "   \"arrayValue\": {\n";
@@ -92,7 +92,7 @@ public class DodajKviz extends IntentService {
                     int brojac = 0;
                     for (Pitanje p : kviz.getPitanja()) {
                         if (brojac != 0) noviKviz += ", ";
-                        noviKviz += "{ \"stringValue\"" + ": \"PITANJE" + p.getNaziv().replaceAll("\\s", "") + "\" }";
+                        noviKviz += "{ \"stringValue\"" + ": \"" + p.getIdDokumenta() + "\" }";
                         brojac++;
                     }
 

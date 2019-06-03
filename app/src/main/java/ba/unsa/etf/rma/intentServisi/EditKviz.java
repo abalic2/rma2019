@@ -88,7 +88,7 @@ public class EditKviz extends IntentService {
                         "   \"stringValue\": \"" + kviz.getNaziv() + "\"\n" +
                         "  },\n" +
                         "  \"idKategorije\": {\n" +
-                        "   \"stringValue\": \"KATEGORIJA" + kviz.getKategorija().getNaziv().replaceAll("\\s", "") + "\"\n" +
+                        "   \"stringValue\": \"" + kviz.getKategorija().getIdDokumenta() + "\"\n" +
                         "  },\n" +
                         "  \"pitanja\": {\n" +
                         "   \"arrayValue\": {\n";
@@ -99,7 +99,7 @@ public class EditKviz extends IntentService {
                     int brojac = 0;
                     for (Pitanje p : kviz.getPitanja()) {
                         if (brojac != 0) noviKviz += ", ";
-                        noviKviz += "{ \"stringValue\"" + ": \"PITANJE" + p.getNaziv().replaceAll("\\s", "") + "\" }";
+                        noviKviz += "{ \"stringValue\"" + ": \"" + p.getIdDokumenta() + "\" }";
                         brojac++;
                     }
 
@@ -139,7 +139,6 @@ public class EditKviz extends IntentService {
             url = new URL(u);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestProperty("Authorization", "Bearer " + token);
-            //urlConnection.setDoOutput(true);
             urlConnection.setRequestMethod("GET");
             urlConnection.setRequestProperty("Content-Type", "application/json");
             urlConnection.setRequestProperty("Accept", "application/json");
@@ -147,6 +146,7 @@ public class EditKviz extends IntentService {
             try {
                 in = new BufferedInputStream(urlConnection.getInputStream());
             } catch (FileNotFoundException e) {
+                //znaci da je nema i da se ne mora prepravljati
                 return null;
             }
             String rezultat = convertStreamToString(in);
@@ -156,7 +156,7 @@ public class EditKviz extends IntentService {
                 JSONObject sve = jo.getJSONObject("fields");
                 String naziv = sve.getJSONObject("nazivKviza").getString("stringValue");
                 JSONObject lista = sve.getJSONObject("lista");
-                return  lista;
+                return lista;
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -174,7 +174,7 @@ public class EditKviz extends IntentService {
     private void prepraviRangListu(String token) {
 
         JSONObject lista = lista(token);
-        if(lista == null) return;
+        if (lista == null) return;
 
         URL url = null;
         try {
@@ -191,8 +191,7 @@ public class EditKviz extends IntentService {
                     " \"fields\": {\n" +
                     "  \"nazivKviza\": {\n" +
                     "   \"stringValue\": \"" + kviz.getNaziv() + "\"\n" +
-                    "  },  \"lista\": "+ lista.toString() + " } }";
-            System.out.println(rangLista);
+                    "  },  \"lista\": " + lista.toString() + " } }";
 
             OutputStream os = urlConnection.getOutputStream();
             byte[] input = rangLista.getBytes("utf-8");

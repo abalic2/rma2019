@@ -29,13 +29,16 @@ import ba.unsa.etf.rma.receiveri.DajSveKvizoveRec;
 
 public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemClick, DetailFrag.OnItemClick,
         DajSveKvizoveKategorijaRec.Receiver, DajSveKategorijeRec.Receiver, DajSveKvizoveRec.Receiver {
+
     private Spinner spinner;
     private ListView lista;
+    private SpinnerAdapter spAdapter;
+    private ListaAdapter lsAdapter;
+
     private ArrayList<Kategorija> kategorije = new ArrayList<>();
     private ArrayList<Kviz> kvizovi = new ArrayList<>();
     private ArrayList<Kviz> odabraniKvizovi = new ArrayList<>();
-    private SpinnerAdapter spAdapter;
-    private ListaAdapter lsAdapter;
+
     private int pozicijaKategorija = 0;
 
     private DajSveKvizoveKategorijaRec mReceiver;
@@ -123,7 +126,6 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
     }
 
     private void popuniKategorijeIzBaze() {
-        System.out.println("ideem");
         Intent intent = new Intent(Intent.ACTION_SYNC, null, KvizoviAkt.this, DajSveKategorije.class);
         intent.putExtra("receiver", kReceiver);
         startService(intent);
@@ -139,7 +141,7 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
     private void igrajKviz(int position) {
         Intent myIntent = new Intent(KvizoviAkt.this, IgrajKvizAkt.class);
         myIntent.putExtra("kviz", odabraniKvizovi.get(position));
-        KvizoviAkt.this.startActivityForResult(myIntent,3);
+        KvizoviAkt.this.startActivityForResult(myIntent, 3);
     }
 
     private void dodajKviz(int kod) {
@@ -167,7 +169,7 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
     }
 
     @Override
-    public void onItemClicked(int pos) {
+    public void onItemClicked(int pos) { //odabir kategorije u sirokom ekranu
         //Priprema novog fragmenta FragmentDetalji
         pozicijaKategorija = pos;
         promijeniKvizove(kategorije.get(pos));
@@ -236,7 +238,7 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
     @Override
     public void onReceiveResultKvizoviKategorija(int resultCode, Bundle resultData) {
         switch (resultCode) {
-            case 2:
+            case 1:
                 ArrayList<Kviz> k2 = (ArrayList<Kviz>) resultData.get("kvizovi");
                 odabraniKvizovi.clear();
                 odabraniKvizovi.addAll(k2);
@@ -253,7 +255,7 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
     @Override
     public void onReceiveResultKategorije(int resultCode, Bundle resultData) {
         switch (resultCode) {
-            case 3:
+            case 1:
                 ArrayList<Kategorija> k3 = (ArrayList<Kategorija>) resultData.get("kategorije");
                 kategorije.clear();
                 kategorije.add(new Kategorija("Svi", "0"));

@@ -104,7 +104,7 @@ public class DajKviz extends IntentService {
             for(Pitanje p : svaPitanja){
                 boolean moguce = true;
                 for (String id : idPitanja){
-                    if(id.equals("PITANJE" + p.getNaziv())){
+                    if(id.equals(p.getIdDokumenta())){
                         pitanjaKviza.add(p);
                         moguce = false;
                         break;

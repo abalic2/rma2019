@@ -28,14 +28,15 @@ import ba.unsa.etf.rma.klase.Kategorija;
 import ba.unsa.etf.rma.klase.Kviz;
 import ba.unsa.etf.rma.klase.Pitanje;
 
-public class DajSveKvizoveKategorije  extends IntentService {
+public class DajSveKvizoveKategorije extends IntentService {
     public int STATUS_RUNNING = 0;
-    public int STATUS_FINISHED = 2;
+    public int STATUS_FINISHED = 1;
     ArrayList<Kviz> rezultati;
 
     public DajSveKvizoveKategorije() {
         super(null);
     }
+
     public DajSveKvizoveKategorije(String name) {
         super(name);
     }
@@ -76,7 +77,7 @@ public class DajSveKvizoveKategorije  extends IntentService {
                     "    },\n" +
                     "    \"op\": \"EQUAL\",\n" +
                     "    \"value\": {\n" +
-                    "     \"stringValue\": \"KATEGORIJA" + kategorija.getNaziv() + "\"\n" +
+                    "     \"stringValue\": \"" + kategorija.getIdDokumenta() + "\"\n" +
                     "    }\n" +
                     "   }\n" +
                     "  },\n" +
@@ -105,9 +106,9 @@ public class DajSveKvizoveKategorije  extends IntentService {
             urlConnection.setRequestProperty("Content-Type", "application/json");
             urlConnection.setRequestProperty("Accept", "application/json");
 
-            try(OutputStream os =urlConnection.getOutputStream()){
+            try (OutputStream os = urlConnection.getOutputStream()) {
                 byte[] input = query.getBytes("utf-8");
-                os.write(input,0,input.length);
+                os.write(input, 0, input.length);
             }
 
             InputStream in = new BufferedInputStream(urlConnection.getInputStream());
@@ -142,15 +143,13 @@ public class DajSveKvizoveKategorije  extends IntentService {
                     }
 
                     rezultati.add(new Kviz(naziv, pitanjaKviza, kategorija, idKviza));
+                } catch (Exception e) {
                 }
-                catch (Exception e){}
 
             }
 
             int responseCode = urlConnection.getResponseCode();
             InputStream ist = urlConnection.getInputStream();
-
-
 
 
         } catch (IOException e) {
@@ -168,7 +167,7 @@ public class DajSveKvizoveKategorije  extends IntentService {
     private Pitanje dajPitanje(String id, String token) {
         URL url = null;
         try {
-            String u = "https://firestore.googleapis.com/v1/projects/rmaspirala/databases/(default)/documents/Pitanja/"+id+ "?access_token=" + URLEncoder.encode(token, "UTF-8");
+            String u = "https://firestore.googleapis.com/v1/projects/rmaspirala/databases/(default)/documents/Pitanja/" + id + "?access_token=" + URLEncoder.encode(token, "UTF-8");
             url = new URL(u);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
@@ -192,7 +191,7 @@ public class DajSveKvizoveKategorije  extends IntentService {
             int responseCode = urlConnection.getResponseCode();
             InputStream ist = urlConnection.getInputStream();
 
-            return new Pitanje(naziv,naziv,odgovoriPitanja,odgovoriPitanja.get(indeksTacnog));
+            return new Pitanje(naziv, naziv, odgovoriPitanja, odgovoriPitanja.get(indeksTacnog));
 
         } catch (IOException e) {
             e.printStackTrace();

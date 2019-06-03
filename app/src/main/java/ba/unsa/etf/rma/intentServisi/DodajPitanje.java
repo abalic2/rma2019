@@ -33,6 +33,7 @@ public class DodajPitanje extends IntentService {
     public DodajPitanje() {
         super(null);
     }
+
     public DodajPitanje(String name) {
         super(name);
     }
@@ -51,8 +52,8 @@ public class DodajPitanje extends IntentService {
         String naziv = pitanje.getNaziv();
 
         int brojac = 0;
-        for(String o : pitanje.getOdgovori()){
-            if(o.equals(pitanje.getTacan())) break;
+        for (String o : pitanje.getOdgovori()) {
+            if (o.equals(pitanje.getTacan())) break;
             brojac++;
         }
 
@@ -77,10 +78,9 @@ public class DodajPitanje extends IntentService {
             receiver.send(STATUS_ERROR, bundle);
         } else {
 
-
             URL url = null;
             try {
-                String u = "https://firestore.googleapis.com/v1/projects/rmaspirala/databases/(default)/documents/Pitanja?documentId=PITANJE" + naziv;
+                String u = "https://firestore.googleapis.com/v1/projects/rmaspirala/databases/(default)/documents/Pitanja?documentId=" + pitanje.getIdDokumenta();
                 url = new URL(u);
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestProperty("Authorization", "Bearer " + token);

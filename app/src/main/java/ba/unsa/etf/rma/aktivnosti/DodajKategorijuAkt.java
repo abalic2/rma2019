@@ -14,22 +14,22 @@ import android.widget.EditText;
 import com.maltaisn.icondialog.Icon;
 import com.maltaisn.icondialog.IconDialog;
 
-import java.util.ArrayList;
-
 import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.intentServisi.DodajKategoriju;
 import ba.unsa.etf.rma.klase.Kategorija;
 import ba.unsa.etf.rma.receiveri.DodajKategorijuRec;
 
-public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.Callback,DodajKategorijuRec.Receiver{
+public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.Callback, DodajKategorijuRec.Receiver {
     private EditText nazivKategorije;
     private EditText ikona;
     private Button dodajIkonu;
     private Button dodajKategoriju;
-    private ArrayList<Kategorija> kategorije;
+
     private Icon[] selectedIcons;
-    private DodajKategorijuRec mReceiver;
+
     private Kategorija novaKategorija;
+
+    private DodajKategorijuRec mReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,14 +61,13 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
         dodajKategoriju.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(jeLiSveValidno()) {
+                if (jeLiSveValidno()) {
                     novaKategorija.setNaziv(nazivKategorije.getText().toString());
                     novaKategorija.setId(ikona.getText().toString());
                     dodajKategorijuUBazu(novaKategorija);
                 }
             }
         });
-
 
 
     }
@@ -84,19 +83,19 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
         postaviBoje();
         boolean nemaGreska = true;
         String ime = nazivKategorije.getText().toString();
-        if(ime.trim().equals("")){
+        if (ime.trim().equals("")) {
             nemaGreska = false;
             nazivKategorije.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
         }
 
-        if(ikona.getText().toString().equals("")){
+        if (ikona.getText().toString().equals("")) {
             ikona.setBackground(getResources().getDrawable(R.drawable.crvena_okvir));
             nemaGreska = false;
         }
         return nemaGreska;
     }
 
-    private void postaviBoje(){
+    private void postaviBoje() {
         nazivKategorije.setBackground(getResources().getDrawable(R.drawable.bijela_okvir));
         ikona.setBackground(getResources().getDrawable(R.drawable.bijela_okvir));
     }
@@ -110,7 +109,7 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
 
     @Override
     public void onReceiveResultNovaKategorija(int resultCode, Bundle resultData) {
-        switch (resultCode){
+        switch (resultCode) {
             case 1:
                 Intent myIntent = new Intent();
                 myIntent.putExtra("novaKategorija", novaKategorija);

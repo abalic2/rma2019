@@ -74,24 +74,12 @@ public class DetailFrag extends Fragment {
 
         }
 
-        if (savedInstanceState != null) {
-            odabraniKvizovi.clear();
-            odabraniKvizovi.addAll((ArrayList<Kviz>) savedInstanceState.getSerializable("kvizovi"));
-
-        }
-
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        super.onSaveInstanceState(savedInstanceState);
-        savedInstanceState.putSerializable("kvizovi", odabraniKvizovi);
     }
 
     public interface OnItemClick {
-        public void onItemClickedGrid(int pos);
-        public void onItemLongClickedGrid(int pos);
-        public void dodajKvizGrid();
+        void onItemClickedGrid(int pos);
+        void onItemLongClickedGrid(int pos);
+        void dodajKvizGrid();
     }
 
 }

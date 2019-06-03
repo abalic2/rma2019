@@ -82,13 +82,13 @@ public class ImportKviza extends IntentService {
             for (Pitanje p : kviz.getPitanja()) {
                 dodajPitanjeUBazu(p, token);
             }
-            bundle.putSerializable("kviz",kviz);
+            bundle.putSerializable("kviz", kviz);
             bundle.putSerializable("pitanja", mogucaPitanja);
             receiver.send(STATUS_FINISHED, bundle);
         }
     }
 
-    private ArrayList<Pitanje> svaPitanja(String token){
+    private ArrayList<Pitanje> svaPitanja(String token) {
         ArrayList<Pitanje> mogucaPitanja = new ArrayList<>();
         URL url = null;
         try {
@@ -119,8 +119,8 @@ public class ImportKviza extends IntentService {
 
                     mogucaPitanja.add(new Pitanje(naziv, naziv, odgovoriPitanja, odgovoriPitanja.get(indeksTacnog)));
                 }
+            } catch (Exception e) {
             }
-            catch (Exception e){}
 
 
             int responseCode = urlConnection.getResponseCode();
@@ -152,7 +152,7 @@ public class ImportKviza extends IntentService {
 
         URL url = null;
         try {
-            String u = "https://firestore.googleapis.com/v1/projects/rmaspirala/databases/(default)/documents/Pitanja?documentId=PITANJE" + naziv.replaceAll("\\s","");
+            String u = "https://firestore.googleapis.com/v1/projects/rmaspirala/databases/(default)/documents/Pitanja?documentId=" + pitanje.getIdDokumenta();
             url = new URL(u);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestProperty("Authorization", "Bearer " + token);
@@ -196,7 +196,7 @@ public class ImportKviza extends IntentService {
     private boolean jeLiPitanjeDuplikat(Pitanje p, String token) {
         URL url = null;
         try {
-            String u = "https://firestore.googleapis.com/v1/projects/rmaspirala/databases/(default)/documents/Pitanja/PITANJE" + p.getNaziv() + "?";
+            String u = "https://firestore.googleapis.com/v1/projects/rmaspirala/databases/(default)/documents/Pitanja/" + p.getIdDokumenta() + "?";
 
             url = new URL(u);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -229,7 +229,7 @@ public class ImportKviza extends IntentService {
     private void upisiKategorijuUBazu(Kategorija kategorija, String token) {
         URL url = null;
         try {
-            String u = "https://firestore.googleapis.com/v1/projects/rmaspirala/databases/(default)/documents/Kategorije?documentId=KATEGORIJA" + kategorija.getNaziv();
+            String u = "https://firestore.googleapis.com/v1/projects/rmaspirala/databases/(default)/documents/Kategorije?documentId=" + kategorija.getIdDokumenta();
             url = new URL(u);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestProperty("Authorization", "Bearer " + token);
@@ -269,7 +269,7 @@ public class ImportKviza extends IntentService {
     }
 
     private boolean imaLiKategorije(Kategorija kategorija, String token) {
-        if(kategorija.getNaziv().equals("Svi")) return true;
+        if (kategorija.getNaziv().equals("Svi")) return true;
         URL url = null;
         try {
             String u = "https://firestore.googleapis.com/v1/projects/rmaspirala/databases/(default)/documents/Kategorije/KATEGORIJA" + kviz.getKategorija().getNaziv() + "?";

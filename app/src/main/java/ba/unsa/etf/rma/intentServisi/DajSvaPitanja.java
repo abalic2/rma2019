@@ -28,7 +28,6 @@ import ba.unsa.etf.rma.klase.Pitanje;
 public class DajSvaPitanja extends IntentService {
     public int STATUS_RUNNING = 0;
     public int STATUS_FINISHED = 1;
-    public int STATUS_ERROR = 2;
     ArrayList<Pitanje> rezultati;
 
     public DajSvaPitanja() {

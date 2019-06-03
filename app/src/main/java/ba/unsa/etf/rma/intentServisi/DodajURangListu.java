@@ -32,7 +32,7 @@ import ba.unsa.etf.rma.R;
 public class DodajURangListu extends IntentService {
     public int STATUS_RUNNING = 0;
     public int STATUS_FINISHED = 1;
-    public int STATUS_ERROR = 2;
+
     private String ime;
     private Double procenat;
     private String idKviza;
@@ -89,7 +89,7 @@ public class DodajURangListu extends IntentService {
 
         URL url = null;
         try {
-            String u = "https://firestore.googleapis.com/v1/projects/rmaspirala/databases/(default)/documents/Rangliste/RANG" + idKviza+"?";
+            String u = "https://firestore.googleapis.com/v1/projects/rmaspirala/databases/(default)/documents/Rangliste/RANG" + idKviza + "?";
             url = new URL(u);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestProperty("Authorization", "Bearer " + token);
@@ -169,15 +169,13 @@ public class DodajURangListu extends IntentService {
             url = new URL(u);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestProperty("Authorization", "Bearer " + token);
-            //urlConnection.setDoOutput(true);
             urlConnection.setRequestMethod("GET");
             urlConnection.setRequestProperty("Content-Type", "application/json");
             urlConnection.setRequestProperty("Accept", "application/json");
             InputStream in;
             try {
                 in = new BufferedInputStream(urlConnection.getInputStream());
-            }
-            catch (FileNotFoundException e){
+            } catch (FileNotFoundException e) {
                 return listaRezultata;
             }
             String rezultat = convertStreamToString(in);

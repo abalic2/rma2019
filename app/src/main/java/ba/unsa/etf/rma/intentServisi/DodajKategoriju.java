@@ -65,7 +65,7 @@ public class DodajKategoriju extends IntentService {
 
             URL url = null;
             try {
-                String u = "https://firestore.googleapis.com/v1/projects/rmaspirala/databases/(default)/documents/Kategorije?documentId=KATEGORIJA" + kategorija.getNaziv();
+                String u = "https://firestore.googleapis.com/v1/projects/rmaspirala/databases/(default)/documents/Kategorije?documentId=" + kategorija.getIdDokumenta();
                 url = new URL(u);
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestProperty("Authorization", "Bearer " + token);
