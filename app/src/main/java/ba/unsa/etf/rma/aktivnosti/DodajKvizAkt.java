@@ -60,7 +60,7 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
     private ArrayList<Pitanje> pitanja = new ArrayList<>();
 
     private boolean importovanje = false;
-    private int pozicijaKliknutog;
+    private int pozicijaKategorija = 0;
     private String idKviza;
     private boolean mijenjanjeKategorije = false;
     private boolean dodavanjeNovogKviza = false;
@@ -116,6 +116,9 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
                 if (kategorije.get(position).getNaziv().equalsIgnoreCase("Dodaj kategoriju")) {
                     Intent myIntent = new Intent(DodajKvizAkt.this, DodajKategorijuAkt.class);
                     DodajKvizAkt.this.startActivityForResult(myIntent, 3);
+                }
+                else{
+                    pozicijaKategorija = position;
                 }
             }
 
@@ -308,6 +311,7 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
                 adapterPitanja.notifyDataSetChanged();
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 //Write your code if there's no result
+                //popuniKategorijeIzBaze();
             }
         } else if (requestCode == 3) {
             //povratak iz DodajKategorijuAkt
@@ -316,9 +320,8 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
                 kategorije.add(kategorije.size() - 1, novaKategorija);
                 spAdapter.notifyDataSetChanged();
                 spinner.setSelection(kategorije.size() - 2);
-
             } else {
-                spinner.setSelection(0);
+                spinner.setSelection(pozicijaKategorija);
             }
         } else if (requestCode == 44) {
             //importovanje kviza
@@ -343,10 +346,7 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
 
     @Override
     public void onBackPressed() {
-        //ako pritisne back da moze ipak dodane kategorije prenijet
-        kategorije.remove(kategorije.size() - 1);
         Intent myIntent = new Intent();
-        myIntent.putExtra("kategorije", kategorije);
         setResult(Activity.RESULT_CANCELED, myIntent);
         super.onBackPressed();
     }
@@ -550,7 +550,6 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
 
     @Override
     public void onReceiveResultImportKviz(int resultCode, Bundle resultData) {
-        System.out.println("heej");
         switch (resultCode) {
             case 1:
                 Kviz kviz = (Kviz) resultData.getSerializable("kviz");

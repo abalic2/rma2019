@@ -36,24 +36,11 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
     private ArrayList<Kviz> odabraniKvizovi = new ArrayList<>();
     private SpinnerAdapter spAdapter;
     private ListaAdapter lsAdapter;
-    private int pozicijaKliknutog;
     private int pozicijaKategorija = 0;
 
     private DajSveKvizoveKategorijaRec mReceiver;
     private DajSveKategorijeRec kReceiver;
     private DajSveKvizoveRec nReceiver;
-
-    private void odaberiKvizove(Kategorija kategorija) {
-        odabraniKvizovi.clear();
-        if (kategorija.getNaziv().equalsIgnoreCase("Svi")) {
-            odabraniKvizovi.addAll(kvizovi);
-        } else {
-            for (Kviz kviz : kvizovi)
-                if (kviz.getKategorija().getNaziv().equalsIgnoreCase(kategorija.getNaziv()))
-                    odabraniKvizovi.add(kviz);
-        }
-
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,18 +54,12 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
         nReceiver = new DajSveKvizoveRec(new Handler());
         nReceiver.setReceiver(this);
 
-        if(savedInstanceState!=null){
+        if (savedInstanceState != null) {
             pozicijaKategorija = savedInstanceState.getInt("pozicija");
         }
 
-        final Kategorija pocetna = new Kategorija("Svi", "0");
-
         FrameLayout detalji = (FrameLayout) findViewById(R.id.detailPlace);
-        if (detalji != null) {
-            odaberiKvizove(pocetna);
-            posaljiDedailFragment();
-            posaljiListaFragment();
-        } else {
+        if (detalji == null) {
             spinner = (Spinner) findViewById(R.id.spPostojeceKategorije);
             lista = (ListView) findViewById(R.id.lvKvizovi);
 
@@ -91,8 +72,7 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
             lista.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                 @Override
                 public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                    pozicijaKliknutog = position;
-                    prepraviKviz(position,1);
+                    prepraviKviz(position, 1);
                     return true;
                 }
             });
@@ -109,6 +89,7 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     promijeniKvizove(kategorije.get(position));
+                    pozicijaKategorija = position;
                 }
 
                 @Override
@@ -129,25 +110,20 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
                 }
             });
 
-            //povlacenje kategorija
-            popuniKategorijeIzBaze();
-
         }
+
+        //povlacenje kategorija
+        popuniKategorijeIzBaze();
 
         if (savedInstanceState != null) {
-            kvizovi.clear();
-            kategorije.clear();
-            kvizovi.addAll((ArrayList<Kviz>) savedInstanceState.getSerializable("kvizovi"));
-            odabraniKvizovi.addAll((ArrayList<Kviz>) savedInstanceState.getSerializable("odabraniKvizovi"));
-            kategorije.addAll((ArrayList<Kategorija>) savedInstanceState.getSerializable("kategorije"));
             pozicijaKategorija = savedInstanceState.getInt("pozicija");
         }
-
 
 
     }
 
     private void popuniKategorijeIzBaze() {
+        System.out.println("ideem");
         Intent intent = new Intent(Intent.ACTION_SYNC, null, KvizoviAkt.this, DajSveKategorije.class);
         intent.putExtra("receiver", kReceiver);
         startService(intent);
@@ -155,7 +131,6 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
 
 
     private void prepraviKviz(int position, int kod) {
-        pozicijaKliknutog = position;
         Intent myIntent = new Intent(KvizoviAkt.this, DodajKvizAkt.class);
         myIntent.putExtra("idKviza", odabraniKvizovi.get(position).getId());
         KvizoviAkt.this.startActivityForResult(myIntent, kod);
@@ -164,16 +139,15 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
     private void igrajKviz(int position) {
         Intent myIntent = new Intent(KvizoviAkt.this, IgrajKvizAkt.class);
         myIntent.putExtra("kviz", odabraniKvizovi.get(position));
-        KvizoviAkt.this.startActivity(myIntent);
+        KvizoviAkt.this.startActivityForResult(myIntent,3);
     }
 
     private void dodajKviz(int kod) {
         Intent myIntent = new Intent(KvizoviAkt.this, DodajKvizAkt.class);
         myIntent.putExtra("idKviza", (String) null);
-        if(kod == 1){
+        if (kod == 1) {
             myIntent.putExtra("oznacenaKategorija", (Kategorija) spinner.getSelectedItem());
-        }
-        else{
+        } else {
             myIntent.putExtra("oznacenaKategorija", kategorije.get(pozicijaKategorija));
         }
         KvizoviAkt.this.startActivityForResult(myIntent, kod);
@@ -182,57 +156,24 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        FrameLayout d = (FrameLayout) findViewById(R.id.detailPlace);
-        //mozda je doslo do promjene
-        if(d == null){
-            requestCode = 1;
+        if (resultCode == Activity.RESULT_OK) {
+            pozicijaKategorija = 0;
+            popuniKategorijeIzBaze();
+        } else if (resultCode == Activity.RESULT_CANCELED) {
+            popuniKategorijeIzBaze();
+            pozicijaKategorija = 0;
         }
-        else{
-            requestCode = 2;
-        }
-        if (requestCode == 1 || requestCode == 2) { //kod 2 je za siroki ekran
-            //vracanje iz DodajKvizAkt
-            if (resultCode == Activity.RESULT_OK) {
-                pozicijaKategorija = 0;
-                popuniKategorijeIzBaze();
 
-                /*if(requestCode == 1) {
-                    lsAdapter.notifyDataSetChanged();
-                    spAdapter.notifyDataSetChanged();
-                    spinner.setSelection(0);
-                }
-                else{
-                    //posalji sve opet u fragmente
-                    posaljiDedailFragment();
-                    posaljiListaFragment();
-                }*/
-
-            } else if (resultCode == Activity.RESULT_CANCELED) {
-                //ako je bila dodana kategorija da se spasi
-                popuniKategorijeIzBaze();
-                pozicijaKategorija = 0;
-                if(requestCode == 1) {
-                    spAdapter.notifyDataSetChanged();
-                    lsAdapter.notifyDataSetChanged();
-                    spinner.setSelection(0);
-                }
-                else{
-                    posaljiDedailFragment();
-                    posaljiListaFragment();
-                }
-            }
-        }
     }
 
     @Override
     public void onItemClicked(int pos) {
-    //Priprema novog fragmenta FragmentDetalji
+        //Priprema novog fragmenta FragmentDetalji
         pozicijaKategorija = pos;
-        odaberiKvizove(kategorije.get(pos));
-        posaljiDedailFragment();
+        promijeniKvizove(kategorije.get(pos));
     }
 
-    void posaljiDedailFragment(){
+    void posaljiDedailFragment() {
         Bundle arguments = new Bundle();
         arguments.putSerializable("kvizovi", odabraniKvizovi);
         DetailFrag fd = new DetailFrag();
@@ -240,7 +181,7 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
         getSupportFragmentManager().beginTransaction().replace(R.id.detailPlace, fd).commit();
     }
 
-    void posaljiListaFragment(){
+    void posaljiListaFragment() {
         ListaFrag fl = new ListaFrag();
         Bundle argumenti = new Bundle();
         argumenti.putSerializable("kategorije", kategorije);
@@ -248,23 +189,22 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
         getSupportFragmentManager().beginTransaction().replace(R.id.listPlace, fl).commit();
     }
 
-    void promijeniKvizove(Kategorija k){
-        if(k.getNaziv().equals("Svi")){
+    void promijeniKvizove(Kategorija k) {
+        if (k.getNaziv().equals("Svi")) {
             zovniDajSveKvizove(true);
-        }
-        else{
+        } else {
             zovniDajSveKvizoveKategorija(k);
         }
     }
 
-    void zovniDajSveKvizove(boolean dodaj){
+    void zovniDajSveKvizove(boolean dodaj) {
         Intent intent1 = new Intent(Intent.ACTION_SYNC, null, this, DajSveKvizove.class);
         intent1.putExtra("receiver", nReceiver);
-        intent1.putExtra("dodaj",dodaj);
+        intent1.putExtra("dodaj", dodaj);
         startService(intent1);
     }
 
-    void zovniDajSveKvizoveKategorija(Kategorija k){
+    void zovniDajSveKvizoveKategorija(Kategorija k) {
         Intent intent = new Intent(Intent.ACTION_SYNC, null, this, DajSveKvizoveKategorije.class);
         intent.putExtra("kategorija", k);
         intent.putExtra("receiver", mReceiver);
@@ -274,10 +214,7 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-        savedInstanceState.putSerializable("kategorije", kategorije);
-        savedInstanceState.putSerializable("kvizovi", kvizovi);
-        savedInstanceState.putSerializable("odabraniKvizovi", odabraniKvizovi);
-        savedInstanceState.putInt("pozicija",pozicijaKategorija);
+        savedInstanceState.putInt("pozicija", pozicijaKategorija);
     }
 
 
@@ -288,7 +225,7 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
 
     @Override
     public void onItemLongClickedGrid(int pos) {
-        prepraviKviz(pos,2);
+        prepraviKviz(pos, 2);
     }
 
     @Override
@@ -299,14 +236,16 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
     @Override
     public void onReceiveResultKvizoviKategorija(int resultCode, Bundle resultData) {
         switch (resultCode) {
-
             case 2:
-
                 ArrayList<Kviz> k2 = (ArrayList<Kviz>) resultData.get("kvizovi");
                 odabraniKvizovi.clear();
                 odabraniKvizovi.addAll(k2);
-                lsAdapter.notifyDataSetChanged();
-
+                FrameLayout d = (FrameLayout) findViewById(R.id.detailPlace);
+                if (d == null) {
+                    lsAdapter.notifyDataSetChanged();
+                } else {
+                    posaljiDedailFragment();
+                }
 
         }
     }
@@ -319,9 +258,15 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
                 kategorije.clear();
                 kategorije.add(new Kategorija("Svi", "0"));
                 kategorije.addAll(k3);
-                spAdapter.notifyDataSetChanged();
-                spinner.setSelection(pozicijaKategorija);
-                promijeniKvizove(kategorije.get(0));
+
+                FrameLayout d = (FrameLayout) findViewById(R.id.detailPlace);
+                if (d == null) {
+                    spAdapter.notifyDataSetChanged();
+                    spinner.setSelection(pozicijaKategorija);
+                } else {
+                    posaljiListaFragment();
+                }
+                promijeniKvizove(kategorije.get(pozicijaKategorija));
 
         }
     }
@@ -334,11 +279,16 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
                 kvizovi.clear();
                 kvizovi.addAll(k);
 
-                if(resultData.getBoolean("dodaj")){
+                if (resultData.getBoolean("dodaj")) {
                     odabraniKvizovi.clear();
                     odabraniKvizovi.addAll(k);
-                    lsAdapter.notifyDataSetChanged();
 
+                    FrameLayout d = (FrameLayout) findViewById(R.id.detailPlace);
+                    if (d == null) {
+                        lsAdapter.notifyDataSetChanged();
+                    } else {
+                        posaljiDedailFragment();
+                    }
                 }
 
                 break;

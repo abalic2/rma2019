@@ -13,6 +13,7 @@ import java.util.ArrayList;
 
 import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.adapteri.GridAdapter;
+import ba.unsa.etf.rma.klase.Kategorija;
 import ba.unsa.etf.rma.klase.Kviz;
 
 public class DetailFrag extends Fragment {
@@ -37,7 +38,7 @@ public class DetailFrag extends Fragment {
             odabraniKvizovi.clear();
             odabraniKvizovi.addAll ((ArrayList<Kviz>) getArguments().getSerializable("kvizovi"));
             //jer nijedna dodana kategorija ne moze imati naziv ""
-            //odabraniKvizovi.add(new Kviz("Dodaj kviz",null,new Kategorija("", "0")));
+            odabraniKvizovi.add(new Kviz("Dodaj kviz",null,new Kategorija("", "0"),null));
 
             GridAdapter adapter = new GridAdapter(getView().getContext(), odabraniKvizovi, getResources());
             grid.setAdapter(adapter);
