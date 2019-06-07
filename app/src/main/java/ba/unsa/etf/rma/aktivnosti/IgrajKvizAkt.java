@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.AlarmClock;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Pair;
@@ -11,6 +12,7 @@ import android.view.View;
 import android.widget.EditText;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 
 import ba.unsa.etf.rma.R;
@@ -47,6 +49,8 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
         pitanja.addAll(kviz.getPitanja());
         Collections.shuffle(pitanja);
 
+        postaviAlarm();
+
         InformacijeFrag fi = (InformacijeFrag) getSupportFragmentManager().findFragmentById(R.id.informacijePlace);
 
         if (fi == null) {
@@ -81,6 +85,23 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
         }
 
     }
+
+    private void postaviAlarm() {
+        int trajanjeAlarma = ukupanBrojPitanja / 2;
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.MINUTE, trajanjeAlarma);
+        int sati = cal.get(Calendar.HOUR_OF_DAY);
+        int minute = cal.get(Calendar.MINUTE);
+
+        Intent i = new Intent(AlarmClock.ACTION_SET_ALARM);
+        i.putExtra(AlarmClock.EXTRA_HOUR, sati);
+        i.putExtra(AlarmClock.EXTRA_MINUTES, minute);
+        i.putExtra(AlarmClock.EXTRA_SKIP_UI, true);
+
+        startActivity(i);
+    }
+
+
 
     private void unesiIme() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
