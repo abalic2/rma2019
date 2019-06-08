@@ -1,9 +1,13 @@
 package ba.unsa.etf.rma.aktivnosti;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.CalendarContract;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
@@ -12,6 +16,9 @@ import android.widget.ListView;
 import android.widget.Spinner;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.adapteri.ListaAdapter;
@@ -139,9 +146,55 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
     }
 
     private void igrajKviz(int position) {
-        Intent myIntent = new Intent(KvizoviAkt.this, IgrajKvizAkt.class);
-        myIntent.putExtra("kviz", odabraniKvizovi.get(position));
-        KvizoviAkt.this.startActivityForResult(myIntent, 3);
+        if(jeLiSlobodnoVrijeme(odabraniKvizovi.get(position).getPitanja().size())) {
+            Intent myIntent = new Intent(KvizoviAkt.this, IgrajKvizAkt.class);
+            myIntent.putExtra("kviz", odabraniKvizovi.get(position));
+            KvizoviAkt.this.startActivityForResult(myIntent, 3);
+        }
+    }
+
+    private void prikaziAlertdialog(String poruka) {
+        AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+        alertDialog.setMessage(poruka);
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        alertDialog.show();
+    }
+
+    private boolean jeLiSlobodnoVrijeme(int size) {
+        int x = size / 2;
+        int trajanjeAlarma = size / 2;
+        Calendar endTime = Calendar.getInstance();
+        endTime.add(Calendar.MINUTE, trajanjeAlarma);
+
+        String[] projection = new String[] { CalendarContract.Events.CALENDAR_ID, CalendarContract.Events.TITLE, CalendarContract.Events.DESCRIPTION, CalendarContract.Events.DTSTART, CalendarContract.Events.DTEND, CalendarContract.Events.ALL_DAY, CalendarContract.Events.EVENT_LOCATION };
+
+        Calendar startTime = Calendar.getInstance();
+
+
+        String selection = "(( " + CalendarContract.Events.DTSTART + " >= " + startTime.getTimeInMillis() + " ) AND ( " + CalendarContract.Events.DTSTART + " <= " + endTime.getTimeInMillis() + " ))";
+
+        Cursor cursor = this.getBaseContext().getContentResolver().query( CalendarContract.Events.CONTENT_URI, projection, selection, null, null );
+
+
+        if (cursor.moveToFirst()) {
+            Date datumEventa = new Date(cursor.getLong(3));
+            cursor.close();
+            Date trenutniDatum = new Date();
+
+            long duration  = datumEventa.getTime() - trenutniDatum.getTime();
+
+            long y = TimeUnit.MILLISECONDS.toMinutes(duration);
+
+            String poruka = "Imate događaj u kalendaru za " + y + " minuta!";
+            prikaziAlertdialog(poruka);
+            return false;
+        }
+        return true;
     }
 
     private void dodajKviz(int kod) {
