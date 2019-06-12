@@ -2,9 +2,14 @@ package ba.unsa.etf.rma.aktivnosti;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.CalendarContract;
@@ -51,6 +56,34 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
     private DajSveKvizoveKategorijaRec mReceiver;
     private DajSveKategorijeRec kReceiver;
     private DajSveKvizoveRec nReceiver;
+
+    private boolean imaInterneta = false;
+
+    private BroadcastReceiver networkStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateNetworkState();
+        }
+    };
+
+    public void updateNetworkState() {
+        ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+
+        imaInterneta = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        System.out.println(imaInterneta);
+    }
+
+    public void onResume() {
+        super.onResume();
+        registerReceiver(networkStateReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        updateNetworkState();
+    }
+
+    public void onPause() {
+        super.onPause();
+        unregisterReceiver(networkStateReceiver);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
