@@ -69,9 +69,7 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
     public void updateNetworkState() {
         ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-
         imaInterneta = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
-        System.out.println(imaInterneta);
     }
 
     public void onResume() {
