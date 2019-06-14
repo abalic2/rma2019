@@ -29,17 +29,25 @@ public class SQLiteBaza {
     public void ubaciKategorije(ArrayList<Kategorija> kategorije) {
         SQLiteDatabase db = helper.getWritableDatabase();
         db.delete(KvizoviDBOpenHelper.DATABASE_TABLE_KATEGORIJE, null, null);
+        db.close();
 
         for (Kategorija k : kategorije) {
-            ContentValues novaKategorija = new ContentValues();
-            novaKategorija.put(KvizoviDBOpenHelper.KATEGORIJA_NAZIV, k.getNaziv());
-            novaKategorija.put(KvizoviDBOpenHelper.KATEGORIJA_IDIKONICE, k.getId());
-            db.insert(KvizoviDBOpenHelper.DATABASE_TABLE_KATEGORIJE, null, novaKategorija);
+            ubaciJednuKategoriju(k);
         }
+
+        return;
+    }
+
+    public void ubaciJednuKategoriju(Kategorija k){
+        SQLiteDatabase db = helper.getWritableDatabase();
+
+        ContentValues novaKategorija = new ContentValues();
+        novaKategorija.put(KvizoviDBOpenHelper.KATEGORIJA_NAZIV, k.getNaziv());
+        novaKategorija.put(KvizoviDBOpenHelper.KATEGORIJA_IDIKONICE, k.getId());
+        db.insert(KvizoviDBOpenHelper.DATABASE_TABLE_KATEGORIJE, null, novaKategorija);
 
         db.close();
 
-        return;
     }
 
     public ArrayList<Kategorija> dajSveKategorije(){
@@ -69,38 +77,43 @@ public class SQLiteBaza {
         SQLiteDatabase db = helper.getWritableDatabase();
         db.delete(KvizoviDBOpenHelper.DATABASE_TABLE_PITANJA, null, null);
         db.delete(KvizoviDBOpenHelper.DATABASE_TABLE_ODGOVORI, null, null);
-
-        for (Pitanje p : pitanja) {
-            ContentValues novoPitanje = new ContentValues();
-            novoPitanje.put(KvizoviDBOpenHelper.PITANJE_NAZIV, p.getNaziv());
-            novoPitanje.put(KvizoviDBOpenHelper.PITANJE_TACAN_ODG, p.getTacan());
-            db.insert(KvizoviDBOpenHelper.DATABASE_TABLE_PITANJA, null, novoPitanje);
-
-
-            String[] koloneRezultat = new String[]{KvizoviDBOpenHelper.PITANJE_ID};
-            String where = KvizoviDBOpenHelper.PITANJE_NAZIV + "= ?";
-            String whereArgs[] = new String[]{p.getNaziv()};
-
-            Cursor cursor = db.query(KvizoviDBOpenHelper.DATABASE_TABLE_PITANJA,
-                    koloneRezultat, where, whereArgs, null, null, null);
-            int INDEX_KOLONE_ID = cursor.getColumnIndexOrThrow(KvizoviDBOpenHelper.PITANJE_ID);
-            int idPitanja = 0;
-            while (cursor.moveToNext()) {
-                idPitanja = cursor.getInt(INDEX_KOLONE_ID);
-            }
-            cursor.close();
-            for (String o : p.getOdgovori()) {
-                ContentValues noviOdgovor = new ContentValues();
-                noviOdgovor.put(KvizoviDBOpenHelper.ODGOVOR_TEKST, o);
-                noviOdgovor.put(KvizoviDBOpenHelper.ODGOVOR_PITANJE_FK, idPitanja);
-                db.insert(KvizoviDBOpenHelper.DATABASE_TABLE_ODGOVORI, null, noviOdgovor);
-            }
-
-        }
-
         db.close();
 
+        for (Pitanje p : pitanja) {
+            ubaciJednoPitanjeSaOdgovorima(p);
+        }
+
         return;
+    }
+
+    public void ubaciJednoPitanjeSaOdgovorima(Pitanje p){
+        SQLiteDatabase db = helper.getWritableDatabase();
+
+        ContentValues novoPitanje = new ContentValues();
+        novoPitanje.put(KvizoviDBOpenHelper.PITANJE_NAZIV, p.getNaziv());
+        novoPitanje.put(KvizoviDBOpenHelper.PITANJE_TACAN_ODG, p.getTacan());
+        db.insert(KvizoviDBOpenHelper.DATABASE_TABLE_PITANJA, null, novoPitanje);
+
+
+        String[] koloneRezultat = new String[]{KvizoviDBOpenHelper.PITANJE_ID};
+        String where = KvizoviDBOpenHelper.PITANJE_NAZIV + "= ?";
+        String whereArgs[] = new String[]{p.getNaziv()};
+
+        Cursor cursor = db.query(KvizoviDBOpenHelper.DATABASE_TABLE_PITANJA,
+                koloneRezultat, where, whereArgs, null, null, null);
+        int INDEX_KOLONE_ID = cursor.getColumnIndexOrThrow(KvizoviDBOpenHelper.PITANJE_ID);
+        int idPitanja = 0;
+        while (cursor.moveToNext()) {
+            idPitanja = cursor.getInt(INDEX_KOLONE_ID);
+        }
+        cursor.close();
+        for (String o : p.getOdgovori()) {
+            ContentValues noviOdgovor = new ContentValues();
+            noviOdgovor.put(KvizoviDBOpenHelper.ODGOVOR_TEKST, o);
+            noviOdgovor.put(KvizoviDBOpenHelper.ODGOVOR_PITANJE_FK, idPitanja);
+            db.insert(KvizoviDBOpenHelper.DATABASE_TABLE_ODGOVORI, null, noviOdgovor);
+        }
+        db.close();
     }
 
     public ArrayList<Pitanje> dajSvaPitanja(){

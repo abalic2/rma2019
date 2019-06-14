@@ -296,6 +296,10 @@ public class DodajPitanjeAkt extends AppCompatActivity implements DodajPitanjeRe
     public void onReceiveResultPitanje(int resultCode, Bundle resultData) {
         switch (resultCode) {
             case 1:
+
+                SQLiteBaza baza = new SQLiteBaza(DodajPitanjeAkt.this);
+                baza.ubaciJednoPitanjeSaOdgovorima(novoPitanje);
+
                 Intent myIntent = new Intent();
                 myIntent.putExtra("novoPitanje", novoPitanje);
                 setResult(Activity.RESULT_OK, myIntent);

@@ -258,6 +258,10 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
     public void onReceiveResultNovaKategorija(int resultCode, Bundle resultData) {
         switch (resultCode) {
             case 1:
+
+                SQLiteBaza baza = new SQLiteBaza(DodajKategorijuAkt.this);
+                baza.ubaciJednuKategoriju(novaKategorija);
+
                 Intent myIntent = new Intent();
                 myIntent.putExtra("novaKategorija", novaKategorija);
                 setResult(Activity.RESULT_OK, myIntent);
