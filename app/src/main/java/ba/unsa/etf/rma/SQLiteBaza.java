@@ -14,7 +14,6 @@ import ba.unsa.etf.rma.klase.Pitanje;
 public class SQLiteBaza {
     Context context;
     KvizoviDBOpenHelper helper;
-    SQLiteBaza baza;
 
     public SQLiteBaza(Context context) {
         this.context = context;
@@ -203,6 +202,106 @@ public class SQLiteBaza {
         db.close();
 
         return;
+    }
+
+    public ArrayList<Kviz> dajSveKvizove(){
+        ArrayList<Kviz> kvizovi = new ArrayList<>();
+
+        SQLiteDatabase db = helper.getWritableDatabase();
+        String[] koloneRezultat = new String[]{KvizoviDBOpenHelper.KVIZ_ID,
+                KvizoviDBOpenHelper.KVIZ_ID_DOKUMENTA, KvizoviDBOpenHelper.KVIZ_NAZIV, KvizoviDBOpenHelper.KVIZ_KATEGORIJA_FK};
+
+        Cursor cursor = db.query(KvizoviDBOpenHelper.DATABASE_TABLE_KVIZOVI,
+                koloneRezultat, null, null, null, null, null);
+        int INDEX_KOLONE_ID = cursor.getColumnIndexOrThrow(KvizoviDBOpenHelper.KVIZ_ID);
+        int INDEX_KOLONE_NAZIV = cursor.getColumnIndexOrThrow(KvizoviDBOpenHelper.KVIZ_NAZIV);
+        int INDEX_KOLONE_ID_DOC = cursor.getColumnIndexOrThrow(KvizoviDBOpenHelper.KVIZ_ID_DOKUMENTA);
+        int INDEX_KOLONE_KAT = cursor.getColumnIndexOrThrow(KvizoviDBOpenHelper.KVIZ_KATEGORIJA_FK);
+
+        while (cursor.moveToNext()) {
+            String naziv = cursor.getString(INDEX_KOLONE_NAZIV);
+            String idDokumenta = cursor.getString(INDEX_KOLONE_ID_DOC);
+
+            koloneRezultat = new String[]{KvizoviDBOpenHelper.KATEGORIJA_NAZIV, KvizoviDBOpenHelper.KATEGORIJA_IDIKONICE};
+            String where = KvizoviDBOpenHelper.KATEGORIJA_ID + "= ?";
+            String[] whereArgs = new String[]{String.valueOf(cursor.getInt(INDEX_KOLONE_KAT))};
+
+            //nalazenje kategorije
+            Cursor cursor2 = db.query(KvizoviDBOpenHelper.DATABASE_TABLE_KATEGORIJE,
+                    koloneRezultat, where, whereArgs, null, null, null);
+
+            int INDEX_NAZIV = cursor2.getColumnIndexOrThrow(KvizoviDBOpenHelper.KATEGORIJA_NAZIV);
+            int INDEX_IKONE = cursor2.getColumnIndexOrThrow(KvizoviDBOpenHelper.KATEGORIJA_IDIKONICE);
+            Kategorija novaKategorija = null;
+            while (cursor2.moveToNext()) {
+                String nazivK = cursor2.getString(INDEX_NAZIV);
+                String ikonaK = cursor2.getString(INDEX_IKONE);
+                novaKategorija = new Kategorija(nazivK,ikonaK);
+            }
+            cursor2.close();
+
+            //nalazenje pitanja
+            koloneRezultat = new String[]{KvizoviDBOpenHelper.PIK_PITANJE_FK};
+            where = KvizoviDBOpenHelper.PIK_KVIZ_FK + "= ?";
+            whereArgs = new String[]{String.valueOf(cursor.getInt(INDEX_KOLONE_ID))};
+
+            cursor2 = db.query(KvizoviDBOpenHelper.DATABASE_TABLE_PITANJE_I_KVIZ,
+                    koloneRezultat, where, whereArgs, null, null, null);
+
+            int INDEX_ID_PITANJA = cursor2.getColumnIndexOrThrow(KvizoviDBOpenHelper.PIK_PITANJE_FK);
+
+            ArrayList<Pitanje> pitanja = new ArrayList<>();
+            while (cursor2.moveToNext()) {
+                int idPitanja = cursor2.getInt(INDEX_ID_PITANJA);
+
+                //imam id pitanja i sad uzimam to pitanje i njegove odgovore
+                String[] koloneRezultatP = new String[]{
+                        KvizoviDBOpenHelper.PITANJE_NAZIV, KvizoviDBOpenHelper.PITANJE_TACAN_ODG};
+                String whereP = KvizoviDBOpenHelper.PITANJE_ID + "= ?";
+                String[] whereArgsP = new String[]{String.valueOf(idPitanja)};
+
+                Cursor cursor3 = db.query(KvizoviDBOpenHelper.DATABASE_TABLE_PITANJA,
+                        koloneRezultatP, whereP, whereArgsP, null, null, null);
+
+                int INDEX_KOLONE_P_NAZIV = cursor3.getColumnIndexOrThrow(KvizoviDBOpenHelper.PITANJE_NAZIV);
+                int INDEX_KOLONE_TACAN = cursor3.getColumnIndexOrThrow(KvizoviDBOpenHelper.PITANJE_TACAN_ODG);
+                while (cursor3.moveToNext()) {
+                    String nazivP = cursor.getString(INDEX_KOLONE_P_NAZIV);
+                    String tacan = cursor.getString(INDEX_KOLONE_TACAN);
+
+                    String[] koloneRezultatO = new String[]{KvizoviDBOpenHelper.ODGOVOR_TEKST};
+                    String whereO = KvizoviDBOpenHelper.ODGOVOR_PITANJE_FK + "= ?";
+                    String[] whereArgsO = new String[]{String.valueOf(idPitanja)};
+
+                    Cursor cursor4 = db.query(KvizoviDBOpenHelper.DATABASE_TABLE_ODGOVORI,
+                            koloneRezultatO, whereO, whereArgsO, null, null, null);
+                    int INDEX_KOLONE_ODGOVORA = cursor4.getColumnIndexOrThrow(KvizoviDBOpenHelper.ODGOVOR_TEKST);
+
+                    ArrayList<String> odgovori = new ArrayList<>();
+                    while (cursor4.moveToNext()) {
+                        String odgovor = cursor4.getString(INDEX_KOLONE_ODGOVORA);
+                        odgovori.add(odgovor);
+                    }
+                    cursor4.close();
+
+                    Pitanje novoPitanje = new Pitanje(nazivP,nazivP,odgovori,tacan);
+                    pitanja.add(novoPitanje);
+
+                }
+                cursor3.close();
+            }
+            cursor2.close();
+
+
+            Kviz noviKviz = new Kviz(naziv,pitanja,novaKategorija,idDokumenta);
+            kvizovi.add(noviKviz);
+
+
+        }
+        cursor.close();
+
+        return kvizovi;
+
     }
 
 
