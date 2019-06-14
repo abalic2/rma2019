@@ -19,15 +19,26 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
 import ba.unsa.etf.rma.R;
+import ba.unsa.etf.rma.SQLiteBaza;
+import ba.unsa.etf.rma.intentServisi.DajSvaPitanja;
+import ba.unsa.etf.rma.intentServisi.DajSveKategorije;
+import ba.unsa.etf.rma.intentServisi.DajSveKvizove;
 import ba.unsa.etf.rma.intentServisi.DodajPitanje;
+import ba.unsa.etf.rma.klase.Kategorija;
+import ba.unsa.etf.rma.klase.Kviz;
 import ba.unsa.etf.rma.klase.Pitanje;
+import ba.unsa.etf.rma.receiveri.DajSvaPitanjaRec;
+import ba.unsa.etf.rma.receiveri.DajSveKategorijeRec;
+import ba.unsa.etf.rma.receiveri.DajSveKvizoveRec;
 import ba.unsa.etf.rma.receiveri.DodajPitanjeRec;
 
-public class DodajPitanjeAkt extends AppCompatActivity implements DodajPitanjeRec.Receiver {
+public class DodajPitanjeAkt extends AppCompatActivity implements DodajPitanjeRec.Receiver,
+        DajSveKategorijeRec.Receiver, DajSveKvizoveRec.Receiver, DajSvaPitanjaRec.Receiver {
     private EditText nazivPitanja;
     private ListView listaOdgovora;
     private EditText odgovor;
@@ -41,8 +52,15 @@ public class DodajPitanjeAkt extends AppCompatActivity implements DodajPitanjeRe
     private Pitanje novoPitanje;
 
     private DodajPitanjeRec mReceiver;
+    private DajSveKategorijeRec kReceiver;
+    private DajSveKvizoveRec nReceiver;
+    private DajSvaPitanjaRec pReceiver;
 
-    private boolean imaInterneta = false;
+    private boolean imaInterneta = true;
+
+    private ArrayList<Kategorija> kategorije = new ArrayList<>();
+    private ArrayList<Pitanje> svaPitanja = new ArrayList<>();
+    private ArrayList<Kviz> kvizovi = new ArrayList<>();
 
     private BroadcastReceiver networkStateReceiver = new BroadcastReceiver() {
         @Override
@@ -54,7 +72,19 @@ public class DodajPitanjeAkt extends AppCompatActivity implements DodajPitanjeRe
     public void updateNetworkState() {
         ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean staroStanje = imaInterneta;
         imaInterneta = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        if(staroStanje != imaInterneta) promjena();
+    }
+
+    private void promjena() {
+        if(imaInterneta){
+            //upalio se internet
+            pocniAzuriranjeBaze();
+        }
+        else{
+            //ugasio se internet
+        }
     }
 
     public void onResume() {
@@ -68,6 +98,78 @@ public class DodajPitanjeAkt extends AppCompatActivity implements DodajPitanjeRe
         unregisterReceiver(networkStateReceiver);
     }
 
+    private void pocniAzuriranjeBaze(){
+        Toast.makeText(getApplicationContext(),"Azuriranje baze", Toast.LENGTH_SHORT).show();
+        popuniKategorijeIzBaze();
+    }
+
+    private void popuniKategorijeIzBaze() {
+        Intent intent = new Intent(Intent.ACTION_SYNC, null, this, DajSveKategorije.class);
+        intent.putExtra("receiver", kReceiver);
+        startService(intent);
+    }
+
+    @Override
+    public void onReceiveResultKategorije(int resultCode, Bundle resultData) {
+        switch (resultCode) {
+            case 1:
+                kategorije.clear();
+                kategorije.add(new Kategorija("Svi", "0"));
+                ArrayList<Kategorija> k3 = (ArrayList<Kategorija>) resultData.get("kategorije");
+                kategorije.addAll(k3);
+
+                zovniDajSveKvizove(false);
+        }
+    }
+
+    void zovniDajSveKvizove(boolean dodaj) {
+        Intent intent1 = new Intent(Intent.ACTION_SYNC, null, this, DajSveKvizove.class);
+        intent1.putExtra("receiver", nReceiver);
+        intent1.putExtra("dodaj", dodaj);
+        startService(intent1);
+    }
+
+    @Override
+    public void onReceiveResultKvizovi(int resultCode, Bundle resultData) {
+        switch (resultCode) {
+            case 1:
+                ArrayList<Kviz> k = (ArrayList<Kviz>) resultData.get("kvizovi");
+                kvizovi.clear();
+                kvizovi.addAll(k);
+
+                popuniSvaPitanjaIzBaze();
+
+                break;
+
+        }
+    }
+
+    private void popuniSvaPitanjaIzBaze() {
+        Intent intent = new Intent(Intent.ACTION_SYNC, null, this, DajSvaPitanja.class);
+        intent.putExtra("receiver", pReceiver);
+        startService(intent);
+    }
+
+    @Override
+    public void onReceiveResultPitanja(int resultCode, Bundle resultData) {
+        switch (resultCode) {
+            case 1:
+                svaPitanja.clear();
+                ArrayList<Pitanje> p = (ArrayList<Pitanje>) resultData.get("pitanja");
+                svaPitanja.addAll(p);
+                osvjeziSQLiteBazu();
+        }
+    }
+
+    private void osvjeziSQLiteBazu() {
+        SQLiteBaza baza = new SQLiteBaza(this);
+        baza.ubaciKategorije(kategorije);
+        baza.ubaciPitanjaIOdgovore(svaPitanja);
+        baza.ubaciKvizove(kvizovi);
+
+        Toast.makeText(getApplicationContext(),"Azuriranje baze zavrseno", Toast.LENGTH_SHORT).show();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,6 +177,13 @@ public class DodajPitanjeAkt extends AppCompatActivity implements DodajPitanjeRe
 
         mReceiver = new DodajPitanjeRec(new Handler());
         mReceiver.setReceiver(this);
+
+        kReceiver = new DajSveKategorijeRec(new Handler());
+        kReceiver.setReceiver(this);
+        nReceiver = new DajSveKvizoveRec(new Handler());
+        nReceiver.setReceiver(this);
+        pReceiver = new DajSvaPitanjaRec(new Handler());
+        pReceiver.setReceiver(this);
 
         novoPitanje = new Pitanje();
 
@@ -135,15 +244,20 @@ public class DodajPitanjeAkt extends AppCompatActivity implements DodajPitanjeRe
         spasiPitanje.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (jeLiSveValidno()) {
-                    novoPitanje.setNaziv(nazivPitanja.getText().toString());
-                    novoPitanje.setTekstPitanja(nazivPitanja.getText().toString());
-                    novoPitanje.setOdgovori(odgovori);
+                if(imaInterneta) {
+                    if (jeLiSveValidno()) {
+                        novoPitanje.setNaziv(nazivPitanja.getText().toString());
+                        novoPitanje.setTekstPitanja(nazivPitanja.getText().toString());
+                        novoPitanje.setOdgovori(odgovori);
 
-                    Intent intentServis = new Intent(Intent.ACTION_SYNC, null, DodajPitanjeAkt.this, DodajPitanje.class);
-                    intentServis.putExtra("pitanje", novoPitanje);
-                    intentServis.putExtra("receiver", mReceiver);
-                    startService(intentServis);
+                        Intent intentServis = new Intent(Intent.ACTION_SYNC, null, DodajPitanjeAkt.this, DodajPitanje.class);
+                        intentServis.putExtra("pitanje", novoPitanje);
+                        intentServis.putExtra("receiver", mReceiver);
+                        startService(intentServis);
+                    }
+                }
+                else{
+                    Toast.makeText(getApplicationContext(),"Nema interneta", Toast.LENGTH_SHORT).show();
                 }
             }
         });

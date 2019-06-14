@@ -47,7 +47,7 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
     private int brojTacnih = 0;
     private int brojPreostalih;
     private int ukupanBrojPitanja;
-    private DodajURangListuRec mReceiver;
+
 
     private boolean imaInterneta = true;
     private ArrayList<Pitanje> svaPitanja = new ArrayList<>();
@@ -57,6 +57,7 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
     private DajSveKategorijeRec kReceiver;
     private DajSveKvizoveRec nReceiver;
     private DajSvaPitanjaRec pReceiver;
+    private DodajURangListuRec mReceiver;
 
     private BroadcastReceiver networkStateReceiver = new BroadcastReceiver() {
         @Override

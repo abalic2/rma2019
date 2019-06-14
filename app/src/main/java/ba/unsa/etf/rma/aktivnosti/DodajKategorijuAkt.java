@@ -15,16 +15,29 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.maltaisn.icondialog.Icon;
 import com.maltaisn.icondialog.IconDialog;
 
+import java.util.ArrayList;
+
 import ba.unsa.etf.rma.R;
+import ba.unsa.etf.rma.SQLiteBaza;
+import ba.unsa.etf.rma.intentServisi.DajSvaPitanja;
+import ba.unsa.etf.rma.intentServisi.DajSveKategorije;
+import ba.unsa.etf.rma.intentServisi.DajSveKvizove;
 import ba.unsa.etf.rma.intentServisi.DodajKategoriju;
 import ba.unsa.etf.rma.klase.Kategorija;
+import ba.unsa.etf.rma.klase.Kviz;
+import ba.unsa.etf.rma.klase.Pitanje;
+import ba.unsa.etf.rma.receiveri.DajSvaPitanjaRec;
+import ba.unsa.etf.rma.receiveri.DajSveKategorijeRec;
+import ba.unsa.etf.rma.receiveri.DajSveKvizoveRec;
 import ba.unsa.etf.rma.receiveri.DodajKategorijuRec;
 
-public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.Callback, DodajKategorijuRec.Receiver {
+public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.Callback, DodajKategorijuRec.Receiver,
+        DajSveKategorijeRec.Receiver, DajSveKvizoveRec.Receiver, DajSvaPitanjaRec.Receiver{
     private EditText nazivKategorije;
     private EditText ikona;
     private Button dodajIkonu;
@@ -36,7 +49,15 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
 
     private DodajKategorijuRec mReceiver;
 
-    private boolean imaInterneta = false;
+    private DajSveKategorijeRec kReceiver;
+    private DajSveKvizoveRec nReceiver;
+    private DajSvaPitanjaRec pReceiver;
+
+    private boolean imaInterneta = true;
+
+    private ArrayList<Kategorija> kategorije = new ArrayList<>();
+    private ArrayList<Pitanje> svaPitanja = new ArrayList<>();
+    private ArrayList<Kviz> kvizovi = new ArrayList<>();
 
     private BroadcastReceiver networkStateReceiver = new BroadcastReceiver() {
         @Override
@@ -48,7 +69,19 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
     public void updateNetworkState() {
         ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean staroStanje = imaInterneta;
         imaInterneta = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        if(staroStanje != imaInterneta) promjena();
+    }
+
+    private void promjena() {
+        if(imaInterneta){
+            //upalio se internet
+            pocniAzuriranjeBaze();
+        }
+        else{
+            //ugasio se internet
+        }
     }
 
     public void onResume() {
@@ -62,6 +95,78 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
         unregisterReceiver(networkStateReceiver);
     }
 
+    private void pocniAzuriranjeBaze(){
+        Toast.makeText(getApplicationContext(),"Azuriranje baze", Toast.LENGTH_SHORT).show();
+        popuniKategorijeIzBaze();
+    }
+
+    private void popuniKategorijeIzBaze() {
+        Intent intent = new Intent(Intent.ACTION_SYNC, null, this, DajSveKategorije.class);
+        intent.putExtra("receiver", kReceiver);
+        startService(intent);
+    }
+
+    @Override
+    public void onReceiveResultKategorije(int resultCode, Bundle resultData) {
+        switch (resultCode) {
+            case 1:
+                kategorije.clear();
+                kategorije.add(new Kategorija("Svi", "0"));
+                ArrayList<Kategorija> k3 = (ArrayList<Kategorija>) resultData.get("kategorije");
+                kategorije.addAll(k3);
+
+                zovniDajSveKvizove(false);
+        }
+    }
+
+    void zovniDajSveKvizove(boolean dodaj) {
+        Intent intent1 = new Intent(Intent.ACTION_SYNC, null, this, DajSveKvizove.class);
+        intent1.putExtra("receiver", nReceiver);
+        intent1.putExtra("dodaj", dodaj);
+        startService(intent1);
+    }
+
+    @Override
+    public void onReceiveResultKvizovi(int resultCode, Bundle resultData) {
+        switch (resultCode) {
+            case 1:
+                ArrayList<Kviz> k = (ArrayList<Kviz>) resultData.get("kvizovi");
+                kvizovi.clear();
+                kvizovi.addAll(k);
+
+                popuniSvaPitanjaIzBaze();
+
+                break;
+
+        }
+    }
+
+    private void popuniSvaPitanjaIzBaze() {
+        Intent intent = new Intent(Intent.ACTION_SYNC, null, this, DajSvaPitanja.class);
+        intent.putExtra("receiver", pReceiver);
+        startService(intent);
+    }
+
+    @Override
+    public void onReceiveResultPitanja(int resultCode, Bundle resultData) {
+        switch (resultCode) {
+            case 1:
+                svaPitanja.clear();
+                ArrayList<Pitanje> p = (ArrayList<Pitanje>) resultData.get("pitanja");
+                svaPitanja.addAll(p);
+                osvjeziSQLiteBazu();
+        }
+    }
+
+    private void osvjeziSQLiteBazu() {
+        SQLiteBaza baza = new SQLiteBaza(this);
+        baza.ubaciKategorije(kategorije);
+        baza.ubaciPitanjaIOdgovore(svaPitanja);
+        baza.ubaciKvizove(kvizovi);
+
+        Toast.makeText(getApplicationContext(),"Azuriranje baze zavrseno", Toast.LENGTH_SHORT).show();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,6 +174,12 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
 
         mReceiver = new DodajKategorijuRec(new Handler());
         mReceiver.setReceiver(this);
+        kReceiver = new DajSveKategorijeRec(new Handler());
+        kReceiver.setReceiver(this);
+        nReceiver = new DajSveKvizoveRec(new Handler());
+        nReceiver.setReceiver(this);
+        pReceiver = new DajSvaPitanjaRec(new Handler());
+        pReceiver.setReceiver(this);
 
         novaKategorija = new Kategorija();
 
@@ -92,10 +203,15 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
         dodajKategoriju.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (jeLiSveValidno()) {
-                    novaKategorija.setNaziv(nazivKategorije.getText().toString());
-                    novaKategorija.setId(ikona.getText().toString());
-                    dodajKategorijuUBazu(novaKategorija);
+                if(imaInterneta) {
+                    if (jeLiSveValidno()) {
+                        novaKategorija.setNaziv(nazivKategorije.getText().toString());
+                        novaKategorija.setId(ikona.getText().toString());
+                        dodajKategorijuUBazu(novaKategorija);
+                    }
+                }
+                else{
+                    Toast.makeText(getApplicationContext(),"Nema interneta", Toast.LENGTH_SHORT).show();
                 }
             }
         });

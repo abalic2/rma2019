@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -76,7 +77,8 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
     private EditKvizRec oReceiver;
     private ImportKvizRec iReceiver;
 
-    private boolean imaInterneta = false;
+
+    private boolean imaInterneta = true;
 
     private BroadcastReceiver networkStateReceiver = new BroadcastReceiver() {
         @Override
@@ -143,8 +145,13 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (kategorije.get(position).getNaziv().equalsIgnoreCase("Dodaj kategoriju")) {
-                    Intent myIntent = new Intent(DodajKvizAkt.this, DodajKategorijuAkt.class);
-                    DodajKvizAkt.this.startActivityForResult(myIntent, 3);
+                    if(imaInterneta) {
+                        Intent myIntent = new Intent(DodajKvizAkt.this, DodajKategorijuAkt.class);
+                        DodajKvizAkt.this.startActivityForResult(myIntent, 3);
+                    }
+                    else {
+                        Toast.makeText(getApplicationContext(), "Nema interneta", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     pozicijaKategorija = position;
                 }
@@ -193,14 +200,19 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
         dugme.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (jeLiSveValidno()) {
-                    Kviz novi = new Kviz(imeKviza.getText().toString(), pitanja, (Kategorija) spinner.getSelectedItem(), idKviza);
-                    if (dodavanjeNovogKviza) {
-                        dodajNoviKviz(novi);
-                    } else {
-                        editujKviz(novi);
-                    }
+                if(imaInterneta) {
+                    if (jeLiSveValidno()) {
+                        Kviz novi = new Kviz(imeKviza.getText().toString(), pitanja, (Kategorija) spinner.getSelectedItem(), idKviza);
+                        if (dodavanjeNovogKviza) {
+                            dodajNoviKviz(novi);
+                        } else {
+                            editujKviz(novi);
+                        }
 
+                    }
+                }
+                else {
+                    Toast.makeText(getApplicationContext(),"Nema interneta", Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -209,20 +221,27 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
         dugmeImportuj.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent sendIntent = new Intent();
-                sendIntent.setAction(Intent.ACTION_OPEN_DOCUMENT);
-                String[] mimeTypes = {"text/csv", "text/plain", "text/comma-separated-values"};
-                sendIntent.setType("*/*");
-                sendIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
-                if (sendIntent.resolveActivity(getPackageManager()) != null) {
-                    startActivityForResult(sendIntent, 44);
+                if(imaInterneta) {
+                    Intent sendIntent = new Intent();
+                    sendIntent.setAction(Intent.ACTION_OPEN_DOCUMENT);
+                    String[] mimeTypes = {"text/csv", "text/plain", "text/comma-separated-values"};
+                    sendIntent.setType("*/*");
+                    sendIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+                    if (sendIntent.resolveActivity(getPackageManager()) != null) {
+                        startActivityForResult(sendIntent, 44);
+                    }
+                }
+                else {
+                    Toast.makeText(getApplicationContext(),"Nema interneta", Toast.LENGTH_SHORT).show();
                 }
 
             }
 
         });
 
-        popuniKategorijeIzBaze();
+        if(imaInterneta){
+            popuniKategorijeIzBaze();
+        }
 
     }
 

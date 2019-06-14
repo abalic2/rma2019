@@ -351,6 +351,7 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        updateNetworkState();
         pozicijaKategorija = 0;
         if(imaInterneta) pocniAzuriranjeBaze();
         else prilagodiKategorije();
