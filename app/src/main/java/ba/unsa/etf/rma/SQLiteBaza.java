@@ -89,7 +89,6 @@ public class SQLiteBaza {
                 idPitanja = cursor.getInt(INDEX_KOLONE_ID);
             }
             cursor.close();
-            System.out.println(idPitanja);
             for (String o : p.getOdgovori()) {
                 ContentValues noviOdgovor = new ContentValues();
                 noviOdgovor.put(KvizoviDBOpenHelper.ODGOVOR_TEKST, o);
@@ -146,7 +145,6 @@ public class SQLiteBaza {
     }
 
     public void ubaciKvizove(ArrayList<Kviz> kvizovi) {
-        System.out.println("tu sammmmmmm");
         SQLiteDatabase db = helper.getWritableDatabase();
         db.delete(KvizoviDBOpenHelper.DATABASE_TABLE_KVIZOVI, null, null);
         db.delete(KvizoviDBOpenHelper.DATABASE_TABLE_PITANJE_I_KVIZ, null, null);

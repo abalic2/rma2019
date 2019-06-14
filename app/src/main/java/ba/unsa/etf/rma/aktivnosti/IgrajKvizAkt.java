@@ -15,21 +15,31 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Pair;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 
 import ba.unsa.etf.rma.R;
+import ba.unsa.etf.rma.SQLiteBaza;
 import ba.unsa.etf.rma.fragmenti.InformacijeFrag;
 import ba.unsa.etf.rma.fragmenti.PitanjeFrag;
 import ba.unsa.etf.rma.fragmenti.RangListaFrag;
+import ba.unsa.etf.rma.intentServisi.DajSvaPitanja;
+import ba.unsa.etf.rma.intentServisi.DajSveKategorije;
+import ba.unsa.etf.rma.intentServisi.DajSveKvizove;
 import ba.unsa.etf.rma.intentServisi.DodajURangListu;
+import ba.unsa.etf.rma.klase.Kategorija;
 import ba.unsa.etf.rma.klase.Kviz;
 import ba.unsa.etf.rma.klase.Pitanje;
+import ba.unsa.etf.rma.receiveri.DajSvaPitanjaRec;
+import ba.unsa.etf.rma.receiveri.DajSveKategorijeRec;
+import ba.unsa.etf.rma.receiveri.DajSveKvizoveRec;
 import ba.unsa.etf.rma.receiveri.DodajURangListuRec;
 
-public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnItemClick, DodajURangListuRec.Receiver {
+public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnItemClick, DodajURangListuRec.Receiver,
+        DajSveKategorijeRec.Receiver, DajSveKvizoveRec.Receiver, DajSvaPitanjaRec.Receiver{
     private Kviz kviz;
     private ArrayList<Pitanje> pitanja;
     private ArrayList<String> odgovori;
@@ -39,7 +49,14 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
     private int ukupanBrojPitanja;
     private DodajURangListuRec mReceiver;
 
-    private boolean imaInterneta = false;
+    private boolean imaInterneta = true;
+    private ArrayList<Pitanje> svaPitanja = new ArrayList<>();
+    private ArrayList<Kategorija> kategorije = new ArrayList<>();
+    private ArrayList<Kviz> kvizovi = new ArrayList<>();
+
+    private DajSveKategorijeRec kReceiver;
+    private DajSveKvizoveRec nReceiver;
+    private DajSvaPitanjaRec pReceiver;
 
     private BroadcastReceiver networkStateReceiver = new BroadcastReceiver() {
         @Override
@@ -48,10 +65,23 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
         }
     };
 
+
     public void updateNetworkState() {
         ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean staroStanje = imaInterneta;
         imaInterneta = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        if(staroStanje != imaInterneta) promjena();
+    }
+
+    private void promjena() {
+        if(imaInterneta){
+            //upalio se internet
+            pocniAzuriranjeBaze();
+        }
+        else{
+            //ugasio se internet
+        }
     }
 
     public void onResume() {
@@ -65,6 +95,78 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
         unregisterReceiver(networkStateReceiver);
     }
 
+    private void pocniAzuriranjeBaze(){
+        Toast.makeText(getApplicationContext(),"Azuriranje baze", Toast.LENGTH_SHORT).show();
+        popuniKategorijeIzBaze();
+    }
+
+    private void popuniKategorijeIzBaze() {
+        Intent intent = new Intent(Intent.ACTION_SYNC, null, this, DajSveKategorije.class);
+        intent.putExtra("receiver", kReceiver);
+        startService(intent);
+    }
+
+    @Override
+    public void onReceiveResultKategorije(int resultCode, Bundle resultData) {
+        switch (resultCode) {
+            case 1:
+                kategorije.clear();
+                kategorije.add(new Kategorija("Svi", "0"));
+                ArrayList<Kategorija> k3 = (ArrayList<Kategorija>) resultData.get("kategorije");
+                kategorije.addAll(k3);
+
+                zovniDajSveKvizove(false);
+        }
+    }
+
+    void zovniDajSveKvizove(boolean dodaj) {
+        Intent intent1 = new Intent(Intent.ACTION_SYNC, null, this, DajSveKvizove.class);
+        intent1.putExtra("receiver", nReceiver);
+        intent1.putExtra("dodaj", dodaj);
+        startService(intent1);
+    }
+
+    @Override
+    public void onReceiveResultKvizovi(int resultCode, Bundle resultData) {
+        switch (resultCode) {
+            case 1:
+                ArrayList<Kviz> k = (ArrayList<Kviz>) resultData.get("kvizovi");
+                kvizovi.clear();
+                kvizovi.addAll(k);
+
+                popuniSvaPitanjaIzBaze();
+
+                break;
+
+        }
+    }
+
+    private void popuniSvaPitanjaIzBaze() {
+        Intent intent = new Intent(Intent.ACTION_SYNC, null, this, DajSvaPitanja.class);
+        intent.putExtra("receiver", pReceiver);
+        startService(intent);
+    }
+
+    @Override
+    public void onReceiveResultPitanja(int resultCode, Bundle resultData) {
+        switch (resultCode) {
+            case 1:
+                svaPitanja.clear();
+                ArrayList<Pitanje> p = (ArrayList<Pitanje>) resultData.get("pitanja");
+                svaPitanja.addAll(p);
+                osvjeziSQLiteBazu();
+        }
+    }
+
+    private void osvjeziSQLiteBazu() {
+        SQLiteBaza baza = new SQLiteBaza(this);
+        baza.ubaciKategorije(kategorije);
+        baza.ubaciPitanjaIOdgovore(svaPitanja);
+        baza.ubaciKvizove(kvizovi);
+
+        Toast.makeText(getApplicationContext(),"Azuriranje baze zavrseno", Toast.LENGTH_SHORT).show();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,6 +174,12 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
 
         mReceiver = new DodajURangListuRec(new Handler());
         mReceiver.setReceiver(this);
+        kReceiver = new DajSveKategorijeRec(new Handler());
+        kReceiver.setReceiver(this);
+        nReceiver = new DajSveKvizoveRec(new Handler());
+        nReceiver.setReceiver(this);
+        pReceiver = new DajSvaPitanjaRec(new Handler());
+        pReceiver.setReceiver(this);
 
         kviz = (Kviz) getIntent().getSerializableExtra("kviz");
         brojPreostalih = kviz.getPitanja().size() - 1;
