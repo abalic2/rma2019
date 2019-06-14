@@ -105,4 +105,11 @@ public class KvizoviDBOpenHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
+    public void unsisti(SQLiteDatabase db){
+        db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE_KATEGORIJE);
+        db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE_PITANJA);
+        db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE_ODGOVORI);
+        db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE_KVIZOVI);
+        db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE_PITANJE_I_KVIZ);
+    }
 }

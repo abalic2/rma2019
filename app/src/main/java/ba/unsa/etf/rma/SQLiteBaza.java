@@ -20,6 +20,11 @@ public class SQLiteBaza {
         helper = new KvizoviDBOpenHelper(context, KvizoviDBOpenHelper.DATABASE_NAME, null,
                 KvizoviDBOpenHelper.DATABASE_VERSION);
     }
+    public void unisti(){
+        SQLiteDatabase db = helper.getWritableDatabase();
+        helper.unsisti(db);
+        db.close();
+    }
 
     public void ubaciKategorije(ArrayList<Kategorija> kategorije) {
         SQLiteDatabase db = helper.getWritableDatabase();
@@ -54,6 +59,7 @@ public class SQLiteBaza {
             kategorije.add(novaKategorija);
         }
         cursor.close();
+        db.close();
 
         return kategorije;
 
@@ -83,11 +89,12 @@ public class SQLiteBaza {
                 idPitanja = cursor.getInt(INDEX_KOLONE_ID);
             }
             cursor.close();
-
+            System.out.println(idPitanja);
             for (String o : p.getOdgovori()) {
                 ContentValues noviOdgovor = new ContentValues();
                 noviOdgovor.put(KvizoviDBOpenHelper.ODGOVOR_TEKST, o);
                 noviOdgovor.put(KvizoviDBOpenHelper.ODGOVOR_PITANJE_FK, idPitanja);
+                db.insert(KvizoviDBOpenHelper.DATABASE_TABLE_ODGOVORI, null, noviOdgovor);
             }
 
         }
@@ -113,13 +120,13 @@ public class SQLiteBaza {
             String naziv = cursor.getString(INDEX_KOLONE_NAZIV);
             String tacan = cursor.getString(INDEX_KOLONE_TACAN);
 
-            koloneRezultat = new String[]{KvizoviDBOpenHelper.ODGOVOR_TEKST};
+            String[] koloneRezultatO = new String[]{KvizoviDBOpenHelper.ODGOVOR_TEKST};
             String where = KvizoviDBOpenHelper.ODGOVOR_PITANJE_FK + "= ?";
             String[] whereArgs = new String[]{String.valueOf(cursor.getInt(INDEX_KOLONE_ID))};
 
             Cursor cursor2 = db.query(KvizoviDBOpenHelper.DATABASE_TABLE_ODGOVORI,
-                    koloneRezultat, where, whereArgs, null, null, null);
-            int INDEX_KOLONE_ODGOVORA = cursor.getColumnIndexOrThrow(KvizoviDBOpenHelper.ODGOVOR_TEKST);
+                    koloneRezultatO, where, whereArgs, null, null, null);
+            int INDEX_KOLONE_ODGOVORA = cursor2.getColumnIndexOrThrow(KvizoviDBOpenHelper.ODGOVOR_TEKST);
 
             ArrayList<String> odgovori = new ArrayList<>();
             while (cursor2.moveToNext()) {
@@ -133,12 +140,13 @@ public class SQLiteBaza {
 
         }
         cursor.close();
-
+        db.close();
         return pitanja;
 
     }
 
     public void ubaciKvizove(ArrayList<Kviz> kvizovi) {
+        System.out.println("tu sammmmmmm");
         SQLiteDatabase db = helper.getWritableDatabase();
         db.delete(KvizoviDBOpenHelper.DATABASE_TABLE_KVIZOVI, null, null);
         db.delete(KvizoviDBOpenHelper.DATABASE_TABLE_PITANJE_I_KVIZ, null, null);
@@ -209,7 +217,7 @@ public class SQLiteBaza {
 
         SQLiteDatabase db = helper.getWritableDatabase();
         String[] koloneRezultat = new String[]{KvizoviDBOpenHelper.KVIZ_ID,
-                KvizoviDBOpenHelper.KVIZ_ID_DOKUMENTA, KvizoviDBOpenHelper.KVIZ_NAZIV, KvizoviDBOpenHelper.KVIZ_KATEGORIJA_FK};
+                 KvizoviDBOpenHelper.KVIZ_NAZIV,KvizoviDBOpenHelper.KVIZ_ID_DOKUMENTA, KvizoviDBOpenHelper.KVIZ_KATEGORIJA_FK};
 
         Cursor cursor = db.query(KvizoviDBOpenHelper.DATABASE_TABLE_KVIZOVI,
                 koloneRezultat, null, null, null, null, null);
@@ -222,13 +230,13 @@ public class SQLiteBaza {
             String naziv = cursor.getString(INDEX_KOLONE_NAZIV);
             String idDokumenta = cursor.getString(INDEX_KOLONE_ID_DOC);
 
-            koloneRezultat = new String[]{KvizoviDBOpenHelper.KATEGORIJA_NAZIV, KvizoviDBOpenHelper.KATEGORIJA_IDIKONICE};
+            String[] koloneRezultatN = new String[]{KvizoviDBOpenHelper.KATEGORIJA_NAZIV, KvizoviDBOpenHelper.KATEGORIJA_IDIKONICE};
             String where = KvizoviDBOpenHelper.KATEGORIJA_ID + "= ?";
             String[] whereArgs = new String[]{String.valueOf(cursor.getInt(INDEX_KOLONE_KAT))};
 
             //nalazenje kategorije
             Cursor cursor2 = db.query(KvizoviDBOpenHelper.DATABASE_TABLE_KATEGORIJE,
-                    koloneRezultat, where, whereArgs, null, null, null);
+                    koloneRezultatN, where, whereArgs, null, null, null);
 
             int INDEX_NAZIV = cursor2.getColumnIndexOrThrow(KvizoviDBOpenHelper.KATEGORIJA_NAZIV);
             int INDEX_IKONE = cursor2.getColumnIndexOrThrow(KvizoviDBOpenHelper.KATEGORIJA_IDIKONICE);
@@ -299,7 +307,7 @@ public class SQLiteBaza {
 
         }
         cursor.close();
-
+        db.close();
         return kvizovi;
 
     }

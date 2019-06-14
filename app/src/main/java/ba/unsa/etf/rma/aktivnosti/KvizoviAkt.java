@@ -79,7 +79,6 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         boolean staroStanje = imaInterneta;
         imaInterneta = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
-        System.out.println(imaInterneta);
         if(staroStanje != imaInterneta) promjena();
     }
 
@@ -189,13 +188,31 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
 
         }
 
-        //povlacenje kategorija
-        popuniKategorijeIzBaze();
+
+        updateNetworkState();
+        if (imaInterneta) {
+            popuniKategorijeIzBaze();
+        } else{
+            popuniIzSQLiteBaze();
+        }
+
+
 
         if (savedInstanceState != null) {
             pozicijaKategorija = savedInstanceState.getInt("pozicija");
         }
 
+
+    }
+
+    private void popuniIzSQLiteBaze() {
+        SQLiteBaza baza = new SQLiteBaza(this);
+        kategorije.clear();
+        svaPitanja.clear();
+        kvizovi.clear();
+        kategorije = baza.dajSveKategorije();
+        svaPitanja = baza.dajSvaPitanja();
+        kvizovi = baza.dajSveKvizove();
 
     }
 
@@ -386,6 +403,17 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
         }
     }
 
+    private void prilagodiKategorije(){
+        FrameLayout d = (FrameLayout) findViewById(R.id.detailPlace);
+        if (d == null) {
+            spAdapter.notifyDataSetChanged();
+            spinner.setSelection(pozicijaKategorija);
+        } else {
+            posaljiListaFragment();
+        }
+
+    }
+
     @Override
     public void onReceiveResultKategorije(int resultCode, Bundle resultData) {
         switch (resultCode) {
@@ -395,20 +423,13 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
                 ArrayList<Kategorija> k3 = (ArrayList<Kategorija>) resultData.get("kategorije");
                 kategorije.addAll(k3);
 
-                FrameLayout d = (FrameLayout) findViewById(R.id.detailPlace);
-                if (d == null) {
-                    spAdapter.notifyDataSetChanged();
-                    spinner.setSelection(pozicijaKategorija);
-                } else {
-                    posaljiListaFragment();
-                }
+                prilagodiKategorije();
 
                 if(ucitavanjeSvegaZbogBaze) {
                     zovniDajSveKvizove(false);
                 }else {
                     promijeniKvizove(kategorije.get(pozicijaKategorija));
                 }
-
 
         }
     }
