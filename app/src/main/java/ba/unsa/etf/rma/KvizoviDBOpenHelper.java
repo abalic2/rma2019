@@ -29,6 +29,7 @@ public class KvizoviDBOpenHelper extends SQLiteOpenHelper {
 
     public static final String KVIZ_ID ="_id";
     public static final String KVIZ_NAZIV ="naziv";
+    public static final String KVIZ_ID_DOKUMENTA = "idDokumenta";
     public static final String KVIZ_KATEGORIJA_FK ="kategorijaId";
 
     public static final String PIK_ID ="_id";
@@ -64,6 +65,7 @@ public class KvizoviDBOpenHelper extends SQLiteOpenHelper {
             DATABASE_TABLE_KVIZOVI + " (" +
             KVIZ_ID + " integer primary key autoincrement, " +
             KVIZ_NAZIV + " text not null, " +
+            KVIZ_ID_DOKUMENTA + " text not null, " +
             KVIZ_KATEGORIJA_FK  + " integer not null," +
             " FOREIGN KEY (" + KVIZ_KATEGORIJA_FK + ") REFERENCES " + DATABASE_TABLE_KATEGORIJE + "(" + KATEGORIJA_ID + "));";
 

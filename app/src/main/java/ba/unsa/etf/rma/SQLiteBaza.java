@@ -52,6 +52,7 @@ public class SQLiteBaza {
             String naziv = cursor.getString(INDEX_KOLONE_NAZIV);
             String ikona = cursor.getString(INDEX_KOLONE_IKONE);
             Kategorija novaKategorija = new Kategorija(naziv,ikona);
+            kategorije.add(novaKategorija);
         }
         cursor.close();
 
@@ -97,6 +98,47 @@ public class SQLiteBaza {
         return;
     }
 
+    public ArrayList<Pitanje> dajSvaPitanja(){
+        ArrayList<Pitanje> pitanja = new ArrayList<>();
+
+        SQLiteDatabase db = helper.getWritableDatabase();
+        String[] koloneRezultat = new String[]{KvizoviDBOpenHelper.PITANJE_ID,
+                KvizoviDBOpenHelper.PITANJE_NAZIV, KvizoviDBOpenHelper.PITANJE_TACAN_ODG};
+
+        Cursor cursor = db.query(KvizoviDBOpenHelper.DATABASE_TABLE_PITANJA,
+                koloneRezultat, null, null, null, null, null);
+        int INDEX_KOLONE_ID = cursor.getColumnIndexOrThrow(KvizoviDBOpenHelper.PITANJE_ID);
+        int INDEX_KOLONE_NAZIV = cursor.getColumnIndexOrThrow(KvizoviDBOpenHelper.PITANJE_NAZIV);
+        int INDEX_KOLONE_TACAN = cursor.getColumnIndexOrThrow(KvizoviDBOpenHelper.PITANJE_TACAN_ODG);
+        while (cursor.moveToNext()) {
+            String naziv = cursor.getString(INDEX_KOLONE_NAZIV);
+            String tacan = cursor.getString(INDEX_KOLONE_TACAN);
+
+            koloneRezultat = new String[]{KvizoviDBOpenHelper.ODGOVOR_TEKST};
+            String where = KvizoviDBOpenHelper.ODGOVOR_PITANJE_FK + "= ?";
+            String[] whereArgs = new String[]{String.valueOf(cursor.getInt(INDEX_KOLONE_ID))};
+
+            Cursor cursor2 = db.query(KvizoviDBOpenHelper.DATABASE_TABLE_ODGOVORI,
+                    koloneRezultat, where, whereArgs, null, null, null);
+            int INDEX_KOLONE_ODGOVORA = cursor.getColumnIndexOrThrow(KvizoviDBOpenHelper.ODGOVOR_TEKST);
+
+            ArrayList<String> odgovori = new ArrayList<>();
+            while (cursor2.moveToNext()) {
+                String odgovor = cursor.getString(INDEX_KOLONE_ODGOVORA);
+                odgovori.add(odgovor);
+            }
+            cursor2.close();
+
+            Pitanje novoPitanje = new Pitanje(naziv,naziv,odgovori,tacan);
+            pitanja.add(novoPitanje);
+
+        }
+        cursor.close();
+
+        return pitanja;
+
+    }
+
     public void ubaciKvizove(ArrayList<Kviz> kvizovi) {
         SQLiteDatabase db = helper.getWritableDatabase();
         db.delete(KvizoviDBOpenHelper.DATABASE_TABLE_KVIZOVI, null, null);
@@ -105,6 +147,7 @@ public class SQLiteBaza {
         for (Kviz k : kvizovi) {
             ContentValues noviKviz = new ContentValues();
             noviKviz.put(KvizoviDBOpenHelper.KVIZ_NAZIV, k.getNaziv());
+            noviKviz.put(KvizoviDBOpenHelper.KVIZ_ID_DOKUMENTA, k.getId());
 
             String[] koloneRezultat = new String[]{KvizoviDBOpenHelper.KATEGORIJA_ID};
             String where = KvizoviDBOpenHelper.KATEGORIJA_NAZIV + "= ?";
