@@ -19,6 +19,7 @@ import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -26,21 +27,25 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import ba.unsa.etf.rma.R;
+import ba.unsa.etf.rma.SQLiteBaza;
 import ba.unsa.etf.rma.adapteri.ListaAdapter;
 import ba.unsa.etf.rma.adapteri.SpinnerAdapter;
 import ba.unsa.etf.rma.fragmenti.DetailFrag;
 import ba.unsa.etf.rma.fragmenti.ListaFrag;
+import ba.unsa.etf.rma.intentServisi.DajSvaPitanja;
 import ba.unsa.etf.rma.intentServisi.DajSveKategorije;
 import ba.unsa.etf.rma.intentServisi.DajSveKvizove;
 import ba.unsa.etf.rma.intentServisi.DajSveKvizoveKategorije;
 import ba.unsa.etf.rma.klase.Kategorija;
 import ba.unsa.etf.rma.klase.Kviz;
+import ba.unsa.etf.rma.klase.Pitanje;
+import ba.unsa.etf.rma.receiveri.DajSvaPitanjaRec;
 import ba.unsa.etf.rma.receiveri.DajSveKategorijeRec;
 import ba.unsa.etf.rma.receiveri.DajSveKvizoveKategorijaRec;
 import ba.unsa.etf.rma.receiveri.DajSveKvizoveRec;
 
 public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemClick, DetailFrag.OnItemClick,
-        DajSveKvizoveKategorijaRec.Receiver, DajSveKategorijeRec.Receiver, DajSveKvizoveRec.Receiver {
+        DajSveKvizoveKategorijaRec.Receiver, DajSveKategorijeRec.Receiver, DajSveKvizoveRec.Receiver, DajSvaPitanjaRec.Receiver {
 
     private Spinner spinner;
     private ListView lista;
@@ -50,14 +55,17 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
     private ArrayList<Kategorija> kategorije = new ArrayList<>();
     private ArrayList<Kviz> kvizovi = new ArrayList<>();
     private ArrayList<Kviz> odabraniKvizovi = new ArrayList<>();
+    private ArrayList<Pitanje> svaPitanja = new ArrayList<>();
 
     private int pozicijaKategorija = 0;
 
     private DajSveKvizoveKategorijaRec mReceiver;
     private DajSveKategorijeRec kReceiver;
     private DajSveKvizoveRec nReceiver;
+    private DajSvaPitanjaRec pReceiver;
 
-    private boolean imaInterneta = false;
+    private boolean imaInterneta = true;
+    private boolean ucitavanjeSvegaZbogBaze = false;
 
     private BroadcastReceiver networkStateReceiver = new BroadcastReceiver() {
         @Override
@@ -69,7 +77,33 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
     public void updateNetworkState() {
         ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean staroStanje = imaInterneta;
         imaInterneta = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        System.out.println(imaInterneta);
+        if(staroStanje != imaInterneta) promjena();
+    }
+
+    private void promjena() {
+        if(imaInterneta){
+            //upalio se internet
+            pocniAzuriranjeBaze();
+        }
+        else{
+            //ugasio se internet
+        }
+    }
+
+    private void pocniAzuriranjeBaze(){
+        Toast.makeText(getApplicationContext(),"Azuriranje baze", Toast.LENGTH_SHORT).show();
+        ucitavanjeSvegaZbogBaze = true;
+        popuniKategorijeIzBaze();
+    }
+
+    private void osvjeziSQLiteBazu() {
+        SQLiteBaza baza = new SQLiteBaza(this);
+        baza.ubaciKategorije(kategorije);
+        baza.ubaciPitanjaIOdgovore(svaPitanja);
+        baza.ubaciKvizove(kvizovi);
     }
 
     public void onResume() {
@@ -94,6 +128,8 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
         kReceiver.setReceiver(this);
         nReceiver = new DajSveKvizoveRec(new Handler());
         nReceiver.setReceiver(this);
+        pReceiver = new DajSvaPitanjaRec(new Handler());
+        pReceiver.setReceiver(this);
 
         if (savedInstanceState != null) {
             pozicijaKategorija = savedInstanceState.getInt("pozicija");
@@ -163,6 +199,12 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
 
     }
 
+    private void popuniSvaPitanjaIzBaze() {
+        Intent intent = new Intent(Intent.ACTION_SYNC, null, this, DajSvaPitanja.class);
+        intent.putExtra("receiver", pReceiver);
+        startService(intent);
+    }
+
     private void popuniKategorijeIzBaze() {
         Intent intent = new Intent(Intent.ACTION_SYNC, null, KvizoviAkt.this, DajSveKategorije.class);
         intent.putExtra("receiver", kReceiver);
@@ -201,6 +243,10 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
         int trajanjeAlarma = size / 2;
         Calendar endTime = Calendar.getInstance();
         endTime.add(Calendar.MINUTE, trajanjeAlarma);
+
+
+        //if (ContextCompat.checkSelfPermission(thisActivity, Manifest.permission.WRITE_CALENDAR)
+        //        != PackageManager.PERMISSION_GRANTED) {
 
         String[] projection = new String[] { CalendarContract.Events.CALENDAR_ID, CalendarContract.Events.TITLE, CalendarContract.Events.DESCRIPTION, CalendarContract.Events.DTSTART, CalendarContract.Events.DTEND, CalendarContract.Events.ALL_DAY, CalendarContract.Events.EVENT_LOCATION };
 
@@ -323,14 +369,18 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
     public void onReceiveResultKvizoviKategorija(int resultCode, Bundle resultData) {
         switch (resultCode) {
             case 1:
-                ArrayList<Kviz> k2 = (ArrayList<Kviz>) resultData.get("kvizovi");
                 odabraniKvizovi.clear();
+                ArrayList<Kviz> k2 = (ArrayList<Kviz>) resultData.get("kvizovi");
                 odabraniKvizovi.addAll(k2);
                 FrameLayout d = (FrameLayout) findViewById(R.id.detailPlace);
                 if (d == null) {
                     lsAdapter.notifyDataSetChanged();
                 } else {
                     posaljiDedailFragment();
+                }
+
+                if(ucitavanjeSvegaZbogBaze){
+                    popuniSvaPitanjaIzBaze();
                 }
 
         }
@@ -340,9 +390,9 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
     public void onReceiveResultKategorije(int resultCode, Bundle resultData) {
         switch (resultCode) {
             case 1:
-                ArrayList<Kategorija> k3 = (ArrayList<Kategorija>) resultData.get("kategorije");
                 kategorije.clear();
                 kategorije.add(new Kategorija("Svi", "0"));
+                ArrayList<Kategorija> k3 = (ArrayList<Kategorija>) resultData.get("kategorije");
                 kategorije.addAll(k3);
 
                 FrameLayout d = (FrameLayout) findViewById(R.id.detailPlace);
@@ -352,7 +402,13 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
                 } else {
                     posaljiListaFragment();
                 }
-                promijeniKvizove(kategorije.get(pozicijaKategorija));
+
+                if(ucitavanjeSvegaZbogBaze) {
+                    zovniDajSveKvizove(false);
+                }else {
+                    promijeniKvizove(kategorije.get(pozicijaKategorija));
+                }
+
 
         }
     }
@@ -365,24 +421,39 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
                 kvizovi.clear();
                 kvizovi.addAll(k);
 
-                if (resultData.getBoolean("dodaj")) {
+                if (resultData.getBoolean("dodaj") || (ucitavanjeSvegaZbogBaze && kategorije.get(pozicijaKategorija).getNaziv().equals("Svi"))) {
                     odabraniKvizovi.clear();
                     odabraniKvizovi.addAll(k);
-
                     FrameLayout d = (FrameLayout) findViewById(R.id.detailPlace);
                     if (d == null) {
                         lsAdapter.notifyDataSetChanged();
                     } else {
                         posaljiDedailFragment();
                     }
+                    if (ucitavanjeSvegaZbogBaze && kategorije.get(pozicijaKategorija).getNaziv().equals("Svi")){
+                        popuniSvaPitanjaIzBaze();
+                    }
                 }
-
+                if(ucitavanjeSvegaZbogBaze && !kategorije.get(pozicijaKategorija).getNaziv().equals("Svi")){
+                    promijeniKvizove(kategorije.get(pozicijaKategorija));
+                }
                 break;
 
         }
     }
 
 
+    @Override
+    public void onReceiveResultPitanja(int resultCode, Bundle resultData) {
+        switch (resultCode) {
+            case 1:
+                svaPitanja.clear();
+                ArrayList<Pitanje> p = (ArrayList<Pitanje>) resultData.get("pitanja");
+                svaPitanja.addAll(p);
+                ucitavanjeSvegaZbogBaze = false;
+                osvjeziSQLiteBazu();
+        }
+    }
 }
 
 

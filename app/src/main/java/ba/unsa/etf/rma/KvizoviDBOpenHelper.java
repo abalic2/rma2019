@@ -71,7 +71,7 @@ public class KvizoviDBOpenHelper extends SQLiteOpenHelper {
             DATABASE_TABLE_PITANJE_I_KVIZ + " (" +
             PIK_ID + " integer primary key autoincrement, " +
             PIK_KVIZ_FK  + " integer not null," +
-            PIK_PITANJE_FK  + "integer not null, " +
+            PIK_PITANJE_FK  + " integer not null, " +
             " FOREIGN KEY (" + PIK_KVIZ_FK + ") REFERENCES " + DATABASE_TABLE_KVIZOVI + "(" + KVIZ_ID + "), " +
             " FOREIGN KEY (" + PIK_PITANJE_FK + ") REFERENCES " + DATABASE_TABLE_PITANJA + "(" + PITANJE_ID + "));";
 
@@ -102,4 +102,5 @@ public class KvizoviDBOpenHelper extends SQLiteOpenHelper {
 // Kreiranje nove
         onCreate(db);
     }
+
 }
