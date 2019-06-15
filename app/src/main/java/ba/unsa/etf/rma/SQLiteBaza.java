@@ -4,8 +4,11 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Pair;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import ba.unsa.etf.rma.klase.Kategorija;
 import ba.unsa.etf.rma.klase.Kviz;
@@ -19,11 +22,6 @@ public class SQLiteBaza {
         this.context = context;
         helper = new KvizoviDBOpenHelper(context, KvizoviDBOpenHelper.DATABASE_NAME, null,
                 KvizoviDBOpenHelper.DATABASE_VERSION);
-    }
-    public void unisti(){
-        SQLiteDatabase db = helper.getWritableDatabase();
-        helper.unsisti(db);
-        db.close();
     }
 
     public void ubaciKategorije(ArrayList<Kategorija> kategorije) {
@@ -324,4 +322,96 @@ public class SQLiteBaza {
     }
 
 
+    private ArrayList<Pair<String, Double>> dajSveIzRangListeKviza(int idKviza){
+        ArrayList<Pair<String, Double>> listaRezultata = new ArrayList<>();
+
+        SQLiteDatabase db = helper.getWritableDatabase();
+        String[] koloneRezultat = new String[]{KvizoviDBOpenHelper.RANG_IME_IGRACA, KvizoviDBOpenHelper.RANG_PROCENAT};
+        String where = KvizoviDBOpenHelper.RANG_KVIZ_FK + "= ?";
+        String whereArgs[] = new String[]{String.valueOf(idKviza)};
+
+        Cursor cursor = db.query(KvizoviDBOpenHelper.DATABASE_TABLE_RANG,
+                koloneRezultat, where, whereArgs, null, null, null);
+        int INDEX_KOLONE_IME = cursor.getColumnIndexOrThrow(KvizoviDBOpenHelper.RANG_IME_IGRACA);
+        int INDEX_KOLONE_PROCENAT = cursor.getColumnIndexOrThrow(KvizoviDBOpenHelper.RANG_PROCENAT);
+        while (cursor.moveToNext()) {
+            String naziv = cursor.getString(INDEX_KOLONE_IME);
+            double procenat = cursor.getDouble(INDEX_KOLONE_PROCENAT);
+            listaRezultata.add(new Pair<String, Double>(naziv,procenat));
+        }
+        cursor.close();
+        db.close();
+
+        return listaRezultata;
+    }
+
+
+
+    private void sortirajListu(ArrayList<Pair<String, Double>> lista) {
+        Collections.sort(lista, new Comparator<Pair<String, Double>>() {
+            @Override
+            public int compare(Pair<String, Double> o1, Pair<String, Double> o2) {
+                if (o1.second > o2.second) {
+                    return -1;
+                } else if (o1.second.equals(o2.second)) {
+                    return 0;
+                } else {
+                    return 1;
+                }
+            }
+        });
+    }
+
+    public void ubaciIgruURangListu(String imeIgraca, double procenat, Kviz kviz){
+        SQLiteDatabase db = helper.getWritableDatabase();
+
+        String[] koloneRezultat = new String[]{KvizoviDBOpenHelper.KVIZ_ID};
+        String where = KvizoviDBOpenHelper.KVIZ_NAZIV + "= ?";
+        String[] whereArgs = new String[]{String.valueOf(kviz.getNaziv())};
+
+        Cursor cursor = db.query(KvizoviDBOpenHelper.DATABASE_TABLE_KVIZOVI,
+                koloneRezultat, where, whereArgs, null, null, null);
+        int INDEX_KOLONE_ID = cursor.getColumnIndexOrThrow(KvizoviDBOpenHelper.KVIZ_ID);
+        int idKviza = 0;
+        while (cursor.moveToNext()) {
+            idKviza = cursor.getInt(INDEX_KOLONE_ID);
+        }
+        cursor.close();
+
+        ArrayList<Pair<String,Double>> listaKviza = dajSveIzRangListeKviza(idKviza);
+        listaKviza.add(new Pair<String, Double>(imeIgraca,procenat));
+
+        sortirajListu(listaKviza);
+
+        //obrisi sve podatke iz rang liste za taj kviz
+        where = KvizoviDBOpenHelper.RANG_KVIZ_FK + "= ?";
+        whereArgs = new String[]{String.valueOf(idKviza)};
+        db.delete(KvizoviDBOpenHelper.DATABASE_TABLE_RANG, where, whereArgs);
+
+        //sad ubaci sve iz liste
+        int brojac = 0;
+        for(Pair<String,Double> par : listaKviza) {
+            ContentValues noviUnos = new ContentValues();
+            noviUnos.put(KvizoviDBOpenHelper.RANG_IME_IGRACA, par.first);
+            noviUnos.put(KvizoviDBOpenHelper.RANG_PROCENAT, par.second);
+            noviUnos.put(KvizoviDBOpenHelper.RANG_POZICIJA, brojac + 1);
+            noviUnos.put(KvizoviDBOpenHelper.RANG_KVIZ_FK,idKviza);
+            db.insert(KvizoviDBOpenHelper.DATABASE_TABLE_RANG, null, noviUnos);
+            brojac++;
+        }
+
+        db.close();
+    }
+
+    public void ubaciRangListu(ArrayList<Pair<Kviz, Pair<String, Double>>> rangLista) {
+        SQLiteDatabase db = helper.getWritableDatabase();
+        db.delete(KvizoviDBOpenHelper.DATABASE_TABLE_RANG, null, null);
+        db.close();
+
+        for(Pair par : rangLista){
+            Kviz k = (Kviz) par.first;
+            Pair<String, Double> igra = (Pair<String, Double>) par.second;
+            ubaciIgruURangListu(igra.first, igra.second, k);
+        }
+    }
 }

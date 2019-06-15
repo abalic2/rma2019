@@ -36,10 +36,11 @@ public class KvizoviDBOpenHelper extends SQLiteOpenHelper {
     public static final String PIK_PITANJE_FK ="pitanjeId";
     public static final String PIK_KVIZ_FK ="kvizId";
 
-
-
-
-
+    public static final String RANG_ID = "_id";
+    public static final String RANG_IME_IGRACA = "imeIgraca";
+    public static final String RANG_PROCENAT = "procenat";
+    public static final String RANG_POZICIJA = "pozicija";
+    public static final String RANG_KVIZ_FK = "idKviza";
 
 // SQL upit za kreiranje tabele
     private static final String CREATE_TABLE_KATEGORIJE = "create table " +
@@ -77,6 +78,15 @@ public class KvizoviDBOpenHelper extends SQLiteOpenHelper {
             " FOREIGN KEY (" + PIK_KVIZ_FK + ") REFERENCES " + DATABASE_TABLE_KVIZOVI + "(" + KVIZ_ID + "), " +
             " FOREIGN KEY (" + PIK_PITANJE_FK + ") REFERENCES " + DATABASE_TABLE_PITANJA + "(" + PITANJE_ID + "));";
 
+    private static final String CREATE_TABLE_RANG_LISTE = "create table " +
+            DATABASE_TABLE_RANG + " (" +
+            RANG_ID + " integer primary key autoincrement, " +
+            RANG_IME_IGRACA + " text not null, " +
+            RANG_POZICIJA + " integer not null, " +
+            RANG_PROCENAT + " real not null, " +
+            RANG_KVIZ_FK + " integer not null," +
+            " FOREIGN KEY (" + RANG_KVIZ_FK + ") REFERENCES " + DATABASE_TABLE_KVIZOVI + "(" + KVIZ_ID + "));";
+
 
     public KvizoviDBOpenHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
@@ -90,6 +100,7 @@ public class KvizoviDBOpenHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_TABLE_ODGOVORI);
         db.execSQL(CREATE_TABLE_KVIZOVI);
         db.execSQL(CREATE_TABLE_PITANJE_I_KVIZ);
+        db.execSQL(CREATE_TABLE_RANG_LISTE);
     }
 
     // Poziva se kada se ne poklapaju verzije baze na disku i trenutne baze
@@ -101,15 +112,9 @@ public class KvizoviDBOpenHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE_ODGOVORI);
         db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE_KVIZOVI);
         db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE_PITANJE_I_KVIZ);
+        db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE_RANG);
 // Kreiranje nove
         onCreate(db);
     }
 
-    public void unsisti(SQLiteDatabase db){
-        db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE_KATEGORIJE);
-        db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE_PITANJA);
-        db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE_ODGOVORI);
-        db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE_KVIZOVI);
-        db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE_PITANJE_I_KVIZ);
-    }
 }

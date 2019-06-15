@@ -18,6 +18,9 @@
             android:name=".intentServisi.DodajPitanje"
             android:enabled="true"/>
         <service
+            android:name=".intentServisi.DajSveIzRangListe"
+            android:enabled="true"/>
+        <service
             android:name=".intentServisi.DajKviz"
             android:enabled="true"/>
         <service

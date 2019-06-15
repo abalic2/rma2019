@@ -17,6 +17,7 @@ import android.os.Handler;
 import android.provider.CalendarContract;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Pair;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
@@ -36,6 +37,7 @@ import ba.unsa.etf.rma.adapteri.SpinnerAdapter;
 import ba.unsa.etf.rma.fragmenti.DetailFrag;
 import ba.unsa.etf.rma.fragmenti.ListaFrag;
 import ba.unsa.etf.rma.intentServisi.DajSvaPitanja;
+import ba.unsa.etf.rma.intentServisi.DajSveIzRangListe;
 import ba.unsa.etf.rma.intentServisi.DajSveKategorije;
 import ba.unsa.etf.rma.intentServisi.DajSveKvizove;
 import ba.unsa.etf.rma.intentServisi.DajSveKvizoveKategorije;
@@ -43,12 +45,14 @@ import ba.unsa.etf.rma.klase.Kategorija;
 import ba.unsa.etf.rma.klase.Kviz;
 import ba.unsa.etf.rma.klase.Pitanje;
 import ba.unsa.etf.rma.receiveri.DajSvaPitanjaRec;
+import ba.unsa.etf.rma.receiveri.DajSveIzRangListeRec;
 import ba.unsa.etf.rma.receiveri.DajSveKategorijeRec;
 import ba.unsa.etf.rma.receiveri.DajSveKvizoveKategorijaRec;
 import ba.unsa.etf.rma.receiveri.DajSveKvizoveRec;
 
 public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemClick, DetailFrag.OnItemClick,
-        DajSveKvizoveKategorijaRec.Receiver, DajSveKategorijeRec.Receiver, DajSveKvizoveRec.Receiver, DajSvaPitanjaRec.Receiver {
+        DajSveKvizoveKategorijaRec.Receiver, DajSveKategorijeRec.Receiver, DajSveKvizoveRec.Receiver,
+        DajSvaPitanjaRec.Receiver, DajSveIzRangListeRec.Receiver {
 
     private Spinner spinner;
     private ListView lista;
@@ -59,6 +63,7 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
     private ArrayList<Kviz> kvizovi = new ArrayList<>();
     private ArrayList<Kviz> odabraniKvizovi = new ArrayList<>();
     private ArrayList<Pitanje> svaPitanja = new ArrayList<>();
+    private ArrayList<Pair<Kviz, Pair<String, Double>>> rangLista = new ArrayList<>();
 
     private int pozicijaKategorija = 0;
 
@@ -66,6 +71,7 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
     private DajSveKategorijeRec kReceiver;
     private DajSveKvizoveRec nReceiver;
     private DajSvaPitanjaRec pReceiver;
+    private DajSveIzRangListeRec rReceiver;
 
     private boolean imaInterneta = true;
     private boolean ucitavanjeSvegaZbogBaze = false;
@@ -106,6 +112,7 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
         baza.ubaciKategorije(kategorije);
         baza.ubaciPitanjaIOdgovore(svaPitanja);
         baza.ubaciKvizove(kvizovi);
+        baza.ubaciRangListu(rangLista);
     }
 
     public void onResume() {
@@ -132,6 +139,8 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
         nReceiver.setReceiver(this);
         pReceiver = new DajSvaPitanjaRec(new Handler());
         pReceiver.setReceiver(this);
+        rReceiver = new DajSveIzRangListeRec(new Handler());
+        rReceiver.setReceiver(this);
 
         if (savedInstanceState != null) {
             pozicijaKategorija = savedInstanceState.getInt("pozicija");
@@ -228,6 +237,13 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
     private void popuniKategorijeIzBaze() {
         Intent intent = new Intent(Intent.ACTION_SYNC, null, KvizoviAkt.this, DajSveKategorije.class);
         intent.putExtra("receiver", kReceiver);
+        startService(intent);
+    }
+
+    private void ucitajRangListu(){
+        Intent intent = new Intent(Intent.ACTION_SYNC, null, KvizoviAkt.this, DajSveIzRangListe.class);
+        intent.putExtra("receiver", rReceiver);
+        intent.putExtra("kvizovi", kvizovi);
         startService(intent);
     }
 
@@ -537,6 +553,19 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
                 svaPitanja.clear();
                 ArrayList<Pitanje> p = (ArrayList<Pitanje>) resultData.get("pitanja");
                 svaPitanja.addAll(p);
+                ucitajRangListu();
+
+        }
+    }
+
+
+    @Override
+    public void onReceiveResultRangListaSvega(int resultCode, Bundle resultData) {
+        switch (resultCode){
+            case 1:
+                rangLista.clear();
+                ArrayList<Pair<Kviz, Pair<String, Double>>> r = (ArrayList<Pair<Kviz, Pair<String, Double>>>) resultData.get("rangLista");
+                rangLista.addAll(r);
                 ucitavanjeSvegaZbogBaze = false;
                 osvjeziSQLiteBazu();
         }
