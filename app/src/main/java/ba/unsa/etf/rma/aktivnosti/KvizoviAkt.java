@@ -365,8 +365,7 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
     }
 
     private boolean jeLiSlobodnoVrijeme(int size) {
-        int x = size / 2;
-        int trajanjeAlarma = size / 2;
+        int trajanjeAlarma = (int) Math.ceil(size / 2.);
         Calendar endTime = Calendar.getInstance();
         endTime.add(Calendar.MINUTE, trajanjeAlarma);
 
@@ -374,13 +373,12 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
 
         Calendar startTime = Calendar.getInstance();
 
-
         String selection = "(( " + CalendarContract.Events.DTSTART + " >= " + startTime.getTimeInMillis() + " ) AND ( " + CalendarContract.Events.DTSTART + " <= " + endTime.getTimeInMillis() + " ))";
 
         Cursor cursor = this.getBaseContext().getContentResolver().query(CalendarContract.Events.CONTENT_URI, projection, selection, null, null);
 
 
-        if (cursor.moveToFirst()) {
+        if (cursor.moveToFirst()) { //ako ima icega znaci da ne moze igrati
             Date datumEventa = new Date(cursor.getLong(3));
             cursor.close();
             Date trenutniDatum = new Date();

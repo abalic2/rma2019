@@ -44,7 +44,7 @@ import ba.unsa.etf.rma.receiveri.DodajURangListuViseRec;
 
 public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnItemClick, DodajURangListuRec.Receiver,
         DajSveKategorijeRec.Receiver, DajSveKvizoveRec.Receiver, DajSvaPitanjaRec.Receiver, DajSveIzRangListeRec.Receiver
-        , DodajURangListuViseRec.Receiver{
+        , DodajURangListuViseRec.Receiver {
     private Kviz kviz;
     private ArrayList<Pitanje> pitanja;
     private ArrayList<String> odgovori;
@@ -76,7 +76,6 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
             updateNetworkState();
         }
     };
-
 
 
     public void updateNetworkState() {
@@ -183,15 +182,14 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
         switch (resultCode) {
             case 1:
                 ArrayList<Pair<Kviz, Pair<String, Double>>> r = (ArrayList<Pair<Kviz, Pair<String, Double>>>) resultData.get("rangLista");
-                if(dodaloSeUFirebase){
+                if (dodaloSeUFirebase) {
                     SQLiteBaza baza = new SQLiteBaza(this);
                     rangLista.clear();
                     rangLista.addAll(r);
                     baza.ubaciRangListu(rangLista);
                     dodaloSeUFirebase = false;
                     Toast.makeText(getApplicationContext(), "Azuriranje baze zavrseno", Toast.LENGTH_SHORT).show();
-                }
-                else {
+                } else {
                     listaSQLite.clear();
                     listaSQLite.addAll(rangLista);
                     //novo stanje iz online baze
@@ -204,7 +202,7 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
 
     @Override
     public void onReceiveResultRangListaVise(int resultCode, Bundle resultData) {
-        switch (resultCode){
+        switch (resultCode) {
             case 1:
                 dodaloSeUFirebase = true;
                 ucitajRangListu();
@@ -231,7 +229,7 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
             for (Pair<Kviz, Pair<String, Double>> igraUFirebase : rangLista) {
                 if (igra.first.getNaziv().equals(igraUFirebase.first.getNaziv()) &&
                         igra.second.first.equals(igraUFirebase.second.first) &&
-                        igra.second.second.equals(igraUFirebase.second.second)){
+                        igra.second.second.equals(igraUFirebase.second.second)) {
                     ima = true;
                     break;
                 }
@@ -242,7 +240,7 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
                 procenti.add(igra.second.second);
             }
         }
-        if(kk.size() != 0){
+        if (kk.size() != 0) {
 
             Intent intent = new Intent(Intent.ACTION_SYNC, null, this, DodajURangListuVise.class);
             intent.putExtra("kvizovi", kk);
@@ -250,8 +248,7 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
             intent.putExtra("imena", imena);
             intent.putExtra("receiver", cReceiver);
             startService(intent);
-        }
-        else{
+        } else {
             SQLiteBaza baza = new SQLiteBaza(this);
             baza.ubaciRangListu(rangLista);
             Toast.makeText(getApplicationContext(), "Azuriranje baze zavrseno", Toast.LENGTH_SHORT).show();
@@ -271,7 +268,7 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
     }
 
 
-        @Override
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_igraj_kviz);
@@ -306,7 +303,7 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
         rangListaKviza.addAll(igraci);
 
 
-        if(ukupanBrojPitanja != 0) postaviAlarm();
+        if (ukupanBrojPitanja != 0) postaviAlarm();
 
         InformacijeFrag fi = (InformacijeFrag) getSupportFragmentManager().findFragmentById(R.id.informacijePlace);
 
@@ -344,14 +341,17 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
     }
 
     private void postaviAlarm() {
-        int trajanjeAlarma = (int) Math.ceil( ukupanBrojPitanja / 2.);
+        int trajanjeAlarma = (int) Math.ceil(ukupanBrojPitanja / 2.); //zaokruzivanje na vece
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.MINUTE, trajanjeAlarma);
+
+        int sekunde = cal.get(Calendar.SECOND);
+        if (sekunde > 0) {
+            cal.add(Calendar.MINUTE, 1);
+        }
+
         int sati = cal.get(Calendar.HOUR_OF_DAY);
         int minute = cal.get(Calendar.MINUTE);
-        int sekunde = cal.get(Calendar.SECOND);
-        if(sekunde > 0) minute++;
-
         Intent i = new Intent(AlarmClock.ACTION_SET_ALARM);
         i.putExtra(AlarmClock.EXTRA_HOUR, sati);
         i.putExtra(AlarmClock.EXTRA_MINUTES, minute);
@@ -426,7 +426,7 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
     private void napuniArgumente(Bundle argumenti, ArrayList<Pair<String, Double>> lista) {
         ArrayList<String> imena = new ArrayList<>();
         ArrayList<Double> procenti = new ArrayList<>();
-        for(Pair<String, Double> par : lista){
+        for (Pair<String, Double> par : lista) {
             imena.add(par.first);
             procenti.add(par.second);
         }
