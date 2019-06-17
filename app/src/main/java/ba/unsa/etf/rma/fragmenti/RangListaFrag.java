@@ -2,7 +2,6 @@ package ba.unsa.etf.rma.fragmenti;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +16,6 @@ import ba.unsa.etf.rma.R;
 public class RangListaFrag extends Fragment {
     private ListView listaIgraca;
     private TextView tekst;
-    private ArrayList<Pair<String, Double>> igraci;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -33,20 +31,20 @@ public class RangListaFrag extends Fragment {
 
         listaIgraca.setFocusable(false);
 
-        if (getArguments().containsKey("lista")) {
+        if (getArguments().containsKey("imena")) {
 
-            igraci = new ArrayList<>();
 
             tekst.setText("Rang lista:");
 
-            ArrayList<Pair<String, Double>> lista = (ArrayList<Pair<String, Double>>) getArguments().getSerializable("lista");
-            igraci.addAll(lista);
+
+            ArrayList<String> imena = getArguments().getStringArrayList("imena");
+            ArrayList<Double> procenti = (ArrayList<Double>) getArguments().getSerializable("procenti");
 
             ArrayList<String> ispisi = new ArrayList<>();
             int pozicija = 1;
-            for(Pair<String,Double> par : igraci){
-                String proc = String.format("%.2f", par.second);
-                ispisi.add(pozicija + ". " + par.first + " - procenat " + proc + "%");
+            for(String ime : imena){
+                String proc = String.format("%.2f", procenti.get(pozicija - 1));
+                ispisi.add(pozicija + ". " + imena.get(pozicija - 1) + " - procenat " + proc + "%");
                 pozicija++;
             }
 

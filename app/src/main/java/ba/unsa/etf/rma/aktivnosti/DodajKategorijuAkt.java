@@ -12,6 +12,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -25,19 +26,24 @@ import java.util.ArrayList;
 import ba.unsa.etf.rma.R;
 import ba.unsa.etf.rma.SQLiteBaza;
 import ba.unsa.etf.rma.intentServisi.DajSvaPitanja;
+import ba.unsa.etf.rma.intentServisi.DajSveIzRangListe;
 import ba.unsa.etf.rma.intentServisi.DajSveKategorije;
 import ba.unsa.etf.rma.intentServisi.DajSveKvizove;
 import ba.unsa.etf.rma.intentServisi.DodajKategoriju;
+import ba.unsa.etf.rma.intentServisi.DodajURangListuVise;
 import ba.unsa.etf.rma.klase.Kategorija;
 import ba.unsa.etf.rma.klase.Kviz;
 import ba.unsa.etf.rma.klase.Pitanje;
 import ba.unsa.etf.rma.receiveri.DajSvaPitanjaRec;
+import ba.unsa.etf.rma.receiveri.DajSveIzRangListeRec;
 import ba.unsa.etf.rma.receiveri.DajSveKategorijeRec;
 import ba.unsa.etf.rma.receiveri.DajSveKvizoveRec;
 import ba.unsa.etf.rma.receiveri.DodajKategorijuRec;
+import ba.unsa.etf.rma.receiveri.DodajURangListuViseRec;
 
 public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.Callback, DodajKategorijuRec.Receiver,
-        DajSveKategorijeRec.Receiver, DajSveKvizoveRec.Receiver, DajSvaPitanjaRec.Receiver{
+        DajSveKategorijeRec.Receiver, DajSveKvizoveRec.Receiver, DajSvaPitanjaRec.Receiver,
+        DajSveIzRangListeRec.Receiver, DodajURangListuViseRec.Receiver {
     private EditText nazivKategorije;
     private EditText ikona;
     private Button dodajIkonu;
@@ -52,12 +58,17 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
     private DajSveKategorijeRec kReceiver;
     private DajSveKvizoveRec nReceiver;
     private DajSvaPitanjaRec pReceiver;
+    private DajSveIzRangListeRec rReceiver;
+    private DodajURangListuViseRec cReceiver;
 
     private boolean imaInterneta = true;
+    private boolean dodaloSeUFirebase = false;
 
     private ArrayList<Kategorija> kategorije = new ArrayList<>();
     private ArrayList<Pitanje> svaPitanja = new ArrayList<>();
     private ArrayList<Kviz> kvizovi = new ArrayList<>();
+    private ArrayList<Pair<Kviz, Pair<String, Double>>> rangLista = new ArrayList<>();
+    private ArrayList<Pair<Kviz, Pair<String, Double>>> listaSQLite = new ArrayList<>();
 
     private BroadcastReceiver networkStateReceiver = new BroadcastReceiver() {
         @Override
@@ -96,13 +107,20 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
     }
 
     private void pocniAzuriranjeBaze(){
-        Toast.makeText(getApplicationContext(),"Azuriranje baze", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(),"Azuriranje baze...", Toast.LENGTH_SHORT).show();
         popuniKategorijeIzBaze();
     }
 
     private void popuniKategorijeIzBaze() {
         Intent intent = new Intent(Intent.ACTION_SYNC, null, this, DajSveKategorije.class);
         intent.putExtra("receiver", kReceiver);
+        startService(intent);
+    }
+
+    private void ucitajRangListu(){
+        Intent intent = new Intent(Intent.ACTION_SYNC, null, this, DajSveIzRangListe.class);
+        intent.putExtra("receiver", rReceiver);
+        intent.putExtra("kvizovi", kvizovi);
         startService(intent);
     }
 
@@ -154,7 +172,42 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
                 svaPitanja.clear();
                 ArrayList<Pitanje> p = (ArrayList<Pitanje>) resultData.get("pitanja");
                 svaPitanja.addAll(p);
-                osvjeziSQLiteBazu();
+                ucitajRangListu();
+
+        }
+    }
+
+
+    @Override
+    public void onReceiveResultRangListaSvega(int resultCode, Bundle resultData) {
+        switch (resultCode) {
+            case 1:
+                ArrayList<Pair<Kviz, Pair<String, Double>>> r = (ArrayList<Pair<Kviz, Pair<String, Double>>>) resultData.get("rangLista");
+                if(dodaloSeUFirebase){
+                    SQLiteBaza baza = new SQLiteBaza(this);
+                    rangLista.clear();
+                    rangLista.addAll(r);
+                    baza.ubaciRangListu(rangLista);
+                    dodaloSeUFirebase = false;
+                    Toast.makeText(getApplicationContext(), "Azuriranje baze zavrseno", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    listaSQLite.clear();
+                    listaSQLite.addAll(rangLista);
+                    //novo stanje iz online baze
+                    rangLista.clear();
+                    rangLista.addAll(r);
+                    osvjeziSQLiteBazu();
+                }
+        }
+    }
+
+    @Override
+    public void onReceiveResultRangListaVise(int resultCode, Bundle resultData) {
+        switch (resultCode){
+            case 1:
+                dodaloSeUFirebase = true;
+                ucitajRangListu();
         }
     }
 
@@ -163,8 +216,57 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
         baza.ubaciKategorije(kategorije);
         baza.ubaciPitanjaIOdgovore(svaPitanja);
         baza.ubaciKvizove(kvizovi);
+        ubaciUFirebase();
 
-        Toast.makeText(getApplicationContext(),"Azuriranje baze zavrseno", Toast.LENGTH_SHORT).show();
+
+    }
+
+    private void ubaciUFirebase() {
+        ArrayList<Kviz> kk = new ArrayList<>();
+        ArrayList<String> imena = new ArrayList<>();
+        ArrayList<Double> procenti = new ArrayList<>();
+        //idem kroz SQLite i gledam ima li u firebaseu
+        for (Pair<Kviz, Pair<String, Double>> igra : listaSQLite) {
+            boolean ima = false;
+            for (Pair<Kviz, Pair<String, Double>> igraUFirebase : rangLista) {
+                if (igra.first.getNaziv().equals(igraUFirebase.first.getNaziv()) &&
+                        igra.second.first.equals(igraUFirebase.second.first) &&
+                        igra.second.second.equals(igraUFirebase.second.second)){
+                    ima = true;
+                    break;
+                }
+            }
+            if (!ima) {
+                kk.add(igra.first);
+                imena.add(igra.second.first);
+                procenti.add(igra.second.second);
+            }
+        }
+        if(kk.size() != 0){
+            Intent intent = new Intent(Intent.ACTION_SYNC, null, this, DodajURangListuVise.class);
+            intent.putExtra("kvizovi", kk);
+            intent.putExtra("procenti", procenti);
+            intent.putExtra("imena", imena);
+            intent.putExtra("receiver", cReceiver);
+            startService(intent);
+        }
+        else{
+            SQLiteBaza baza = new SQLiteBaza(this);
+            baza.ubaciRangListu(rangLista);
+            Toast.makeText(getApplicationContext(), "Azuriranje baze zavrseno", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    private void popuniRangListuIzSQLite() {
+        SQLiteBaza baza = new SQLiteBaza(this);
+        rangLista.clear();
+        for (Kviz k : kvizovi) {
+            ArrayList<Pair<String, Double>> igraci = baza.dajRangListu(k);
+            for (Pair<String, Double> pp : igraci) {
+                rangLista.add(new Pair<Kviz, Pair<String, Double>>(k, pp));
+            }
+        }
     }
 
     @Override
@@ -180,6 +282,10 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
         nReceiver.setReceiver(this);
         pReceiver = new DajSvaPitanjaRec(new Handler());
         pReceiver.setReceiver(this);
+        rReceiver = new DajSveIzRangListeRec(new Handler());
+        rReceiver.setReceiver(this);
+        cReceiver = new DodajURangListuViseRec(new Handler());
+        cReceiver.setReceiver(this);
 
         novaKategorija = new Kategorija();
 
@@ -191,6 +297,11 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
         dodajKategoriju = (Button) findViewById(R.id.btnDodajKategoriju);
 
         nazivKategorije.setText("");
+
+        kvizovi.clear();
+        SQLiteBaza baza = new SQLiteBaza(this);
+        kvizovi.addAll(baza.dajSveKvizove());
+        popuniRangListuIzSQLite();
 
         final IconDialog iconDialog = new IconDialog();
         dodajIkonu.setOnClickListener(new View.OnClickListener() {

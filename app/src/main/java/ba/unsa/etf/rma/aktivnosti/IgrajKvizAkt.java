@@ -27,19 +27,24 @@ import ba.unsa.etf.rma.fragmenti.InformacijeFrag;
 import ba.unsa.etf.rma.fragmenti.PitanjeFrag;
 import ba.unsa.etf.rma.fragmenti.RangListaFrag;
 import ba.unsa.etf.rma.intentServisi.DajSvaPitanja;
+import ba.unsa.etf.rma.intentServisi.DajSveIzRangListe;
 import ba.unsa.etf.rma.intentServisi.DajSveKategorije;
 import ba.unsa.etf.rma.intentServisi.DajSveKvizove;
 import ba.unsa.etf.rma.intentServisi.DodajURangListu;
+import ba.unsa.etf.rma.intentServisi.DodajURangListuVise;
 import ba.unsa.etf.rma.klase.Kategorija;
 import ba.unsa.etf.rma.klase.Kviz;
 import ba.unsa.etf.rma.klase.Pitanje;
 import ba.unsa.etf.rma.receiveri.DajSvaPitanjaRec;
+import ba.unsa.etf.rma.receiveri.DajSveIzRangListeRec;
 import ba.unsa.etf.rma.receiveri.DajSveKategorijeRec;
 import ba.unsa.etf.rma.receiveri.DajSveKvizoveRec;
 import ba.unsa.etf.rma.receiveri.DodajURangListuRec;
+import ba.unsa.etf.rma.receiveri.DodajURangListuViseRec;
 
 public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnItemClick, DodajURangListuRec.Receiver,
-        DajSveKategorijeRec.Receiver, DajSveKvizoveRec.Receiver, DajSvaPitanjaRec.Receiver{
+        DajSveKategorijeRec.Receiver, DajSveKvizoveRec.Receiver, DajSvaPitanjaRec.Receiver, DajSveIzRangListeRec.Receiver
+        , DodajURangListuViseRec.Receiver{
     private Kviz kviz;
     private ArrayList<Pitanje> pitanja;
     private ArrayList<String> odgovori;
@@ -53,11 +58,17 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
     private ArrayList<Pitanje> svaPitanja = new ArrayList<>();
     private ArrayList<Kategorija> kategorije = new ArrayList<>();
     private ArrayList<Kviz> kvizovi = new ArrayList<>();
+    private ArrayList<Pair<Kviz, Pair<String, Double>>> rangLista = new ArrayList<>();
+    private ArrayList<Pair<Kviz, Pair<String, Double>>> listaSQLite = new ArrayList<>();
+    private ArrayList<Pair<String, Double>> rangListaKviza = new ArrayList<>();
 
     private DajSveKategorijeRec kReceiver;
     private DajSveKvizoveRec nReceiver;
     private DajSvaPitanjaRec pReceiver;
     private DodajURangListuRec mReceiver;
+    private DajSveIzRangListeRec rReceiver;
+    private DodajURangListuViseRec cReceiver;
+    private boolean dodaloSeUFirebase = false;
 
     private BroadcastReceiver networkStateReceiver = new BroadcastReceiver() {
         @Override
@@ -67,20 +78,20 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
     };
 
 
+
     public void updateNetworkState() {
-        ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         boolean staroStanje = imaInterneta;
         imaInterneta = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
-        if(staroStanje != imaInterneta) promjena();
+        if (staroStanje != imaInterneta) promjena();
     }
 
     private void promjena() {
-        if(imaInterneta){
+        if (imaInterneta) {
             //upalio se internet
             pocniAzuriranjeBaze();
-        }
-        else{
+        } else {
             //ugasio se internet
         }
     }
@@ -96,8 +107,8 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
         unregisterReceiver(networkStateReceiver);
     }
 
-    private void pocniAzuriranjeBaze(){
-        Toast.makeText(getApplicationContext(),"Azuriranje baze", Toast.LENGTH_SHORT).show();
+    private void pocniAzuriranjeBaze() {
+        Toast.makeText(getApplicationContext(), "Azuriranje baze...", Toast.LENGTH_SHORT).show();
         popuniKategorijeIzBaze();
     }
 
@@ -136,7 +147,6 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
                 kvizovi.addAll(k);
 
                 popuniSvaPitanjaIzBaze();
-
                 break;
 
         }
@@ -155,7 +165,49 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
                 svaPitanja.clear();
                 ArrayList<Pitanje> p = (ArrayList<Pitanje>) resultData.get("pitanja");
                 svaPitanja.addAll(p);
-                osvjeziSQLiteBazu();
+                ucitajRangListu();
+
+        }
+    }
+
+    private void ucitajRangListu() {
+        Intent intent = new Intent(Intent.ACTION_SYNC, null, this, DajSveIzRangListe.class);
+        intent.putExtra("receiver", rReceiver);
+        intent.putExtra("kvizovi", kvizovi);
+        startService(intent);
+    }
+
+
+    @Override
+    public void onReceiveResultRangListaSvega(int resultCode, Bundle resultData) {
+        switch (resultCode) {
+            case 1:
+                ArrayList<Pair<Kviz, Pair<String, Double>>> r = (ArrayList<Pair<Kviz, Pair<String, Double>>>) resultData.get("rangLista");
+                if(dodaloSeUFirebase){
+                    SQLiteBaza baza = new SQLiteBaza(this);
+                    rangLista.clear();
+                    rangLista.addAll(r);
+                    baza.ubaciRangListu(rangLista);
+                    dodaloSeUFirebase = false;
+                    Toast.makeText(getApplicationContext(), "Azuriranje baze zavrseno", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    listaSQLite.clear();
+                    listaSQLite.addAll(rangLista);
+                    //novo stanje iz online baze
+                    rangLista.clear();
+                    rangLista.addAll(r);
+                    osvjeziSQLiteBazu();
+                }
+        }
+    }
+
+    @Override
+    public void onReceiveResultRangListaVise(int resultCode, Bundle resultData) {
+        switch (resultCode){
+            case 1:
+                dodaloSeUFirebase = true;
+                ucitajRangListu();
         }
     }
 
@@ -164,11 +216,62 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
         baza.ubaciKategorije(kategorije);
         baza.ubaciPitanjaIOdgovore(svaPitanja);
         baza.ubaciKvizove(kvizovi);
+        ubaciUFirebase();
 
-        Toast.makeText(getApplicationContext(),"Azuriranje baze zavrseno", Toast.LENGTH_SHORT).show();
+
     }
 
-    @Override
+    private void ubaciUFirebase() {
+        ArrayList<Kviz> kk = new ArrayList<>();
+        ArrayList<String> imena = new ArrayList<>();
+        ArrayList<Double> procenti = new ArrayList<>();
+        //idem kroz SQLite i gledam ima li u firebaseu
+        for (Pair<Kviz, Pair<String, Double>> igra : listaSQLite) {
+            boolean ima = false;
+            for (Pair<Kviz, Pair<String, Double>> igraUFirebase : rangLista) {
+                if (igra.first.getNaziv().equals(igraUFirebase.first.getNaziv()) &&
+                        igra.second.first.equals(igraUFirebase.second.first) &&
+                        igra.second.second.equals(igraUFirebase.second.second)){
+                    ima = true;
+                    break;
+                }
+            }
+            if (!ima) {
+                kk.add(igra.first);
+                imena.add(igra.second.first);
+                procenti.add(igra.second.second);
+            }
+        }
+        if(kk.size() != 0){
+
+            Intent intent = new Intent(Intent.ACTION_SYNC, null, this, DodajURangListuVise.class);
+            intent.putExtra("kvizovi", kk);
+            intent.putExtra("procenti", procenti);
+            intent.putExtra("imena", imena);
+            intent.putExtra("receiver", cReceiver);
+            startService(intent);
+        }
+        else{
+            SQLiteBaza baza = new SQLiteBaza(this);
+            baza.ubaciRangListu(rangLista);
+            Toast.makeText(getApplicationContext(), "Azuriranje baze zavrseno", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    private void popuniRangListuIzSQLite() {
+        SQLiteBaza baza = new SQLiteBaza(this);
+        rangLista.clear();
+        for (Kviz k : kvizovi) {
+            ArrayList<Pair<String, Double>> igraci = baza.dajRangListu(k);
+            for (Pair<String, Double> pp : igraci) {
+                rangLista.add(new Pair<Kviz, Pair<String, Double>>(k, pp));
+            }
+        }
+    }
+
+
+        @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_igraj_kviz);
@@ -181,6 +284,10 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
         nReceiver.setReceiver(this);
         pReceiver = new DajSvaPitanjaRec(new Handler());
         pReceiver.setReceiver(this);
+        rReceiver = new DajSveIzRangListeRec(new Handler());
+        rReceiver.setReceiver(this);
+        cReceiver = new DodajURangListuViseRec(new Handler());
+        cReceiver.setReceiver(this);
 
         kviz = (Kviz) getIntent().getSerializableExtra("kviz");
         brojPreostalih = kviz.getPitanja().size() - 1;
@@ -189,7 +296,17 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
         pitanja.addAll(kviz.getPitanja());
         Collections.shuffle(pitanja);
 
-        postaviAlarm();
+        kvizovi.clear();
+        SQLiteBaza baza = new SQLiteBaza(this);
+        kvizovi.addAll(baza.dajSveKvizove());
+        popuniRangListuIzSQLite();
+
+        rangListaKviza.clear();
+        ArrayList<Pair<String, Double>> igraci = baza.dajRangListu(kviz);
+        rangListaKviza.addAll(igraci);
+
+
+        if(ukupanBrojPitanja != 0) postaviAlarm();
 
         InformacijeFrag fi = (InformacijeFrag) getSupportFragmentManager().findFragmentById(R.id.informacijePlace);
 
@@ -227,11 +344,13 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
     }
 
     private void postaviAlarm() {
-        int trajanjeAlarma = ukupanBrojPitanja / 2;
+        int trajanjeAlarma = (int) Math.ceil( ukupanBrojPitanja / 2.);
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.MINUTE, trajanjeAlarma);
         int sati = cal.get(Calendar.HOUR_OF_DAY);
         int minute = cal.get(Calendar.MINUTE);
+        int sekunde = cal.get(Calendar.SECOND);
+        if(sekunde > 0) minute++;
 
         Intent i = new Intent(AlarmClock.ACTION_SET_ALARM);
         i.putExtra(AlarmClock.EXTRA_HOUR, sati);
@@ -240,7 +359,6 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
 
         startActivity(i);
     }
-
 
 
     private void unesiIme() {
@@ -280,14 +398,42 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
     }
 
     private void dodajRezultatUBazu(String ime, double procenat) {
-        Intent intent = new Intent(Intent.ACTION_SYNC, null, this, DodajURangListu.class);
-        intent.putExtra("receiver", mReceiver);
-        intent.putExtra("imeIgraca", ime);
-        intent.putExtra("procenat", procenat);
-        intent.putExtra("idKviza", kviz.getId());
-        intent.putExtra("nazivKviza", kviz.getNaziv());
-        startService(intent);
+
+        //dodavanje u sqlite
+        SQLiteBaza baza = new SQLiteBaza(this);
+        baza.ubaciIgruURangListu(ime, procenat, kviz);
+        rangListaKviza = baza.dajRangListu(kviz);
+        if (imaInterneta) {
+            //dodavanje u firebase
+            Intent intent = new Intent(Intent.ACTION_SYNC, null, this, DodajURangListu.class);
+            intent.putExtra("receiver", mReceiver);
+            intent.putExtra("imeIgraca", ime);
+            intent.putExtra("procenat", procenat);
+            intent.putExtra("idKviza", kviz.getId());
+            intent.putExtra("nazivKviza", kviz.getNaziv());
+            startService(intent);
+        } else {
+            Bundle argumenti = new Bundle();
+            popuniRangListuIzSQLite();
+            napuniArgumente(argumenti, rangListaKviza);
+            RangListaFrag rlf = new RangListaFrag();
+            rlf.setArguments(argumenti);
+            getSupportFragmentManager().beginTransaction().replace(R.id.pitanjePlace, rlf).commit();
+        }
+
     }
+
+    private void napuniArgumente(Bundle argumenti, ArrayList<Pair<String, Double>> lista) {
+        ArrayList<String> imena = new ArrayList<>();
+        ArrayList<Double> procenti = new ArrayList<>();
+        for(Pair<String, Double> par : lista){
+            imena.add(par.first);
+            procenti.add(par.second);
+        }
+        argumenti.putStringArrayList("imena", imena);
+        argumenti.putSerializable("procenti", procenti);
+    }
+
 
     @Override
     public void onItemClicked(int pos) {
@@ -342,7 +488,7 @@ public class IgrajKvizAkt extends AppCompatActivity implements PitanjeFrag.OnIte
             case 1:
                 ArrayList<Pair<String, Double>> lista = (ArrayList<Pair<String, Double>>) resultData.getSerializable("lista");
                 Bundle argumenti = new Bundle();
-                argumenti.putSerializable("lista", lista);
+                napuniArgumente(argumenti, lista);
                 RangListaFrag rlf = new RangListaFrag();
                 rlf.setArguments(argumenti);
                 getSupportFragmentManager().beginTransaction().replace(R.id.pitanjePlace, rlf).commit();

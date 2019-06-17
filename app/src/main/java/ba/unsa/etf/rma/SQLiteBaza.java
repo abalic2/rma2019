@@ -270,22 +270,22 @@ public class SQLiteBaza {
             ArrayList<Pitanje> pitanja = new ArrayList<>();
             while (cursor2.moveToNext()) {
                 int idPitanja = cursor2.getInt(INDEX_ID_PITANJA);
+                //ok je idPitanja
 
                 //imam id pitanja i sad uzimam to pitanje i njegove odgovore
-                String[] koloneRezultatP = new String[]{
+                String[] koloneRezultatPitanja = new String[]{
                         KvizoviDBOpenHelper.PITANJE_NAZIV, KvizoviDBOpenHelper.PITANJE_TACAN_ODG};
-                String whereP = KvizoviDBOpenHelper.PITANJE_ID + "= ?";
-                String[] whereArgsP = new String[]{String.valueOf(idPitanja)};
+                String wherePitanja = KvizoviDBOpenHelper.PITANJE_ID + " = ?";
+                String[] whereArgsPitanja = new String[]{String.valueOf(idPitanja)};
 
                 Cursor cursor3 = db.query(KvizoviDBOpenHelper.DATABASE_TABLE_PITANJA,
-                        koloneRezultatP, whereP, whereArgsP, null, null, null);
+                        koloneRezultatPitanja, wherePitanja, whereArgsPitanja, null, null, null);
 
                 int INDEX_KOLONE_P_NAZIV = cursor3.getColumnIndexOrThrow(KvizoviDBOpenHelper.PITANJE_NAZIV);
                 int INDEX_KOLONE_TACAN = cursor3.getColumnIndexOrThrow(KvizoviDBOpenHelper.PITANJE_TACAN_ODG);
                 while (cursor3.moveToNext()) {
-                    String nazivP = cursor.getString(INDEX_KOLONE_P_NAZIV);
-                    String tacan = cursor.getString(INDEX_KOLONE_TACAN);
-
+                    String nazivP = cursor3.getString(INDEX_KOLONE_P_NAZIV);
+                    String tacan = cursor3.getString(INDEX_KOLONE_TACAN);
                     String[] koloneRezultatO = new String[]{KvizoviDBOpenHelper.ODGOVOR_TEKST};
                     String whereO = KvizoviDBOpenHelper.ODGOVOR_PITANJE_FK + "= ?";
                     String[] whereArgsO = new String[]{String.valueOf(idPitanja)};
@@ -300,7 +300,6 @@ public class SQLiteBaza {
                         odgovori.add(odgovor);
                     }
                     cursor4.close();
-
                     Pitanje novoPitanje = new Pitanje(nazivP,nazivP,odgovori,tacan);
                     pitanja.add(novoPitanje);
 
@@ -321,11 +320,33 @@ public class SQLiteBaza {
 
     }
 
-
-    private ArrayList<Pair<String, Double>> dajSveIzRangListeKviza(int idKviza){
-        ArrayList<Pair<String, Double>> listaRezultata = new ArrayList<>();
+    public ArrayList<Pair<String, Double>> dajRangListu(Kviz kviz){
+        ArrayList<Pair<String, Double>> rezultat = new ArrayList<>();
 
         SQLiteDatabase db = helper.getWritableDatabase();
+        String[] koloneRezultat = new String[]{KvizoviDBOpenHelper.KVIZ_ID};
+        String where = KvizoviDBOpenHelper.KVIZ_NAZIV + " = ?";
+        String[] whereArgs = new String[]{kviz.getNaziv()};
+
+        Cursor cursor = db.query(KvizoviDBOpenHelper.DATABASE_TABLE_KVIZOVI,
+                koloneRezultat, where, whereArgs, null, null, null);
+        int INDEX_KOLONE_ID = cursor.getColumnIndexOrThrow(KvizoviDBOpenHelper.KVIZ_ID);
+        while (cursor.moveToNext()) {
+            int idKviza = cursor.getInt(INDEX_KOLONE_ID);
+            rezultat = dajSveIzRangListeKviza(idKviza, db);
+        }
+        cursor.close();
+        db.close();
+
+        return rezultat;
+
+    }
+
+
+    private ArrayList<Pair<String, Double>> dajSveIzRangListeKviza(int idKviza, SQLiteDatabase db){
+
+        ArrayList<Pair<String, Double>> listaRezultata = new ArrayList<>();
+
         String[] koloneRezultat = new String[]{KvizoviDBOpenHelper.RANG_IME_IGRACA, KvizoviDBOpenHelper.RANG_PROCENAT};
         String where = KvizoviDBOpenHelper.RANG_KVIZ_FK + "= ?";
         String whereArgs[] = new String[]{String.valueOf(idKviza)};
@@ -340,7 +361,6 @@ public class SQLiteBaza {
             listaRezultata.add(new Pair<String, Double>(naziv,procenat));
         }
         cursor.close();
-        db.close();
 
         return listaRezultata;
     }
@@ -378,10 +398,12 @@ public class SQLiteBaza {
         }
         cursor.close();
 
-        ArrayList<Pair<String,Double>> listaKviza = dajSveIzRangListeKviza(idKviza);
+        ArrayList<Pair<String,Double>> listaKviza = dajSveIzRangListeKviza(idKviza, db);
         listaKviza.add(new Pair<String, Double>(imeIgraca,procenat));
 
         sortirajListu(listaKviza);
+
+
 
         //obrisi sve podatke iz rang liste za taj kviz
         where = KvizoviDBOpenHelper.RANG_KVIZ_FK + "= ?";
