@@ -367,7 +367,7 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
     private boolean jeLiSlobodnoVrijeme(int size) {
         int trajanjeAlarma = (int) Math.ceil(size / 2.);
         Calendar endTime = Calendar.getInstance();
-        endTime.add(Calendar.MINUTE, trajanjeAlarma);
+        endTime.add(Calendar.MINUTE, trajanjeAlarma); //gleda se samo pocetak eventa kao u postavci
 
         String[] projection = new String[]{CalendarContract.Events.CALENDAR_ID, CalendarContract.Events.TITLE, CalendarContract.Events.DESCRIPTION, CalendarContract.Events.DTSTART, CalendarContract.Events.DTEND, CalendarContract.Events.ALL_DAY, CalendarContract.Events.EVENT_LOCATION};
 
