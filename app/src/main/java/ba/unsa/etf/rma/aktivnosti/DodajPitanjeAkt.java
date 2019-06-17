@@ -354,6 +354,7 @@ public class DodajPitanjeAkt extends AppCompatActivity implements DodajPitanjeRe
         spasiPitanje.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                updateNetworkState();
                 if(imaInterneta) {
                     if (jeLiSveValidno()) {
                         novoPitanje.setNaziv(nazivPitanja.getText().toString());

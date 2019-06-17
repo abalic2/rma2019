@@ -306,6 +306,7 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
 
 
     private void prepraviKviz(int position, int kod) {
+        updateNetworkState();
         if (imaInterneta) {
             Intent myIntent = new Intent(KvizoviAkt.this, DodajKvizAkt.class);
             myIntent.putExtra("idKviza", odabraniKvizovi.get(position).getId());
@@ -395,6 +396,7 @@ public class KvizoviAkt extends AppCompatActivity implements ListaFrag.OnItemCli
     }
 
     private void dodajKviz(int kod) {
+        updateNetworkState();
         if (imaInterneta) {
             Intent myIntent = new Intent(KvizoviAkt.this, DodajKvizAkt.class);
             myIntent.putExtra("idKviza", (String) null);

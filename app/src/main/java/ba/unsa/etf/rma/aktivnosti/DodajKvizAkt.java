@@ -145,6 +145,7 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (kategorije.get(position).getNaziv().equalsIgnoreCase("Dodaj kategoriju")) {
+                    updateNetworkState();
                     if(imaInterneta) {
                         Intent myIntent = new Intent(DodajKvizAkt.this, DodajKategorijuAkt.class);
                         DodajKvizAkt.this.startActivityForResult(myIntent, 3);
@@ -200,6 +201,7 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
         dugme.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                updateNetworkState();
                 if(imaInterneta) {
                     if (jeLiSveValidno()) {
                         Kviz novi = new Kviz(imeKviza.getText().toString(), pitanja, (Kategorija) spinner.getSelectedItem(), idKviza);
@@ -221,6 +223,7 @@ public class DodajKvizAkt extends AppCompatActivity implements DajSveKategorijeR
         dugmeImportuj.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                updateNetworkState();
                 if(imaInterneta) {
                     Intent sendIntent = new Intent();
                     sendIntent.setAction(Intent.ACTION_OPEN_DOCUMENT);

@@ -314,6 +314,7 @@ public class DodajKategorijuAkt extends AppCompatActivity implements IconDialog.
         dodajKategoriju.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                updateNetworkState();
                 if(imaInterneta) {
                     if (jeLiSveValidno()) {
                         novaKategorija.setNaziv(nazivKategorije.getText().toString());
